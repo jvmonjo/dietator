@@ -7,7 +7,7 @@ const columns = [
   { key: 'endTime', label: 'End Time' },
   { key: 'displacements', label: 'Displacements' },
   { key: 'diets', label: 'Diets' },
-  { key: 'actions' }
+  { key: 'actions', label: '' }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as any[]
 
@@ -45,23 +45,23 @@ const exportData = async () => {
 
     <UCard>
       <UTable :rows="records" :columns="columns">
-        <template #startTime-data="{ row }">
+        <template #startTime-cell="{ row }">
           {{ formatDate((row as unknown as ServiceRecord).startTime) }}
         </template>
-        <template #endTime-data="{ row }">
+        <template #endTime-cell="{ row }">
           {{ formatDate((row as unknown as ServiceRecord).endTime) }}
         </template>
-        <template #displacements-data="{ row }">
+        <template #displacements-cell="{ row }">
           <ul class="list-disc list-inside text-sm">
             <li v-for="d in (row as unknown as ServiceRecord).displacements" :key="d.id">
               {{ d.municipality }}
             </li>
           </ul>
         </template>
-        <template #diets-data="{ row }">
+        <template #diets-cell="{ row }">
           {{ getDiets((row as unknown as ServiceRecord).displacements) }}
         </template>
-        <template #actions-data="{ row }">
+        <template #actions-cell="{ row }">
           <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="xs" @click="deleteRecord((row as unknown as ServiceRecord).id)" />
         </template>
       </UTable>
