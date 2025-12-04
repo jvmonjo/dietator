@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 
 export interface Displacement {
     id: string
+    province: string
     municipality: string
     hasLunch: boolean
     hasDinner: boolean

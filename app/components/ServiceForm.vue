@@ -16,6 +16,7 @@ const schema = z.object({
   startTime: z.string().min(1, 'Start time is required'),
   endTime: z.string().min(1, 'End time is required'),
   displacements: z.array(z.object({
+    province: z.string().min(1, 'Province is required'),
     municipality: z.string().min(1, 'Municipality is required'),
     hasLunch: z.boolean(),
     hasDinner: z.boolean()
@@ -30,14 +31,21 @@ type Schema = z.output<typeof schema>
 const state = reactive({
   startTime: '',
   endTime: '',
-  displacements: [{ id: uuidv4(), municipality: '', hasLunch: false, hasDinner: false }]
+  displacements: [{ id: uuidv4(), province: '', municipality: '', hasLunch: false, hasDinner: false }]
 })
 
-// Load municipalities
-const { data: municipalities } = await useFetch<string[]>('/municipalities.json')
+// Load locations
+const { data: locations } = await useFetch<{ provinces: { code: string, name: string }[], municipalities: Record<string, string[]> }>('/locations.json')
+
+const getMunicipalities = (provinceName: string) => {
+  if (!locations.value || !provinceName) return []
+  const province = locations.value.provinces.find(p => p.name === provinceName)
+  if (!province) return []
+  return locations.value.municipalities[province.code] || []
+}
 
 const addDisplacement = () => {
-  state.displacements.push({ id: uuidv4(), municipality: '', hasLunch: false, hasDinner: false })
+  state.displacements.push({ id: uuidv4(), province: '', municipality: '', hasLunch: false, hasDinner: false })
 }
 
 const removeDisplacement = (index: number) => {
@@ -51,7 +59,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     endTime: event.data.endTime,
     displacements: event.data.displacements.map(d => ({
       ...d,
-      id: uuidv4()
+      id: uuidv4(),
+      province: d.province
     }))
   }
   
@@ -62,7 +71,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   // Reset form
   state.startTime = ''
   state.endTime = ''
-  state.displacements = [{ id: uuidv4(), municipality: '', hasLunch: false, hasDinner: false }]
+  state.displacements = [{ id: uuidv4(), province: '', municipality: '', hasLunch: false, hasDinner: false }]
 }
 </script>
 
@@ -114,10 +123,24 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </div>
           
           <div class="grid grid-cols-1 gap-4 pr-8">
+            <UFormField label="Province" :name="`displacements.${index}.province`" required>
+              <USelectMenu
+                v-model="displacement.province"
+                :items="locations?.provinces.map(p => p.name) || []"
+                searchable
+                searchable-placeholder="Search province..."
+                placeholder="Select province"
+                icon="i-heroicons-map"
+                class="w-full"
+                @change="displacement.municipality = ''"
+              />
+            </UFormField>
+
             <UFormField label="Municipality" :name="`displacements.${index}.municipality`" required>
               <USelectMenu
                 v-model="displacement.municipality"
-                :items="municipalities || []"
+                :items="getMunicipalities(displacement.province)"
+                :disabled="!displacement.province"
                 searchable
                 searchable-placeholder="Search municipality..."
                 placeholder="Select municipality"
