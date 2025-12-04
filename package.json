@@ -12,6 +12,8 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@doncicuto/es-municipalities": "^1.0.0",
+    "@doncicuto/es-provinces": "^1.0.1",
     "@nuxt/ui": "^4.2.1",
     "@pinia/nuxt": "^0.11.3",
     "@vite-pwa/nuxt": "^1.1.0",

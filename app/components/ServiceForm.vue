@@ -20,6 +20,9 @@ const schema = z.object({
     hasLunch: z.boolean(),
     hasDinner: z.boolean()
   })).min(1, 'At least one displacement is required')
+}).refine((data) => new Date(data.endTime) > new Date(data.startTime), {
+  message: 'End time must be after start time',
+  path: ['endTime']
 })
 
 type Schema = z.output<typeof schema>
