@@ -24,10 +24,10 @@ export const generateWordReport = async (records: ServiceRecord[]) => {
                     rows: [
                         new TableRow({
                             children: [
-                                new TableCell({ children: [new Paragraph({ text: "Start Time", bold: true })] }),
-                                new TableCell({ children: [new Paragraph({ text: "End Time", bold: true })] }),
-                                new TableCell({ children: [new Paragraph({ text: "Municipalities", bold: true })] }),
-                                new TableCell({ children: [new Paragraph({ text: "Diets", bold: true })] }),
+                                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Start Time", bold: true })] })] }),
+                                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "End Time", bold: true })] })] }),
+                                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Municipalities", bold: true })] })] }),
+                                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Diets", bold: true })] })] }),
                             ],
                         }),
                         ...records.map(record => {

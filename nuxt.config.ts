@@ -15,6 +15,8 @@ export default defineNuxtConfig({
     '@nuxt/eslint'
   ],
 
+  css: ['~/app/assets/css/main.css'],
+
   pwa: {
     registerType: 'autoUpdate',
     manifest: {

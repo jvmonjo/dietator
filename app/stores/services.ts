@@ -32,7 +32,5 @@ export const useServiceStore = defineStore('services', {
             this.records = this.records.filter(r => r.id !== id)
         }
     },
-    persist: {
-        storage: persistedState.localStorage,
-    }
+    persist: true
 })

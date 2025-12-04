@@ -8,7 +8,8 @@ const columns = [
   { key: 'displacements', label: 'Displacements' },
   { key: 'diets', label: 'Diets' },
   { key: 'actions' }
-]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+] as any[]
 
 const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleString()
@@ -38,30 +39,30 @@ const exportData = async () => {
       <h1 class="text-2xl font-bold">Service Records</h1>
       <div class="flex gap-4">
         <UButton to="/" icon="i-heroicons-arrow-left" variant="ghost">Back to Form</UButton>
-        <UButton icon="i-heroicons-document-arrow-down" color="green" @click="exportData">Export Report</UButton>
+        <UButton icon="i-heroicons-document-arrow-down" color="success" @click="exportData">Export Report</UButton>
       </div>
     </div>
 
     <UCard>
       <UTable :rows="records" :columns="columns">
         <template #startTime-data="{ row }">
-          {{ formatDate(row.startTime) }}
+          {{ formatDate((row as unknown as ServiceRecord).startTime) }}
         </template>
         <template #endTime-data="{ row }">
-          {{ formatDate(row.endTime) }}
+          {{ formatDate((row as unknown as ServiceRecord).endTime) }}
         </template>
         <template #displacements-data="{ row }">
           <ul class="list-disc list-inside text-sm">
-            <li v-for="d in row.displacements" :key="d.id">
+            <li v-for="d in (row as unknown as ServiceRecord).displacements" :key="d.id">
               {{ d.municipality }}
             </li>
           </ul>
         </template>
         <template #diets-data="{ row }">
-          {{ getDiets(row.displacements) }}
+          {{ getDiets((row as unknown as ServiceRecord).displacements) }}
         </template>
         <template #actions-data="{ row }">
-          <UButton icon="i-heroicons-trash" color="red" variant="ghost" size="xs" @click="deleteRecord(row.id)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="xs" @click="deleteRecord((row as unknown as ServiceRecord).id)" />
         </template>
       </UTable>
 

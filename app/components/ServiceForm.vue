@@ -27,14 +27,14 @@ type Schema = z.output<typeof schema>
 const state = reactive({
   startTime: '',
   endTime: '',
-  displacements: [{ municipality: '', hasLunch: false, hasDinner: false }]
+  displacements: [{ id: uuidv4(), municipality: '', hasLunch: false, hasDinner: false }]
 })
 
 // Load municipalities
-const { data: municipalities } = await useFetch('/municipalities.json')
+const { data: municipalities } = await useFetch<string[]>('/municipalities.json')
 
 const addDisplacement = () => {
-  state.displacements.push({ municipality: '', hasLunch: false, hasDinner: false })
+  state.displacements.push({ id: uuidv4(), municipality: '', hasLunch: false, hasDinner: false })
 }
 
 const removeDisplacement = (index: number) => {
@@ -46,17 +46,20 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     id: uuidv4(),
     startTime: event.data.startTime,
     endTime: event.data.endTime,
-    displacements: event.data.displacements
+    displacements: event.data.displacements.map(d => ({
+      ...d,
+      id: uuidv4()
+    }))
   }
   
   serviceStore.addRecord(newRecord)
   
-  toast.add({ title: 'Service registered successfully', color: 'green' })
+  toast.add({ title: 'Service registered successfully', color: 'success' })
   
   // Reset form
   state.startTime = ''
   state.endTime = ''
-  state.displacements = [{ municipality: '', hasLunch: false, hasDinner: false }]
+  state.displacements = [{ id: uuidv4(), municipality: '', hasLunch: false, hasDinner: false }]
 }
 </script>
 
@@ -77,16 +80,16 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     <UForm :schema="schema" :state="state" class="space-y-8" @submit="onSubmit">
       <!-- Time Selection -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormGroup label="Start Time" name="startTime" required>
-          <UInput v-model="state.startTime" type="datetime-local" icon="i-heroicons-clock" />
-        </UFormGroup>
+        <UFormField label="Start Time" name="startTime" required>
+          <UInput v-model="state.startTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
+        </UFormField>
 
-        <UFormGroup label="End Time" name="endTime" required>
-          <UInput v-model="state.endTime" type="datetime-local" icon="i-heroicons-clock" />
-        </UFormGroup>
+        <UFormField label="End Time" name="endTime" required>
+          <UInput v-model="state.endTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
+        </UFormField>
       </div>
 
-      <UDivider label="Displacements" />
+      <USeparator label="Displacements" />
 
       <!-- Displacements List -->
       <div class="space-y-4">
@@ -100,7 +103,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             <UButton 
               v-if="state.displacements.length > 1"
               icon="i-heroicons-trash" 
-              color="red" 
+              color="error" 
               variant="ghost" 
               size="xs"
               @click="removeDisplacement(index)"
@@ -108,20 +111,17 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </div>
           
           <div class="grid grid-cols-1 gap-4 pr-8">
-            <UFormGroup label="Municipality" :name="`displacements.${index}.municipality`" required>
+            <UFormField label="Municipality" :name="`displacements.${index}.municipality`" required>
               <USelectMenu
                 v-model="displacement.municipality"
-                :options="municipalities || []"
+                :items="municipalities || []"
                 searchable
                 searchable-placeholder="Search municipality..."
                 placeholder="Select municipality"
                 icon="i-heroicons-map-pin"
-              >
-                <template #option="{ option }">
-                  <span class="truncate">{{ option }}</span>
-                </template>
-              </USelectMenu>
-            </UFormGroup>
+                class="w-full"
+              />
+            </UFormField>
 
             <div class="flex flex-wrap gap-4">
               <UCheckbox 
