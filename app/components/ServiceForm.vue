@@ -35,14 +35,7 @@ const state = reactive({
 })
 
 // Load locations
-const { data: locations } = await useFetch<{ provinces: { code: string, name: string }[], municipalities: Record<string, string[]> }>('/locations.json')
-
-const getMunicipalities = (provinceName: string) => {
-  if (!locations.value || !provinceName) return []
-  const province = locations.value.provinces.find(p => p.name === provinceName)
-  if (!province) return []
-  return locations.value.municipalities[province.code] || []
-}
+const { provinces, getMunicipalities } = useLocations()
 
 const addDisplacement = () => {
   state.displacements.push({ id: uuidv4(), province: '', municipality: '', hasLunch: false, hasDinner: false })
@@ -124,28 +117,20 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           
           <div class="grid grid-cols-1 gap-4 pr-8">
             <UFormField label="Province" :name="`displacements.${index}.province`" required>
-              <USelectMenu
+              <ProvinceSelect
                 v-model="displacement.province"
-                :items="locations?.provinces.map(p => p.name) || []"
-                searchable
-                searchable-placeholder="Search province..."
+                :items="provinces"
                 placeholder="Select province"
-                icon="i-heroicons-map"
-                class="w-full"
-                @change="displacement.municipality = ''"
+                @update:model-value="displacement.municipality = ''"
               />
             </UFormField>
 
             <UFormField label="Municipality" :name="`displacements.${index}.municipality`" required>
-              <USelectMenu
+              <MunicipalitySelect
                 v-model="displacement.municipality"
                 :items="getMunicipalities(displacement.province)"
                 :disabled="!displacement.province"
-                searchable
-                searchable-placeholder="Search municipality..."
                 placeholder="Select municipality"
-                icon="i-heroicons-map-pin"
-                class="w-full"
               />
             </UFormField>
 
