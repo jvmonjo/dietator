@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { piniaPluginPersistedstate } from '#imports'
 
 export interface Displacement {
     id: string
@@ -14,6 +15,8 @@ export interface ServiceRecord {
     endTime: string // ISO string
     displacements: Displacement[]
 }
+
+const servicesStorage = piniaPluginPersistedstate.localStorage()
 
 export const useServiceStore = defineStore('services', {
     state: () => ({
@@ -34,6 +37,6 @@ export const useServiceStore = defineStore('services', {
         }
     },
     persist: {
-        storage: localStorage
+        storage: servicesStorage
     }
 })

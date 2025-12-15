@@ -6,16 +6,20 @@ const settingsStore = useSettingsStore()
 const { records } = storeToRefs(serviceStore)
 
 const columns = [
-  { key: 'startTime', label: 'Start Time', id: 'startTime' },
-  { key: 'endTime', label: 'End Time', id: 'endTime' },
-  { key: 'displacements', label: 'Displacements', id: 'displacements' },
-  { key: 'diets', label: 'Diets', id: 'diets' },
-  { key: 'actions', label: '', id: 'actions' }
+  { accessorKey: 'startTime', header: 'Start Time', id: 'startTime' },
+  { accessorKey: 'endTime', header: 'End Time', id: 'endTime' },
+  { accessorKey: 'displacements', header: 'Displacements', id: 'displacements' },
+  { accessorKey: 'diets', header: 'Diets', id: 'diets' },
+  { accessorKey: 'actions', header: '', id: 'actions' }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as any[]
 
 const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleString()
+  if (!dateStr) {
+    return '—'
+  }
+  const date = new Date(dateStr)
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString()
 }
 
 const getDiets = (displacements: Displacement[]) => {
@@ -27,26 +31,34 @@ const getDiets = (displacements: Displacement[]) => {
 const totals = computed(() => {
   let lunches = 0
   let dinners = 0
-  let dietUnits = 0
+  let halfDietCount = 0
+  let fullDietCount = 0
 
-  records.value.forEach(record => {
-    record.displacements.forEach(displacement => {
-      if (displacement.hasLunch) lunches++
-      if (displacement.hasDinner) dinners++
+  records.value.forEach((record) => {
+    record.displacements.forEach((displacement) => {
+      const { hasLunch, hasDinner } = displacement
 
-      if (displacement.hasLunch && displacement.hasDinner) {
-        dietUnits += 1
-      } else if (displacement.hasLunch || displacement.hasDinner) {
-        dietUnits += 0.5
+      if (hasLunch) lunches++
+      if (hasDinner) dinners++
+
+      if (hasLunch && hasDinner) {
+        fullDietCount += 1
+      } else if (hasLunch || hasDinner) {
+        halfDietCount += 1
       }
     })
   })
 
+  const dietUnits = fullDietCount + halfDietCount * 0.5
+  const allowance = (fullDietCount * settingsStore.fullDietPrice) + (halfDietCount * settingsStore.halfDietPrice)
+
   return {
     lunches,
     dinners,
+    halfDietCount,
+    fullDietCount,
     dietUnits,
-    allowance: dietUnits * settingsStore.dietPrice
+    allowance
   }
 })
 
@@ -54,7 +66,7 @@ const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value)
 }
 
-const dietPriceSet = computed(() => settingsStore.dietPrice > 0)
+const dietPriceSet = computed(() => settingsStore.fullDietPrice > 0 || settingsStore.halfDietPrice > 0)
 
 const deleteRecord = (id: string) => {
   if (confirm('Are you sure you want to delete this record?')) {
@@ -80,18 +92,31 @@ const exportData = async () => {
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <UCard>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Preu dieta</p>
-        <div class="text-2xl font-semibold text-gray-900 dark:text-white">
-          {{ dietPriceSet ? formatCurrency(settingsStore.dietPrice) : 'Sense preu' }}
+        <p class="text-sm text-gray-500 dark:text-gray-400">Preus dietes</p>
+        <div class="space-y-3 mt-1">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Dieta completa</p>
+            <p class="text-xl font-semibold text-gray-900 dark:text-white">
+              {{ settingsStore.fullDietPrice > 0 ? formatCurrency(settingsStore.fullDietPrice) : 'Sense preu' }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Mitja dieta</p>
+            <p class="text-xl font-semibold text-gray-900 dark:text-white">
+              {{ settingsStore.halfDietPrice > 0 ? formatCurrency(settingsStore.halfDietPrice) : 'Sense preu' }}
+            </p>
+          </div>
         </div>
-        <UButton to="/settings" variant="ghost" size="xs" class="mt-2" icon="i-heroicons-cog-6-tooth">Configurar</UButton>
+        <UButton to="/settings" variant="ghost" size="xs" class="mt-4" icon="i-heroicons-cog-6-tooth">Configurar</UButton>
       </UCard>
       <UCard>
         <p class="text-sm text-gray-500 dark:text-gray-400">Dietes calculades</p>
         <div class="text-2xl font-semibold text-gray-900 dark:text-white">
           {{ totals.dietUnits.toFixed(2) }}
         </div>
-        <p class="text-xs text-gray-500 dark:text-gray-400">Dinar o sopar 0.5, dinar i sopar 1</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          {{ totals.fullDietCount }} completes · {{ totals.halfDietCount }} mitges
+        </p>
       </UCard>
       <UCard>
         <p class="text-sm text-gray-500 dark:text-gray-400">Import total</p>
@@ -125,25 +150,25 @@ const exportData = async () => {
         </div>
       </template>
 
-      <UTable :rows="records" :columns="columns">
+      <UTable :data="records" :columns="columns">
         <template #startTime-cell="{ row }">
-          {{ formatDate((row as unknown as ServiceRecord).startTime) }}
+          {{ formatDate((row.original as ServiceRecord).startTime) }}
         </template>
         <template #endTime-cell="{ row }">
-          {{ formatDate((row as unknown as ServiceRecord).endTime) }}
+          {{ formatDate((row.original as ServiceRecord).endTime) }}
         </template>
         <template #displacements-cell="{ row }">
           <ul class="list-disc list-inside text-sm">
-            <li v-for="d in (row as unknown as ServiceRecord).displacements" :key="d.id">
+            <li v-for="d in (row.original as ServiceRecord).displacements" :key="d.id">
               {{ d.municipality }}
             </li>
           </ul>
         </template>
         <template #diets-cell="{ row }">
-          {{ getDiets((row as unknown as ServiceRecord).displacements) }}
+          {{ getDiets((row.original as ServiceRecord).displacements) }}
         </template>
         <template #actions-cell="{ row }">
-          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="xs" @click="deleteRecord((row as unknown as ServiceRecord).id)" />
+          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="xs" @click="deleteRecord((row.original as ServiceRecord).id)" />
         </template>
       </UTable>
 

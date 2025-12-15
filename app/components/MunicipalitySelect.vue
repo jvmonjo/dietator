@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
   modelValue: string
-  items: string[]
+  items?: string[]
   disabled?: boolean
   placeholder?: string
 }>(), {

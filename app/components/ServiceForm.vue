@@ -3,11 +3,17 @@ import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import { v4 as uuidv4 } from 'uuid'
 
-defineProps<{
-  initialData?: Record<string, unknown>
-}>()
+import type { Displacement, ServiceRecord } from '~/stores/services'
 
-defineEmits(['submit'])
+const props = withDefaults(defineProps<{
+  initialData?: ServiceRecord | null
+}>(), {
+  initialData: null
+})
+
+const emit = defineEmits<{
+  (e: 'saved'): void
+}>()
 const toast = useToast()
 const serviceStore = useServiceStore()
 
@@ -28,44 +34,84 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
+type FormDisplacement = Displacement & { id: string }
+
+const createEmptyDisplacement = (): FormDisplacement => ({
+  id: uuidv4(),
+  province: '',
+  municipality: '',
+  hasLunch: false,
+  hasDinner: false
+})
+
 const state = reactive({
   startTime: '',
   endTime: '',
-  displacements: [{ id: uuidv4(), province: '', municipality: '', hasLunch: false, hasDinner: false }]
+  displacements: [createEmptyDisplacement()]
 })
+
+const isEditing = computed(() => Boolean(props.initialData))
 
 // Load locations
 const { provinces, getMunicipalities } = useLocations()
 
 const addDisplacement = () => {
-  state.displacements.push({ id: uuidv4(), province: '', municipality: '', hasLunch: false, hasDinner: false })
+  state.displacements.push(createEmptyDisplacement())
 }
 
 const removeDisplacement = (index: number) => {
   state.displacements.splice(index, 1)
 }
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  const newRecord = {
-    id: uuidv4(),
-    startTime: event.data.startTime,
-    endTime: event.data.endTime,
-    displacements: event.data.displacements.map(d => ({
-      ...d,
-      id: uuidv4(),
-      province: d.province
-    }))
-  }
-  
-  serviceStore.addRecord(newRecord)
-  
-  toast.add({ title: 'Service registered successfully', color: 'success' })
-  
-  // Reset form
+const resetState = () => {
   state.startTime = ''
   state.endTime = ''
-  state.displacements = [{ id: uuidv4(), province: '', municipality: '', hasLunch: false, hasDinner: false }]
+  state.displacements = [createEmptyDisplacement()]
 }
+
+const loadRecord = (record: ServiceRecord) => {
+  state.startTime = record.startTime
+  state.endTime = record.endTime
+  state.displacements = record.displacements.map(displacement => ({
+    ...displacement,
+    id: displacement.id || uuidv4()
+  }))
+}
+
+watch(() => props.initialData, (record) => {
+  if (record) {
+    loadRecord(record)
+  } else {
+    resetState()
+  }
+}, { immediate: true })
+
+async function onSubmit (event: FormSubmitEvent<Schema>) {
+  const baseRecord: ServiceRecord = {
+    id: props.initialData?.id ?? uuidv4(),
+    startTime: event.data.startTime,
+    endTime: event.data.endTime,
+    displacements: state.displacements.map(displacement => ({
+      ...displacement,
+      id: displacement.id || uuidv4()
+    }))
+  }
+
+  if (isEditing.value) {
+    serviceStore.updateRecord(baseRecord)
+    toast.add({ title: 'Service updated successfully', color: 'success' })
+    emit('saved')
+  } else {
+    serviceStore.addRecord(baseRecord)
+    toast.add({ title: 'Service registered successfully', color: 'success' })
+    resetState()
+    emit('saved')
+  }
+}
+
+const formTitle = computed(() => isEditing.value ? 'Edit Service' : 'Register Service')
+const formSubtitle = computed(() => isEditing.value ? 'Update service details and displacements' : 'Enter service details below')
+const submitLabel = computed(() => isEditing.value ? 'Update Service Record' : 'Save Service Record')
 </script>
 
 <template>
@@ -76,8 +122,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <UIcon name="i-heroicons-pencil-square" class="w-6 h-6 text-primary-500" />
         </div>
         <div>
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">Register Service</h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Enter service details below</p>
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ formTitle }}</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{{ formSubtitle }}</p>
         </div>
       </div>
     </template>
@@ -162,7 +208,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
       <div class="pt-4">
         <UButton type="submit" block size="xl" :loading="false">
-          Save Service Record
+          {{ submitLabel }}
         </UButton>
       </div>
     </UForm>

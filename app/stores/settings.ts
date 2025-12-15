@@ -1,14 +1,19 @@
 import { defineStore } from 'pinia'
+import { piniaPluginPersistedstate } from '#imports'
+
+const settingsStorage = piniaPluginPersistedstate.localStorage()
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
-    dietPrice: 0,
+    halfDietPrice: 0,
+    fullDietPrice: 0,
     originProvince: '',
     originMunicipality: ''
   }),
   actions: {
-    updateDietPrice (price: number) {
-      this.dietPrice = price
+    updateDietPrices (prices: { half: number, full: number }) {
+      this.halfDietPrice = prices.half
+      this.fullDietPrice = prices.full
     },
     updateOrigin (province: string, municipality: string) {
       this.originProvince = province
@@ -16,6 +21,6 @@ export const useSettingsStore = defineStore('settings', {
     }
   },
   persist: {
-    storage: localStorage
+    storage: settingsStorage
   }
 })

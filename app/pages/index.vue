@@ -15,6 +15,11 @@
       <ServiceForm />
     </section>
 
+    <!-- Registered Services -->
+    <section>
+      <ServiceList />
+    </section>
+
     <!-- Quick Stats Preview (Placeholder) -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <UCard>
