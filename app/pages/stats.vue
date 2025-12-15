@@ -1,53 +1,28 @@
 <script setup lang="ts">
 import type { MonthOption } from '~/composables/useServiceStats'
-import type { Displacement, ServiceRecord } from '~/stores/services'
+import type { ServiceRecord } from '~/stores/services'
 import { generateWordReport } from '~/utils/export'
 
-const serviceStore = useServiceStore()
 const settingsStore = useSettingsStore()
 const toast = useToast()
-const { monthOptions, getRecordsForMonth, calculateTotals } = useServiceStats()
+const { calculateTotals } = useServiceStats()
 
-const selectedMonth = ref<MonthOption | undefined>()
-
-const filteredRecords = computed(() => getRecordsForMonth(selectedMonth.value?.value))
-const selectedMonthLabel = computed(() => selectedMonth.value?.label ?? '')
-
-const columns = [
-  { accessorKey: 'startTime', header: 'Start Time', id: 'startTime' },
-  { accessorKey: 'endTime', header: 'End Time', id: 'endTime' },
-  { accessorKey: 'displacements', header: 'Displacements', id: 'displacements' },
-  { accessorKey: 'diets', header: 'Diets', id: 'diets' },
-  { accessorKey: 'actions', header: '', id: 'actions' }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as any[]
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) {
-    return '—'
-  }
-  const date = new Date(dateStr)
-  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString()
-}
-
-const getDiets = (displacements: Displacement[]) => {
-  const lunches = displacements.filter(d => d.hasLunch).length
-  const dinners = displacements.filter(d => d.hasDinner).length
-  return `L: ${lunches}, D: ${dinners}`
-}
+const filteredRecords = ref<ServiceRecord[]>([])
+const selectedMonth = ref<MonthOption | null>(null)
 
 const totals = computed(() => calculateTotals(filteredRecords.value))
+const serviceTableDescription = computed(() => `Dinars: ${totals.value.lunches} | Sopars: ${totals.value.dinners}`)
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value)
 }
 
 const dietPriceSet = computed(() => settingsStore.fullDietPrice > 0 || settingsStore.halfDietPrice > 0)
+const hasSelectedMonth = computed(() => Boolean(selectedMonth.value))
 
-const deleteRecord = (id: string) => {
-  if (confirm('Are you sure you want to delete this record?')) {
-    serviceStore.deleteRecord(id)
-  }
+const handleRecordsChange = (payload: { records: ServiceRecord[], month: MonthOption | null }) => {
+  filteredRecords.value = payload.records
+  selectedMonth.value = payload.month
 }
 
 const exportData = async () => {
@@ -95,18 +70,11 @@ const exportData = async () => {
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
       <h1 class="text-2xl font-bold">Service Records</h1>
       <div class="flex flex-wrap items-center gap-3">
-        <UInputMenu
-          v-model="selectedMonth"
-          :items="monthOptions"
-          placeholder="Tots els mesos"
-          clearable
-          class="min-w-[200px]"
-        />
         <UButton to="/" icon="i-heroicons-arrow-left" variant="ghost">Back to Form</UButton>
         <UButton
           icon="i-heroicons-document-arrow-down"
           color="success"
-          :disabled="!selectedMonth"
+          :disabled="!hasSelectedMonth"
           @click="exportData"
         >
           Export Report
@@ -161,49 +129,12 @@ const exportData = async () => {
       description="Configura el preu per poder calcular correctament els totals."
     />
 
-    <UCard>
-      <template #header>
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Detall de serveis</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Dinars: {{ totals.lunches }} | Sopars: {{ totals.dinners }}
-            </p>
-          </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            Registres: {{ filteredRecords.length }}
-            <span v-if="selectedMonth" class="block text-xs text-gray-400">
-              Filtrat per {{ selectedMonthLabel }}
-            </span>
-          </p>
-        </div>
-      </template>
-
-      <UTable :data="filteredRecords" :columns="columns">
-        <template #startTime-cell="{ row }">
-          {{ formatDate((row.original as ServiceRecord).startTime) }}
-        </template>
-        <template #endTime-cell="{ row }">
-          {{ formatDate((row.original as ServiceRecord).endTime) }}
-        </template>
-        <template #displacements-cell="{ row }">
-          <ul class="list-disc list-inside text-sm">
-            <li v-for="d in (row.original as ServiceRecord).displacements" :key="d.id">
-              {{ d.municipality }}
-            </li>
-          </ul>
-        </template>
-        <template #diets-cell="{ row }">
-          {{ getDiets((row.original as ServiceRecord).displacements) }}
-        </template>
-        <template #actions-cell="{ row }">
-          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="xs" @click="deleteRecord((row.original as ServiceRecord).id)" />
-        </template>
-      </UTable>
-
-      <div v-if="filteredRecords.length === 0" class="text-center py-8 text-gray-500">
-        No records found for this period.
-      </div>
-    </UCard>
+    <ServiceList
+      title="Detall de serveis"
+      :description="serviceTableDescription"
+      :enable-edit="false"
+      :enable-delete="true"
+      @records-change="handleRecordsChange"
+    />
   </div>
 </template>

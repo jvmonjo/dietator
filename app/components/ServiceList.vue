@@ -1,12 +1,96 @@
 <script setup lang="ts">
+import type { MonthOption } from '~/composables/useServiceStats'
 import type { ServiceRecord } from '~/stores/services'
+
+const props = withDefaults(defineProps<{
+  title?: string
+  description?: string
+  enableEdit?: boolean
+  enableDelete?: boolean
+}>(), {
+  title: 'Serveis registrats',
+  description: 'Consulta, edita o esborra els registres existents.',
+  enableEdit: true,
+  enableDelete: true
+})
+
+const emit = defineEmits<{
+  (e: 'records-change', payload: { records: ServiceRecord[], month: MonthOption | null }): void
+}>()
 
 const serviceStore = useServiceStore()
 const toast = useToast()
 const { records } = storeToRefs(serviceStore)
-const recordCount = computed(() => records.value.length)
+const { monthOptions, getRecordsForMonth, currentMonthValue } = useServiceStats()
+
+const monthFormatter = new Intl.DateTimeFormat('ca-ES', { year: 'numeric', month: 'long' })
+const extendedMonthOptions = computed<MonthOption[]>(() => {
+  const options = monthOptions.value.slice()
+  const hasCurrent = options.some(option => option.value === currentMonthValue.value)
+  if (!hasCurrent && currentMonthValue.value) {
+    const [yearStr, monthStr] = currentMonthValue.value.split('-')
+    const year = Number(yearStr)
+    const month = Number(monthStr)
+    if (Number.isFinite(year) && Number.isFinite(month)) {
+      const fallbackDate = new Date(year, month - 1, 1)
+      options.push({
+        value: currentMonthValue.value,
+        label: monthFormatter.format(fallbackDate)
+      })
+    }
+  }
+  return options.sort((a, b) => (a.value < b.value ? 1 : -1))
+})
+
+const selectedMonth = ref<MonthOption | undefined>()
+const showAllMonths = ref(false)
+watch(extendedMonthOptions, (options) => {
+  if (!showAllMonths.value && !selectedMonth.value) {
+    selectedMonth.value = options.find(option => option.value === currentMonthValue.value) ?? options[0]
+  }
+}, { immediate: true })
+
+const activeMonth = computed<MonthOption | null>(() => {
+  if (showAllMonths.value) {
+    return null
+  }
+  if (!selectedMonth.value) {
+    return extendedMonthOptions.value.find(option => option.value === currentMonthValue.value) ?? null
+  }
+  return selectedMonth.value
+})
+
+const filteredRecords = computed(() => {
+  const month = activeMonth.value
+  return getRecordsForMonth(month?.value ?? null)
+})
+
+watch([filteredRecords, activeMonth], ([records]) => {
+  emit('records-change', {
+    records,
+    month: activeMonth.value
+  })
+}, { immediate: true })
+
+const recordCount = computed(() => filteredRecords.value.length)
 const hasRecords = computed(() => recordCount.value > 0)
-const tableData = computed(() => records.value.slice())
+const tableData = computed(() => filteredRecords.value.slice())
+const selectedMonthLabel = computed(() => {
+  if (showAllMonths.value) {
+    return 'Tots els mesos'
+  }
+  return activeMonth.value?.label ?? ''
+})
+
+const handleMonthChange = (value: MonthOption | null | undefined) => {
+  if (!value) {
+    showAllMonths.value = true
+    selectedMonth.value = undefined
+  } else {
+    showAllMonths.value = false
+    selectedMonth.value = value
+  }
+}
 
 const isModalOpen = ref(false)
 const selectedRecord = ref<ServiceRecord | null>(null)
@@ -51,12 +135,25 @@ const formatDate = (value: string) => {
 
 <template>
   <section class="space-y-4">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Serveis registrats</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Consulta, edita o esborra els registres existents.</p>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ props.description }}</p>
+        <p class="text-xs text-gray-400 mt-1">
+          Filtrat per {{ selectedMonthLabel }}
+        </p>
       </div>
-      <UBadge color="primary" variant="soft">{{ recordCount }} registres</UBadge>
+      <div class="flex items-center gap-3">
+        <UInputMenu
+          :model-value="showAllMonths ? undefined : selectedMonth"
+          :items="extendedMonthOptions"
+          placeholder="Selecciona un mes"
+          clearable
+          class="min-w-[200px]"
+          @update:model-value="handleMonthChange"
+        />
+        <UBadge color="primary" variant="soft">{{ recordCount }} registres</UBadge>
+      </div>
     </div>
 
     <UCard>
@@ -87,6 +184,7 @@ const formatDate = (value: string) => {
         <template #actions-cell="{ row }">
           <div class="flex gap-2">
             <UButton
+              v-if="props.enableEdit"
               icon="i-heroicons-pencil-square"
               size="xs"
               variant="soft"
@@ -95,6 +193,7 @@ const formatDate = (value: string) => {
               Editar
             </UButton>
             <UButton
+              v-if="props.enableDelete"
               icon="i-heroicons-trash"
               size="xs"
               color="error"
