@@ -16,10 +16,6 @@ const links = [
     to: '/'
   },
   {
-    label: 'Estadistiques',
-    to: '/stats'
-  },
-  {
     label: 'Settings',
     to: '/settings'
   }

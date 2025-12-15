@@ -5,7 +5,6 @@ import { encryptBackup, decryptBackup } from '~/utils/secureBackup'
 const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
 const toast = useToast()
-const { provinces, getMunicipalities } = useLocations()
 const importFileInput = ref<HTMLInputElement | null>(null)
 const monthlyTemplateInput = ref<HTMLInputElement | null>(null)
 const serviceTemplateInput = ref<HTMLInputElement | null>(null)
@@ -16,9 +15,7 @@ const templateInputs: Record<TemplateType, Ref<HTMLInputElement | null>> = {
 
 const formState = reactive({
   halfDietPrice: settingsStore.halfDietPrice || 0,
-  fullDietPrice: settingsStore.fullDietPrice || 0,
-  originProvince: settingsStore.originProvince || '',
-  originMunicipality: settingsStore.originMunicipality || ''
+  fullDietPrice: settingsStore.fullDietPrice || 0
 })
 
 const exportState = reactive({
@@ -43,7 +40,6 @@ const saveSettings = () => {
     half: normalizedHalfPrice,
     full: normalizedFullPrice
   })
-  settingsStore.updateOrigin(formState.originProvince, formState.originMunicipality)
   toast.add({ title: 'Configuracio guardada', color: 'success' })
 }
 
@@ -61,8 +57,6 @@ const getBackupPayload = () => ({
   settings: {
     halfDietPrice: settingsStore.halfDietPrice,
     fullDietPrice: settingsStore.fullDietPrice,
-    originProvince: settingsStore.originProvince,
-    originMunicipality: settingsStore.originMunicipality,
     monthlyTemplate: settingsStore.monthlyTemplate,
     serviceTemplate: settingsStore.serviceTemplate,
     monthlyTemplateLocation: settingsStore.monthlyTemplateLocation,
@@ -119,8 +113,6 @@ const importBackup = async () => {
     settingsStore.loadSettings(payload.settings)
     formState.halfDietPrice = settingsStore.halfDietPrice
     formState.fullDietPrice = settingsStore.fullDietPrice
-    formState.originProvince = settingsStore.originProvince
-    formState.originMunicipality = settingsStore.originMunicipality
     toast.add({ title: 'Backup importat', color: 'success' })
     importState.file = null
     if (importFileInput.value) {
@@ -217,11 +209,8 @@ const formatTimestamp = (value?: string) => {
     <div class="flex items-start justify-between gap-4">
       <div class="space-y-2">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p class="text-gray-600 dark:text-gray-400">
-          Marca el preu de la mitja dieta i de la dieta completa (dinar i sopar). Ho fem separat per si no és exactament el doble.
-        </p>
+
       </div>
-      <UButton to="/stats" icon="i-heroicons-chart-bar" variant="ghost">Veure estadistiques</UButton>
     </div>
 
     <UCard>
@@ -239,7 +228,7 @@ const formatTimestamp = (value?: string) => {
 
       <UForm :state="formState" class="space-y-6" @submit="saveSettings">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UFormField label="Preu mitja dieta" name="halfDietPrice" hint="Dinar o sopar." help="S'aplica quan només hi ha un àpat.">
+          <UFormField label="Preu mitja dieta" name="halfDietPrice" hint="Dinar o sopar." >
             <UInput
               v-model.number="formState.halfDietPrice"
               type="number"
@@ -265,28 +254,6 @@ const formatTimestamp = (value?: string) => {
         <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
           <span>Dinar o sopar: aplica mitja dieta</span>
           <span>Dinar i sopar: aplica dieta completa</span>
-        </div>
-
-        <USeparator label="Origen dels desplaçaments" />
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UFormField label="Província d'origen" name="originProvince">
-            <ProvinceSelect
-              v-model="formState.originProvince"
-              :items="provinces"
-              placeholder="Tria província"
-              @update:model-value="formState.originMunicipality = ''"
-            />
-          </UFormField>
-
-          <UFormField label="Municipi d'origen" name="originMunicipality">
-            <MunicipalitySelect
-              v-model="formState.originMunicipality"
-              :items="getMunicipalities(formState.originProvince)"
-              :disabled="!formState.originProvince"
-              placeholder="Tria municipi"
-            />
-          </UFormField>
         </div>
 
         <div class="flex gap-3 pt-2">

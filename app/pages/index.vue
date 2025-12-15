@@ -1,12 +1,70 @@
 <script setup lang="ts">
+import type { MonthOption } from '~/composables/useServiceStats'
+import type { ServiceRecord } from '~/stores/services'
+import { generateWordReport } from '~/utils/export'
+
+const settingsStore = useSettingsStore()
+const toast = useToast()
 const { currentMonthValue, getRecordsForMonth, calculateTotals } = useServiceStats()
 
 const currentMonthTotals = computed(() => calculateTotals(getRecordsForMonth(currentMonthValue.value)))
 const servicesThisMonth = computed(() => currentMonthTotals.value.serviceCount)
 const allowanceThisMonth = computed(() => currentMonthTotals.value.allowance)
 
+const selectedRecords = ref<ServiceRecord[]>([])
+const selectedMonth = ref<MonthOption | null>(null)
+const selectionTotals = computed(() => calculateTotals(selectedRecords.value))
+
 const currencyFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
 const formatCurrency = (value: number) => currencyFormatter.format(value || 0)
+
+const selectedMonthLabel = computed(() => selectedMonth.value?.label ?? 'Tots els mesos')
+const hasTemplates = computed(() => Boolean(settingsStore.monthlyTemplate || settingsStore.serviceTemplate))
+const dietPriceSet = computed(() => settingsStore.fullDietPrice > 0 || settingsStore.halfDietPrice > 0)
+const canExportReport = computed(() => Boolean(selectedMonth.value) && selectedRecords.value.length > 0 && hasTemplates.value)
+const serviceListDescription = computed(() => `Dinars: ${selectionTotals.value.lunches} | Sopars: ${selectionTotals.value.dinners}`)
+
+const handleRecordsChange = (payload: { records: ServiceRecord[], month: MonthOption | null }) => {
+  selectedRecords.value = payload.records
+  selectedMonth.value = payload.month
+}
+
+const exportReport = async () => {
+  if (!selectedMonth.value) {
+    toast.add({ title: 'Selecciona un mes per exportar', color: 'warning' })
+    return
+  }
+
+  if (selectedRecords.value.length === 0) {
+    toast.add({ title: 'No hi ha serveis per al mes seleccionat', color: 'info' })
+    return
+  }
+
+  if (!hasTemplates.value) {
+    toast.add({ title: 'Configura una plantilla Word abans d\'exportar', color: 'warning' })
+    return
+  }
+
+  try {
+    await generateWordReport({
+      records: selectedRecords.value,
+      totals: selectionTotals.value,
+      month: selectedMonth.value,
+      settings: {
+        halfDietPrice: settingsStore.halfDietPrice,
+        fullDietPrice: settingsStore.fullDietPrice
+      },
+      templates: {
+        monthly: settingsStore.monthlyTemplate,
+        service: settingsStore.serviceTemplate
+      }
+    })
+    toast.add({ title: 'Documents generats correctament', color: 'success' })
+  } catch (error) {
+    console.error(error)
+    toast.add({ title: 'No s\'han pogut generar els documents', color: 'error' })
+  }
+}
 </script>
 
 <template>
@@ -21,36 +79,81 @@ const formatCurrency = (value: number) => currencyFormatter.format(value || 0)
       </p>
     </section>
 
-    <!-- Main Action -->
+    <UAlert
+      v-if="!dietPriceSet"
+      color="warning"
+      icon="i-heroicons-exclamation-triangle"
+      variant="subtle"
+      title="Afegeix el preu de la dieta"
+      description="Configura el preu per poder calcular correctament els totals i generar informes."
+    />
+
     <section>
-      <ServiceForm />
+      <UCard>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="space-y-1">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Generar informe Word</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Mes seleccionat: <strong>{{ selectedMonthLabel }}</strong> — {{ selectedRecords.length }} serveis
+            </p>
+            <p class="text-xs text-gray-400">
+              Dietes: {{ selectionTotals.fullDietCount }} completes · {{ selectionTotals.halfDietCount }} mitges
+            </p>
+            <p v-if="!hasTemplates" class="text-xs text-red-500 dark:text-red-400">
+              S'ha de pujar una plantilla mensual o per servei des de Settings.
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <UBadge v-if="selectedMonth" color="primary" variant="soft">
+              {{ selectedMonth.label }}
+            </UBadge>
+            <UButton
+              icon="i-heroicons-document-arrow-down"
+              color="success"
+              :disabled="!canExportReport"
+              @click="exportReport"
+            >
+              Generar informe
+            </UButton>
+          </div>
+        </div>
+      </UCard>
     </section>
 
     <!-- Registered Services -->
     <section>
-      <ServiceList />
+      <ServiceList
+        title="Serveis registrats"
+        :description="serviceListDescription"
+        @records-change="handleRecordsChange"
+      />
     </section>
 
-    <!-- Quick Stats Preview (Placeholder) -->
+    <!-- Quick Stats -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <UCard>
         <div class="text-center">
-          <div class="text-3xl font-bold text-primary-500">{{ servicesThisMonth }}</div>
-          <div class="text-sm text-gray-500 dark:text-gray-400">Services This Month</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Serveis mes actual</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ servicesThisMonth }}</div>
         </div>
       </UCard>
       <UCard>
         <div class="text-center">
-          <div class="text-3xl font-bold text-primary-500">{{ formatCurrency(allowanceThisMonth) }}</div>
-          <div class="text-sm text-gray-500 dark:text-gray-400">Allowance Earned</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Import mes actual</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(allowanceThisMonth) }}</div>
         </div>
       </UCard>
       <UCard>
-        <div class="text-center">
-          <div class="text-3xl font-bold text-primary-500">0</div>
-          <div class="text-sm text-gray-500 dark:text-gray-400">Pending Sync</div>
+        <div class="text-center space-y-1">
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Preus configurats</div>
+          <p class="text-base text-gray-800 dark:text-gray-200">Completa: {{ formatCurrency(settingsStore.fullDietPrice || 0) }}</p>
+          <p class="text-base text-gray-800 dark:text-gray-200">Mitja: {{ formatCurrency(settingsStore.halfDietPrice || 0) }}</p>
         </div>
       </UCard>
+    </section>
+      <!-- Main Action -->
+    <section>
+      <ServiceForm />
     </section>
   </div>
 </template>

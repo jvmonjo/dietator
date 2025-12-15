@@ -15,8 +15,6 @@ interface TemplateContext {
 interface ExportSettings {
   halfDietPrice: number
   fullDietPrice: number
-  originProvince: string
-  originMunicipality: string
 }
 
 interface GenerateWordReportOptions {
@@ -80,8 +78,6 @@ const buildContexts = (options: GenerateWordReportOptions) => {
   const laborDays = getPreviousWorkingDays(month.value, 3)
 
   const globalVariables: TemplateContext['variables'] = {
-    origin_province: settings.originProvince || '',
-    origin_municipality: settings.originMunicipality || '',
     half_diet_price: CURRENCY_FORMATTER.format(settings.halfDietPrice || 0),
     half_diet_price_value: settings.halfDietPrice,
     full_diet_price: CURRENCY_FORMATTER.format(settings.fullDietPrice || 0),
@@ -197,9 +193,7 @@ const buildServiceVariables = (record: ServiceRecord, recordIndex: number, setti
     service_total_lunches: lunches,
     service_total_dinners: dinners,
     service_total_allowance: CURRENCY_FORMATTER.format(allowance || 0),
-    service_total_allowance_value: allowance,
-    service_origin_province: settings.originProvince || '',
-    service_origin_municipality: settings.originMunicipality || ''
+    service_total_allowance_value: allowance
   }
 }
 
@@ -273,6 +267,16 @@ const resolveValue = (context: TemplateContext, key: string): TemplateValue => {
 }
 
 const formatValue = (value: TemplateValue, modifier?: string): string => {
+  if (modifier?.startsWith('limit')) {
+    const count = Number(modifier.replace('limit', ''))
+    const safeCount = Number.isFinite(count) && count > 0 ? count : 0
+    if (safeCount <= 0) {
+      return ''
+    }
+    const stringValue = value === null || value === undefined ? '' : String(value)
+    return stringValue.slice(0, safeCount)
+  }
+
   if (modifier === 'boolean') {
     return toBoolean(value) ? 'true' : 'false'
   }

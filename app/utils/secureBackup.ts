@@ -3,8 +3,6 @@ import type { ServiceRecord } from '~/stores/services'
 interface SettingsSnapshot {
   halfDietPrice: number
   fullDietPrice: number
-  originProvince: string
-  originMunicipality: string
 }
 
 export interface BackupPayload {
