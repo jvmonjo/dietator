@@ -4,7 +4,7 @@ Aquest document recull tots els placeholders que es poden fer servir dins de les
 
 ## Convencions generals
 - **Format de variables**: sempre entre claudàtors, en minúscules i separades amb `_`, p. ex. `[service_start_date]`.
-- **Dates i hores**: per defecte ISO local (`YYYY-MM-DD` i `HH:mm`). Pots afegir sufixos per indicar altres formats: `[service_start_date:human]` per mostrar `25 de març de 2024`.
+- **Dates i hores**: per defecte `DD/MM/YYYY` i `HH:mm`. Pots afegir sufixos per indicar altres formats: `[service_start_date:human]` per mostrar `25 de març de 2024` o `[service_start_iso]` si necessites el format ISO antic.
 - **Valors booleans**: es despleguen com `Sí`/`No`. També hi ha versions booleanes (`[displacement_has_lunch:boolean]`) que retornen `true`/`false`.
 - **Limitador de text**: utilitza `:limitN` per tallar una cadena als primers `N` caràcters (p. ex. `[displacement_municipality:limit3]` mostra només les tres primeres lletres).
 - **Loops**: es defineixen amb `[loop:nom]` i `[endloop:nom]`. Els noms han de coincidir i els loops es poden niar.

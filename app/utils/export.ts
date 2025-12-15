@@ -161,8 +161,9 @@ const buildContexts = (options: GenerateWordReportOptions) => {
 const buildServiceVariables = (record: ServiceRecord, recordIndex: number, settings: ExportSettings) => {
   const start = new Date(record.startTime)
   const end = new Date(record.endTime)
-  const startDate = formatLocalDate(start)
-  const endDate = formatLocalDate(end)
+  const startDateIso = formatLocalDate(start)
+  const startDateDisplay = formatDisplayDate(start)
+  const endDateDisplay = formatDisplayDate(end)
   const startTime = formatLocalTime(start)
   const endTime = formatLocalTime(end)
   const durationHours = calculateDuration(start, end)
@@ -177,9 +178,9 @@ const buildServiceVariables = (record: ServiceRecord, recordIndex: number, setti
   return {
     service_index: recordIndex + 1,
     service_id: record.id,
-    service_reference: buildServiceReference(startDate, recordIndex),
-    service_start_date: startDate,
-    service_end_date: endDate,
+    service_reference: buildServiceReference(startDateIso, recordIndex),
+    service_start_date: startDateDisplay,
+    service_end_date: endDateDisplay,
     service_start_time: startTime,
     service_end_time: endTime,
     service_start_iso: record.startTime,
@@ -285,6 +286,11 @@ const formatValue = (value: TemplateValue, modifier?: string): string => {
     const parsed = toDate(value)
     return parsed ? HUMAN_DATE_FORMATTER.format(parsed) : ''
   }
+  if (modifier === 'slash') {
+    const parsed = toDate(value)
+    if (!parsed) return ''
+    return formatSlashDate(parsed)
+  }
 
   if (value === null || value === undefined) {
     return ''
@@ -295,7 +301,12 @@ const formatValue = (value: TemplateValue, modifier?: string): string => {
   }
 
   if (value instanceof Date) {
-    return formatLocalDate(value)
+    return formatDisplayDate(value)
+  }
+
+  if (typeof value === 'string' && isIsoDateString(value)) {
+    const parsed = new Date(value)
+    return Number.isNaN(parsed.getTime()) ? value : formatDisplayDate(parsed)
   }
 
   return String(value)
@@ -346,6 +357,24 @@ const formatLocalDate = (date: Date) => {
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
+
+const formatDisplayDate = (date: Date) => {
+  if (Number.isNaN(date.getTime())) return ''
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
+const formatSlashDate = (date: Date) => {
+  if (Number.isNaN(date.getTime())) return ''
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
+const isIsoDateString = (value: string) => /^-?\d{4}-\d{2}-\d{2}$/.test(value)
 
 const formatLocalTime = (date: Date) => {
   if (Number.isNaN(date.getTime())) return ''
