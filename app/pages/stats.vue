@@ -1,44 +1,14 @@
 <script setup lang="ts">
 import type { Displacement, ServiceRecord } from '~/stores/services'
+import { generateWordReport } from '~/utils/export'
 
 const serviceStore = useServiceStore()
 const settingsStore = useSettingsStore()
-const { records } = storeToRefs(serviceStore)
+const { monthOptions, getRecordsForMonth, calculateTotals } = useServiceStats()
 
-const monthOptions = computed(() => {
-  const months = new Map<string, { value: string, label: string }>()
+const selectedMonth = ref<string | null>(null)
 
-  records.value.forEach(record => {
-    const date = new Date(record.startTime)
-    if (Number.isNaN(date.getTime())) return
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const value = `${year}-${String(month + 1).padStart(2, '0')}`
-    if (!months.has(value)) {
-      const formatter = new Intl.DateTimeFormat('ca-ES', { year: 'numeric', month: 'long' })
-      months.set(value, {
-        value,
-        label: formatter.format(date)
-      })
-    }
-  })
-
-  return Array.from(months.values()).sort((a, b) => (a.value < b.value ? 1 : -1))
-})
-
-const selectedMonth = ref<string>('')
-
-const filteredRecords = computed(() => {
-  if (!selectedMonth.value) {
-    return records.value
-  }
-
-  const [year, month] = selectedMonth.value.split('-').map(Number)
-  return records.value.filter(record => {
-    const date = new Date(record.startTime)
-    return date.getFullYear() === year && (date.getMonth() + 1) === month
-  })
-})
+const filteredRecords = computed(() => getRecordsForMonth(selectedMonth.value))
 
 const columns = [
   { accessorKey: 'startTime', header: 'Start Time', id: 'startTime' },
@@ -63,39 +33,7 @@ const getDiets = (displacements: Displacement[]) => {
   return `L: ${lunches}, D: ${dinners}`
 }
 
-const totals = computed(() => {
-  let lunches = 0
-  let dinners = 0
-  let halfDietCount = 0
-  let fullDietCount = 0
-
-  filteredRecords.value.forEach((record) => {
-    record.displacements.forEach((displacement) => {
-      const { hasLunch, hasDinner } = displacement
-
-      if (hasLunch) lunches++
-      if (hasDinner) dinners++
-
-      if (hasLunch && hasDinner) {
-        fullDietCount += 1
-      } else if (hasLunch || hasDinner) {
-        halfDietCount += 1
-      }
-    })
-  })
-
-  const dietUnits = fullDietCount + halfDietCount * 0.5
-  const allowance = (fullDietCount * settingsStore.fullDietPrice) + (halfDietCount * settingsStore.halfDietPrice)
-
-  return {
-    lunches,
-    dinners,
-    halfDietCount,
-    fullDietCount,
-    dietUnits,
-    allowance
-  }
-})
+const totals = computed(() => calculateTotals(filteredRecords.value))
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value)
@@ -122,7 +60,7 @@ const exportData = async () => {
       <div class="flex flex-wrap items-center gap-3">
         <UInputMenu
           v-model="selectedMonth"
-          :options="monthOptions"
+          :items="monthOptions"
           placeholder="Tots els mesos"
           clearable
           class="min-w-[200px]"

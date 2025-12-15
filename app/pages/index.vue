@@ -1,3 +1,14 @@
+<script setup lang="ts">
+const { currentMonthValue, getRecordsForMonth, calculateTotals } = useServiceStats()
+
+const currentMonthTotals = computed(() => calculateTotals(getRecordsForMonth(currentMonthValue.value)))
+const servicesThisMonth = computed(() => currentMonthTotals.value.serviceCount)
+const allowanceThisMonth = computed(() => currentMonthTotals.value.allowance)
+
+const currencyFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
+const formatCurrency = (value: number) => currencyFormatter.format(value || 0)
+</script>
+
 <template>
   <div class="space-y-8">
     <!-- Hero Section -->
@@ -24,13 +35,13 @@
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <UCard>
         <div class="text-center">
-          <div class="text-3xl font-bold text-primary-500">0</div>
+          <div class="text-3xl font-bold text-primary-500">{{ servicesThisMonth }}</div>
           <div class="text-sm text-gray-500 dark:text-gray-400">Services This Month</div>
         </div>
       </UCard>
       <UCard>
         <div class="text-center">
-          <div class="text-3xl font-bold text-primary-500">€0.00</div>
+          <div class="text-3xl font-bold text-primary-500">{{ formatCurrency(allowanceThisMonth) }}</div>
           <div class="text-sm text-gray-500 dark:text-gray-400">Allowance Earned</div>
         </div>
       </UCard>
