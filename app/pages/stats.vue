@@ -5,6 +5,41 @@ const serviceStore = useServiceStore()
 const settingsStore = useSettingsStore()
 const { records } = storeToRefs(serviceStore)
 
+const monthOptions = computed(() => {
+  const months = new Map<string, { value: string, label: string }>()
+
+  records.value.forEach(record => {
+    const date = new Date(record.startTime)
+    if (Number.isNaN(date.getTime())) return
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const value = `${year}-${String(month + 1).padStart(2, '0')}`
+    if (!months.has(value)) {
+      const formatter = new Intl.DateTimeFormat('ca-ES', { year: 'numeric', month: 'long' })
+      months.set(value, {
+        value,
+        label: formatter.format(date)
+      })
+    }
+  })
+
+  return Array.from(months.values()).sort((a, b) => (a.value < b.value ? 1 : -1))
+})
+
+const selectedMonth = ref<string>('')
+
+const filteredRecords = computed(() => {
+  if (!selectedMonth.value) {
+    return records.value
+  }
+
+  const [year, month] = selectedMonth.value.split('-').map(Number)
+  return records.value.filter(record => {
+    const date = new Date(record.startTime)
+    return date.getFullYear() === year && (date.getMonth() + 1) === month
+  })
+})
+
 const columns = [
   { accessorKey: 'startTime', header: 'Start Time', id: 'startTime' },
   { accessorKey: 'endTime', header: 'End Time', id: 'endTime' },
@@ -34,7 +69,7 @@ const totals = computed(() => {
   let halfDietCount = 0
   let fullDietCount = 0
 
-  records.value.forEach((record) => {
+  filteredRecords.value.forEach((record) => {
     record.displacements.forEach((displacement) => {
       const { hasLunch, hasDinner } = displacement
 
@@ -76,15 +111,22 @@ const deleteRecord = (id: string) => {
 
 const exportData = async () => {
   // TODO: Implement export
-  await generateWordReport(records.value)
+  await generateWordReport(filteredRecords.value)
 }
 </script>
 
 <template>
   <div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
       <h1 class="text-2xl font-bold">Service Records</h1>
-      <div class="flex gap-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <UInputMenu
+          v-model="selectedMonth"
+          :options="monthOptions"
+          placeholder="Tots els mesos"
+          clearable
+          class="min-w-[200px]"
+        />
         <UButton to="/" icon="i-heroicons-arrow-left" variant="ghost">Back to Form</UButton>
         <UButton icon="i-heroicons-document-arrow-down" color="success" @click="exportData">Export Report</UButton>
       </div>
@@ -146,11 +188,16 @@ const exportData = async () => {
                             Dinars: {{ totals.lunches }} | Sopars: {{ totals.dinners }}
             </p>
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Total registres: {{ records.length }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Registres: {{ filteredRecords.length }}
+            <span v-if="selectedMonth" class="block text-xs text-gray-400">
+              Filtrat per {{ monthOptions.find(option => option.value === selectedMonth)?.label }}
+            </span>
+          </p>
         </div>
       </template>
 
-      <UTable :data="records" :columns="columns">
+      <UTable :data="filteredRecords" :columns="columns">
         <template #startTime-cell="{ row }">
           {{ formatDate((row.original as ServiceRecord).startTime) }}
         </template>
@@ -172,8 +219,8 @@ const exportData = async () => {
         </template>
       </UTable>
 
-      <div v-if="records.length === 0" class="text-center py-8 text-gray-500">
-        No records found.
+      <div v-if="filteredRecords.length === 0" class="text-center py-8 text-gray-500">
+        No records found for this period.
       </div>
     </UCard>
   </div>
