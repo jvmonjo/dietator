@@ -6,11 +6,6 @@ const links = [
     to: '/'
   },
   {
-    label: 'Statistics',
-    icon: 'i-heroicons-chart-bar',
-    to: '/stats'
-  },
-  {
     label: 'Settings',
     icon: 'i-heroicons-cog-6-tooth',
     to: '/settings'

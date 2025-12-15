@@ -5,11 +5,7 @@ import { generateWordReport } from '~/utils/export'
 
 const settingsStore = useSettingsStore()
 const toast = useToast()
-const { currentMonthValue, getRecordsForMonth, calculateTotals } = useServiceStats()
-
-const currentMonthTotals = computed(() => calculateTotals(getRecordsForMonth(currentMonthValue.value)))
-const servicesThisMonth = computed(() => currentMonthTotals.value.serviceCount)
-const allowanceThisMonth = computed(() => currentMonthTotals.value.allowance)
+const { calculateTotals } = useServiceStats()
 
 const selectedRecords = ref<ServiceRecord[]>([])
 const selectedMonth = ref<MonthOption | null>(null)
@@ -133,14 +129,16 @@ const exportReport = async () => {
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <UCard>
         <div class="text-center">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Serveis mes actual</div>
-          <div class="text-3xl font-bold text-primary-500 mt-2">{{ servicesThisMonth }}</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            Serveis {{ selectedMonthLabel.toLowerCase() }}
+          </div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.serviceCount }}</div>
         </div>
       </UCard>
       <UCard>
         <div class="text-center">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Import mes actual</div>
-          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(allowanceThisMonth) }}</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Import {{ selectedMonthLabel.toLowerCase() }}</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(selectionTotals.allowance || 0) }}</div>
         </div>
       </UCard>
       <UCard>
