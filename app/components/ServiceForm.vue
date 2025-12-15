@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
-import { v4 as uuidv4 } from 'uuid'
-
 import type { Displacement, ServiceRecord } from '~/stores/services'
+
+// Replaced uuid import with local function to avoid potential crash
+const uuidv4 = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
 
 const props = withDefaults(defineProps<{
   initialData?: ServiceRecord | null
@@ -109,108 +115,91 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
   }
 }
 
-const formTitle = computed(() => isEditing.value ? 'Edit Service' : 'Register Service')
-const formSubtitle = computed(() => isEditing.value ? 'Update service details and displacements' : 'Enter service details below')
 const submitLabel = computed(() => isEditing.value ? 'Update Service Record' : 'Save Service Record')
 </script>
 
 <template>
-  <UCard class="w-full shadow-lg dark:shadow-primary-900/20 ring-1 ring-gray-200 dark:ring-gray-800">
-    <template #header>
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-primary-50 dark:bg-primary-900/50 rounded-lg">
-          <UIcon name="i-heroicons-pencil-square" class="w-6 h-6 text-primary-500" />
+  <UForm :schema="schema" :state="state" class="space-y-8" @submit="onSubmit">
+    <!-- Time Selection -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <UFormField label="Start Time" name="startTime" required>
+        <UInput v-model="state.startTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
+      </UFormField>
+
+      <UFormField label="End Time" name="endTime" required>
+        <UInput v-model="state.endTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
+      </UFormField>
+    </div>
+
+    <USeparator label="Displacements" />
+
+    <!-- Displacements List -->
+    <div class="space-y-4">
+      <div
+        v-for="(displacement, index) in state.displacements"
+        :key="index"
+        class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 relative group transition-all hover:border-primary-200 dark:hover:border-primary-800"
+      >
+        <div class="absolute top-4 right-4">
+          <UButton
+            v-if="state.displacements.length > 1"
+            icon="i-heroicons-trash"
+            color="error"
+            variant="ghost"
+            size="xs"
+            @click="removeDisplacement(index)"
+          />
         </div>
-        <div>
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ formTitle }}</h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{{ formSubtitle }}</p>
-        </div>
-      </div>
-    </template>
 
-    <UForm :schema="schema" :state="state" class="space-y-8" @submit="onSubmit">
-      <!-- Time Selection -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormField label="Start Time" name="startTime" required>
-          <UInput v-model="state.startTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
-        </UFormField>
+        <div class="grid grid-cols-1 gap-4 pr-8">
+          <UFormField label="Province" :name="`displacements.${index}.province`" required>
+            <ProvinceSelect
+              v-model="displacement.province"
+              :items="provinces"
+              placeholder="Select province"
+              @update:model-value="displacement.municipality = ''"
+            />
+          </UFormField>
 
-        <UFormField label="End Time" name="endTime" required>
-          <UInput v-model="state.endTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
-        </UFormField>
-      </div>
+          <UFormField label="Municipality" :name="`displacements.${index}.municipality`" required>
+            <MunicipalitySelect
+              v-model="displacement.municipality"
+              :items="getMunicipalities(displacement.province)"
+              :disabled="!displacement.province"
+              placeholder="Select municipality"
+            />
+          </UFormField>
 
-      <USeparator label="Displacements" />
-
-      <!-- Displacements List -->
-      <div class="space-y-4">
-        <div 
-          v-for="(displacement, index) in state.displacements" 
-          :key="index" 
-          class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 relative group transition-all hover:border-primary-200 dark:hover:border-primary-800"
-        >
-          
-          <div class="absolute top-4 right-4">
-            <UButton 
-              v-if="state.displacements.length > 1"
-              icon="i-heroicons-trash" 
-              color="error" 
-              variant="ghost" 
-              size="xs"
-              @click="removeDisplacement(index)"
+          <div class="flex flex-wrap gap-4">
+            <UCheckbox
+              v-model="displacement.hasLunch"
+              label="Lunch Included"
+              :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
+            />
+            <UCheckbox
+              v-model="displacement.hasDinner"
+              label="Dinner Included"
+              :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
             />
           </div>
-          
-          <div class="grid grid-cols-1 gap-4 pr-8">
-            <UFormField label="Province" :name="`displacements.${index}.province`" required>
-              <ProvinceSelect
-                v-model="displacement.province"
-                :items="provinces"
-                placeholder="Select province"
-                @update:model-value="displacement.municipality = ''"
-              />
-            </UFormField>
-
-            <UFormField label="Municipality" :name="`displacements.${index}.municipality`" required>
-              <MunicipalitySelect
-                v-model="displacement.municipality"
-                :items="getMunicipalities(displacement.province)"
-                :disabled="!displacement.province"
-                placeholder="Select municipality"
-              />
-            </UFormField>
-
-            <div class="flex flex-wrap gap-4">
-              <UCheckbox 
-                v-model="displacement.hasLunch" 
-                label="Lunch Included" 
-                :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
-              />
-              <UCheckbox 
-                v-model="displacement.hasDinner" 
-                label="Dinner Included"
-                :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
-              />
-            </div>
-          </div>
         </div>
-
-        <UButton 
-          icon="i-heroicons-plus-circle" 
-          variant="soft" 
-          block 
-          class="border-dashed border-2 border-gray-300 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500"
-          @click="addDisplacement"
-        >
-          Add Another Displacement
-        </UButton>
       </div>
 
-      <div class="pt-4">
-        <UButton type="submit" block size="xl" :loading="false">
-          {{ submitLabel }}
-        </UButton>
-      </div>
-    </UForm>
-  </UCard>
+      <UButton
+        icon="i-heroicons-plus-circle"
+        variant="soft"
+        block
+        class="border-dashed border-2 border-gray-300 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500"
+        @click="addDisplacement"
+      >
+        Add Another Displacement
+      </UButton>
+    </div>
+
+    <div class="pt-4">
+      <UButton type="submit" block size="xl" :loading="false">
+        {{ submitLabel }}
+      </UButton>
+    </div>
+  </UForm>
 </template>

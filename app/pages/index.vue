@@ -149,9 +149,6 @@ const exportReport = async () => {
         </div>
       </UCard>
     </section>
-      <!-- Main Action -->
-    <section>
-      <ServiceForm />
-    </section>
+
   </div>
 </template>

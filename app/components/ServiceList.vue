@@ -103,6 +103,11 @@ const columns = [
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as any[]
 
+const openNewService = () => {
+  selectedRecord.value = null
+  isModalOpen.value = true
+}
+
 const openRecord = (record: ServiceRecord) => {
   selectedRecord.value = record
   isModalOpen.value = true
@@ -152,6 +157,14 @@ const formatDate = (value: string) => {
           class="min-w-[200px]"
           @update:model-value="handleMonthChange"
         />
+        <UButton
+          icon="i-heroicons-plus"
+          color="primary"
+          variant="solid"
+          @click="openNewService"
+        >
+          Afegir servei
+        </UButton>
         <UBadge color="primary" variant="soft">{{ recordCount }} registres</UBadge>
       </div>
     </div>
@@ -207,10 +220,36 @@ const formatDate = (value: string) => {
       </UTable>
     </UCard>
 
-    <UModal v-model="isModalOpen" @close="closeModal">
-      <div class="max-w-3xl">
-        <ServiceForm v-if="selectedRecord" :initial-data="selectedRecord" @saved="handleSaved" />
-      </div>
-    </UModal>
+    <!-- Custom Modal Overlay -->
+    <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" @click="closeModal" />
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+                <div>
+                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ selectedRecord ? 'Editar servei' : 'Nou servei' }}
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        {{ selectedRecord ? 'Actualitza les dades del servei seleccionat' : 'Ompli les dades del servei' }}
+                    </p>
+                </div>
+                <UButton icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" @click="closeModal" />
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                 <ServiceForm
+                    v-if="selectedRecord || !selectedRecord"
+                    :initial-data="selectedRecord"
+                    @saved="handleSaved"
+                />
+            </div>
+        </div>
+    </div>
+      
   </section>
 </template>

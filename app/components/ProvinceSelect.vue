@@ -1,7 +1,9 @@
 <script setup lang="ts">
+type SelectOption = { label: string, value: string }
+
 const props = withDefaults(defineProps<{
   modelValue: string
-  items?: string[]
+  items?: SelectOption[]
   disabled?: boolean
   placeholder?: string
 }>(), {
@@ -29,6 +31,28 @@ const updateValue = (value: string) => {
     :placeholder="props.placeholder"
     icon="i-heroicons-map"
     class="w-full"
+    value-key="value"
+    label-key="label"
     @update:model-value="updateValue"
   />
 </template>
+
+<style scoped>
+/* Force background on the search input inside the select menu */
+:deep(input) {
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+}
+.dark :deep(input) {
+  background-color: rgb(17 24 39 / var(--tw-bg-opacity, 1));
+}
+
+/* Force background on the dropdown container */
+:deep(.absolute) {
+  background-color: rgb(255 255 255 / 1);
+  z-index: 100;
+}
+.dark :deep(.absolute) {
+  background-color: rgb(17 24 39 / 1);
+  z-index: 100;
+}
+</style>
