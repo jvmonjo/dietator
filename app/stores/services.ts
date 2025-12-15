@@ -26,6 +26,9 @@ export const useServiceStore = defineStore('services', {
         addRecord(record: ServiceRecord) {
             this.records.push(record)
         },
+        setRecords(records: ServiceRecord[]) {
+            this.records = records
+        },
         updateRecord(updatedRecord: ServiceRecord) {
             const index = this.records.findIndex(r => r.id === updatedRecord.id)
             if (index !== -1) {
