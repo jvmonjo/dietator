@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { TemplateType } from '~/stores/settings'
 import { encryptBackup, decryptBackup } from '~/utils/secureBackup'
 
 const settingsStore = useSettingsStore()
@@ -6,6 +7,12 @@ const serviceStore = useServiceStore()
 const toast = useToast()
 const { provinces, getMunicipalities } = useLocations()
 const importFileInput = ref<HTMLInputElement | null>(null)
+const monthlyTemplateInput = ref<HTMLInputElement | null>(null)
+const serviceTemplateInput = ref<HTMLInputElement | null>(null)
+const templateInputs: Record<TemplateType, Ref<HTMLInputElement | null>> = {
+  monthly: monthlyTemplateInput,
+  service: serviceTemplateInput
+}
 
 const formState = reactive({
   halfDietPrice: settingsStore.halfDietPrice || 0,
@@ -22,6 +29,8 @@ const importState = reactive({
   password: '',
   file: null as File | null
 })
+
+const { monthlyTemplate, serviceTemplate, monthlyTemplateLocation, serviceTemplateLocation } = storeToRefs(settingsStore)
 
 const isExporting = ref(false)
 const isImporting = ref(false)
@@ -53,7 +62,11 @@ const getBackupPayload = () => ({
     halfDietPrice: settingsStore.halfDietPrice,
     fullDietPrice: settingsStore.fullDietPrice,
     originProvince: settingsStore.originProvince,
-    originMunicipality: settingsStore.originMunicipality
+    originMunicipality: settingsStore.originMunicipality,
+    monthlyTemplate: settingsStore.monthlyTemplate,
+    serviceTemplate: settingsStore.serviceTemplate,
+    monthlyTemplateLocation: settingsStore.monthlyTemplateLocation,
+    serviceTemplateLocation: settingsStore.serviceTemplateLocation
   }
 })
 
@@ -113,12 +126,89 @@ const importBackup = async () => {
     if (importFileInput.value) {
       importFileInput.value.value = ''
     }
+    Object.values(templateInputs).forEach((input) => {
+      if (input.value) input.value.value = ''
+    })
   } catch (error) {
     console.error(error)
     toast.add({ title: 'Error en importar el backup', color: 'error' })
   } finally {
     isImporting.value = false
   }
+}
+
+const readFileAsDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
+  const reader = new FileReader()
+  reader.onload = () => resolve(reader.result as string)
+  reader.onerror = (event) => reject(event)
+  reader.readAsDataURL(file)
+})
+
+const triggerTemplateSelect = (type: TemplateType) => {
+  templateInputs[type].value?.click()
+}
+
+const onTemplateUpload = async (type: TemplateType, event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) {
+    toast.add({ title: 'Cap fitxer seleccionat', color: 'warning' })
+    return
+  }
+
+  try {
+    const dataUrl = await readFileAsDataUrl(file)
+    settingsStore.setTemplate(type, {
+      name: file.name,
+      mimeType: file.type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      dataUrl,
+      size: file.size,
+      updatedAt: new Date().toISOString()
+    })
+    toast.add({ title: 'Plantilla guardada', color: 'success' })
+  } catch (error) {
+    console.error(error)
+    toast.add({ title: 'No s\'ha pogut llegir la plantilla', color: 'error' })
+  } finally {
+    target.value = ''
+  }
+}
+
+const clearTemplate = (type: TemplateType) => {
+  settingsStore.setTemplate(type, null)
+  const input = templateInputs[type].value
+  if (input) input.value = ''
+  toast.add({ title: 'Plantilla eliminada', color: 'info' })
+}
+
+const downloadTemplate = (type: TemplateType) => {
+  const template = type === 'monthly' ? monthlyTemplate.value : serviceTemplate.value
+  if (!template) {
+    toast.add({ title: 'Cap plantilla disponible', color: 'warning' })
+    return
+  }
+
+  const link = document.createElement('a')
+  link.href = template.dataUrl
+  link.download = template.name || (type === 'monthly' ? 'plantilla-mensual.docx' : 'plantilla-servei.docx')
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+const formatBytes = (size?: number) => {
+  if (!size || size <= 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB']
+  const index = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1)
+  const value = size / Math.pow(1024, index)
+  return `${value.toFixed(1)} ${units[index]}`
+}
+
+const formatTimestamp = (value?: string) => {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleString('ca-ES')
 }
 </script>
 
@@ -204,6 +294,136 @@ const importBackup = async () => {
           <UButton to="/" variant="ghost" icon="i-heroicons-arrow-left">Tornar a l'inici</UButton>
         </div>
       </UForm>
+    </UCard>
+
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+            <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-primary-500" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Plantilles Word</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Puja la plantilla `.docx` o indica la ubicació on la tens guardada.</p>
+          </div>
+        </div>
+      </template>
+
+      <div class="space-y-8">
+        <section class="space-y-4">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h3 class="text-base font-semibold text-gray-900 dark:text-white">Plantilla mensual</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">S'utilitza per generar tots els desplaçaments del mes.</p>
+            </div>
+            <div class="flex gap-2">
+              <UButton icon="i-heroicons-folder-arrow-down" variant="soft" @click="triggerTemplateSelect('monthly')">
+                Selecciona fitxer
+              </UButton>
+              <UButton
+                v-if="monthlyTemplate"
+                icon="i-heroicons-arrow-down-tray"
+                variant="ghost"
+                @click="downloadTemplate('monthly')"
+              >
+                Descarrega
+              </UButton>
+              <UButton
+                v-if="monthlyTemplate"
+                icon="i-heroicons-trash"
+                color="error"
+                variant="ghost"
+                @click="clearTemplate('monthly')"
+              >
+                Elimina
+              </UButton>
+            </div>
+          </div>
+          <input
+            ref="monthlyTemplateInput"
+            type="file"
+            class="hidden"
+            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            @change="event => onTemplateUpload('monthly', event)"
+          >
+          <div v-if="monthlyTemplate" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 space-y-1 text-sm">
+            <p class="font-medium text-gray-900 dark:text-white">{{ monthlyTemplate.name }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Tamany: {{ formatBytes(monthlyTemplate.size) }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Actualitzada: {{ formatTimestamp(monthlyTemplate.updatedAt) }}</p>
+          </div>
+          <div v-else class="text-sm text-gray-500 dark:text-gray-400">
+            Encara no hi ha cap plantilla mensual guardada.
+          </div>
+          <UFormField
+            label="Ubicació externa (opcional)"
+            help="Ruta local, URL o qualsevol pista sobre on tens la plantilla original."
+          >
+            <UInput
+              v-model="monthlyTemplateLocation"
+              placeholder="Ex. OneDrive/Plantilles/Dietator-Mensual.docx"
+              icon="i-heroicons-map-pin"
+            />
+          </UFormField>
+        </section>
+
+        <USeparator />
+
+        <section class="space-y-4">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h3 class="text-base font-semibold text-gray-900 dark:text-white">Plantilla per servei</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Per generar documents d'un servei individual.</p>
+            </div>
+            <div class="flex gap-2">
+              <UButton icon="i-heroicons-folder-arrow-down" variant="soft" @click="triggerTemplateSelect('service')">
+                Selecciona fitxer
+              </UButton>
+              <UButton
+                v-if="serviceTemplate"
+                icon="i-heroicons-arrow-down-tray"
+                variant="ghost"
+                @click="downloadTemplate('service')"
+              >
+                Descarrega
+              </UButton>
+              <UButton
+                v-if="serviceTemplate"
+                icon="i-heroicons-trash"
+                color="error"
+                variant="ghost"
+                @click="clearTemplate('service')"
+              >
+                Elimina
+              </UButton>
+            </div>
+          </div>
+          <input
+            ref="serviceTemplateInput"
+            type="file"
+            class="hidden"
+            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            @change="event => onTemplateUpload('service', event)"
+          >
+          <div v-if="serviceTemplate" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 space-y-1 text-sm">
+            <p class="font-medium text-gray-900 dark:text-white">{{ serviceTemplate.name }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Tamany: {{ formatBytes(serviceTemplate.size) }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Actualitzada: {{ formatTimestamp(serviceTemplate.updatedAt) }}</p>
+          </div>
+          <div v-else class="text-sm text-gray-500 dark:text-gray-400">
+            Encara no hi ha cap plantilla individual guardada.
+          </div>
+          <UFormField
+            label="Ubicació externa (opcional)"
+            help="Serveix per recordar on tens la plantilla oficial si no la puges aquí."
+          >
+            <UInput
+              v-model="serviceTemplateLocation"
+              placeholder="Ex. SharePoint/Plantilla-Servei.docx"
+              icon="i-heroicons-map-pin"
+            />
+          </UFormField>
+        </section>
+      </div>
     </UCard>
 
     <UCard>

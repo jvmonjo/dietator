@@ -1,7 +1,7 @@
 import { storeToRefs } from 'pinia'
 import type { ServiceRecord } from '~/stores/services'
 
-interface MonthOption {
+export interface MonthOption {
   value: string
   label: string
 }

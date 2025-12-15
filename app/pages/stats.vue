@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import type { MonthOption } from '~/composables/useServiceStats'
 import type { Displacement, ServiceRecord } from '~/stores/services'
 import { generateWordReport } from '~/utils/export'
 
 const serviceStore = useServiceStore()
 const settingsStore = useSettingsStore()
+const toast = useToast()
 const { monthOptions, getRecordsForMonth, calculateTotals } = useServiceStats()
 
-const selectedMonth = ref<string | null>(null)
+const selectedMonth = ref<MonthOption | undefined>()
 
-const filteredRecords = computed(() => getRecordsForMonth(selectedMonth.value))
+const filteredRecords = computed(() => getRecordsForMonth(selectedMonth.value?.value))
+const selectedMonthLabel = computed(() => selectedMonth.value?.label ?? '')
 
 const columns = [
   { accessorKey: 'startTime', header: 'Start Time', id: 'startTime' },
@@ -48,8 +51,42 @@ const deleteRecord = (id: string) => {
 }
 
 const exportData = async () => {
-  // TODO: Implement export
-  await generateWordReport(filteredRecords.value)
+  if (!selectedMonth.value) {
+    toast.add({ title: 'Selecciona un mes', color: 'warning' })
+    return
+  }
+
+  if (!settingsStore.monthlyTemplate && !settingsStore.serviceTemplate) {
+    toast.add({ title: 'Configura una plantilla Word abans d\'exportar', color: 'warning' })
+    return
+  }
+
+  if (filteredRecords.value.length === 0) {
+    toast.add({ title: 'No hi ha serveis per al mes seleccionat', color: 'info' })
+    return
+  }
+
+  try {
+    await generateWordReport({
+      records: filteredRecords.value,
+      totals: totals.value,
+      month: selectedMonth.value,
+      settings: {
+        halfDietPrice: settingsStore.halfDietPrice,
+        fullDietPrice: settingsStore.fullDietPrice,
+        originProvince: settingsStore.originProvince,
+        originMunicipality: settingsStore.originMunicipality
+      },
+      templates: {
+        monthly: settingsStore.monthlyTemplate,
+        service: settingsStore.serviceTemplate
+      }
+    })
+    toast.add({ title: 'Documents generats correctament', color: 'success' })
+  } catch (error) {
+    console.error(error)
+    toast.add({ title: 'No s\'han pogut generar els documents', color: 'error' })
+  }
 }
 </script>
 
@@ -66,7 +103,14 @@ const exportData = async () => {
           class="min-w-[200px]"
         />
         <UButton to="/" icon="i-heroicons-arrow-left" variant="ghost">Back to Form</UButton>
-        <UButton icon="i-heroicons-document-arrow-down" color="success" @click="exportData">Export Report</UButton>
+        <UButton
+          icon="i-heroicons-document-arrow-down"
+          color="success"
+          :disabled="!selectedMonth"
+          @click="exportData"
+        >
+          Export Report
+        </UButton>
       </div>
     </div>
 
@@ -129,7 +173,7 @@ const exportData = async () => {
           <p class="text-sm text-gray-500 dark:text-gray-400">
             Registres: {{ filteredRecords.length }}
             <span v-if="selectedMonth" class="block text-xs text-gray-400">
-              Filtrat per {{ monthOptions.find(option => option.value === selectedMonth)?.label }}
+              Filtrat per {{ selectedMonthLabel }}
             </span>
           </p>
         </div>
