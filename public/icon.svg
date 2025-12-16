@@ -19,8 +19,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.2402344"
-     inkscape:cx="256"
-     inkscape:cy="256"
+     inkscape:cx="255.99999"
+     inkscape:cy="255.99999"
      inkscape:window-width="1600"
      inkscape:window-height="837"
      inkscape:window-x="-8"
@@ -66,12 +66,9 @@
        id="path2"
        sodipodi:nodetypes="ssssssssssssssssss" />
   </g>
-  <text
-     xml:space="preserve"
+  <path
+     d="m 368.58432,256.23153 q 0,32.10453 -14.66314,57.57207 -14.66315,25.31319 -37.04367,38.89588 -16.82405,10.18702 -36.88935,14.20008 -20.06536,4.01307 -47.53938,4.01307 h -81.0331 V 141.08737 H 234.764 q 28.09147,0 48.46549,4.78481 20.37401,4.63047 34.26539,13.27399 23.76974,14.50879 37.35239,39.20458 13.73705,24.54145 13.73705,57.88078 z m -61.27645,-0.46305 q 0,-22.68926 -8.33482,-38.74153 -8.1805,-16.20662 -26.08497,-25.31319 -9.10651,-4.47611 -18.67615,-6.0196 -9.41532,-1.69784 -28.55452,-1.69784 h -14.97187 v 143.85301 h 14.97187 q 21.14578,0 31.02407,-1.85218 9.87836,-2.00654 19.2936,-7.10004 16.2066,-9.26093 23.76973,-24.6958 7.56306,-15.58922 7.56306,-38.43283 z"
      id="text3"
-     style="font-weight:bold;font-size:42.6667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect3);fill:#1f2937;fill-opacity:1"
-     transform="matrix(5.9791642,0,0,5.9791642,-520.59853,-197.37521)"><tspan
-       x="111.26953"
-       y="91.336279"
-       id="tspan1">D</tspan></text>
+     style="font-weight:bold;font-size:42.6667px;-inkscape-font-specification:'sans-serif Bold';white-space:pre;fill:#1f2937;stroke-width:7.40873"
+     aria-label="D" />
 </svg>
