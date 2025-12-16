@@ -22,6 +22,7 @@ export default defineNuxtConfig({
     head: {
       link: [
         { rel: 'icon', type: 'image/png', sizes: '196x196', href: (process.env.NUXT_APP_BASE_URL || '/') + 'favicon-196.png' },
+        { rel: 'icon', type: 'image/x-icon', href: (process.env.NUXT_APP_BASE_URL || '/') + 'favicon.ico' },
         { rel: 'apple-touch-icon', href: (process.env.NUXT_APP_BASE_URL || '/') + 'apple-icon-180.png' }
       ],
       meta: [

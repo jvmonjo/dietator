@@ -1,0 +1,46 @@
+<div class="splash-container">
+    <style>
+        .splash-container {
+            background-color: #f5dc00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+        }
+
+        .splash-icon {
+            width: 128px;
+            height: 128px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+    </style>
+    <img src="icon.svg" alt="Dietator Loading" class="splash-icon">
+    <script>
+        // Fallback to ensure icon path is correct if base URL is needed, though /dietator/icon.svg should work for GitHub pages
+        // We can't easily access process.env here easily without injection, so hardcoding /dietator/ is safer for the specific GH deployment
+        // OR rely on relative path?
+        // Let's stick to /dietator/icon.svg if we know the base.
+    </script>
+</div>
