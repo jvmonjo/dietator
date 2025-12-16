@@ -15,6 +15,21 @@ export default defineNuxtConfig({
     '@nuxt/eslint'
   ],
 
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/png', sizes: '196x196', href: '/favicon-196.png' },
+        { rel: 'apple-touch-icon', href: '/apple-icon-180.png' }
+      ],
+      meta: [
+        { name: 'msapplication-square70x70logo', content: '/mstile-icon-128.png' },
+        { name: 'msapplication-square150x150logo', content: '/mstile-icon-270.png' },
+        { name: 'msapplication-square310x310logo', content: '/mstile-icon-558.png' },
+        { name: 'msapplication-wide310x150logo', content: '/mstile-icon-558-270.png' }
+      ]
+    }
+  },
+
   css: ['./app/assets/css/main.css'],
 
   pwa: {
@@ -25,14 +40,28 @@ export default defineNuxtConfig({
       theme_color: '#f5dc00ff',
       icons: [
         {
-          src: 'pwa-192x192.png',
+          src: 'manifest-icon-192.maskable.png',
           sizes: '192x192',
-          type: 'image/png'
+          type: 'image/png',
+          purpose: 'any'
         },
         {
-          src: 'pwa-512x512.png',
+          src: 'manifest-icon-192.maskable.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'maskable'
+        },
+        {
+          src: 'manifest-icon-512.maskable.png',
           sizes: '512x512',
-          type: 'image/png'
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: 'manifest-icon-512.maskable.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
         }
       ]
     },
