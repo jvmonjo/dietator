@@ -21,7 +21,7 @@ export default defineNuxtConfig({
     viewer: false,
   },
 
-  spaLoadingTemplate: './app/spa-loading-template.html',
+  spaLoadingTemplate: 'spa-loading-template.html',
 
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
