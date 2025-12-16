@@ -15,6 +15,8 @@ export default defineNuxtConfig({
     '@nuxt/eslint'
   ],
 
+  spaLoadingTemplate: './app/spa-loading-template.html',
+
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
     head: {

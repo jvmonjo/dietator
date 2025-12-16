@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html style="background-color: #f5dc00; height: 100vh; width: 100vw; overflow: hidden; margin: 0; padding: 0;">
+<head>
+    <style>
+        body {
+            background-color: #f5dc00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .splash-icon {
+            width: 128px;
+            height: 128px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <img src="/icon.svg" alt="Dietator Loading" class="splash-icon">
+</body>
+</html>
