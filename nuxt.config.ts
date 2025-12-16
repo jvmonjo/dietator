@@ -15,7 +15,13 @@ export default defineNuxtConfig({
     '@nuxt/eslint'
   ],
 
-  spaLoadingTemplate: 'spa-loading-template.html',
+  tailwindcss: {
+    cssPath: './app/assets/css/main.css',
+    configPath: 'tailwind.config.ts',
+    viewer: false,
+  },
+
+  spaLoadingTemplate: './app/spa-loading-template.html',
 
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
