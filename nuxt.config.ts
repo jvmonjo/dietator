@@ -15,20 +15,20 @@ export default defineNuxtConfig({
     '@nuxt/eslint'
   ],
 
-  spaLoadingTemplate: './app/spa-loading-template.html',
+  spaLoadingTemplate: 'spa-loading-template.html',
 
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
     head: {
       link: [
-        { rel: 'icon', type: 'image/png', sizes: '196x196', href: '/favicon-196.png' },
-        { rel: 'apple-touch-icon', href: '/apple-icon-180.png' }
+        { rel: 'icon', type: 'image/png', sizes: '196x196', href: (process.env.NUXT_APP_BASE_URL || '/') + 'favicon-196.png' },
+        { rel: 'apple-touch-icon', href: (process.env.NUXT_APP_BASE_URL || '/') + 'apple-icon-180.png' }
       ],
       meta: [
-        { name: 'msapplication-square70x70logo', content: '/mstile-icon-128.png' },
-        { name: 'msapplication-square150x150logo', content: '/mstile-icon-270.png' },
-        { name: 'msapplication-square310x310logo', content: '/mstile-icon-558.png' },
-        { name: 'msapplication-wide310x150logo', content: '/mstile-icon-558-270.png' }
+        { name: 'msapplication-square70x70logo', content: (process.env.NUXT_APP_BASE_URL || '/') + 'mstile-icon-128.png' },
+        { name: 'msapplication-square150x150logo', content: (process.env.NUXT_APP_BASE_URL || '/') + 'mstile-icon-270.png' },
+        { name: 'msapplication-square310x310logo', content: (process.env.NUXT_APP_BASE_URL || '/') + 'mstile-icon-558.png' },
+        { name: 'msapplication-wide310x150logo', content: (process.env.NUXT_APP_BASE_URL || '/') + 'mstile-icon-558-270.png' }
       ]
     }
   },
@@ -43,25 +43,25 @@ export default defineNuxtConfig({
       theme_color: '#f5dc00ff',
       icons: [
         {
-          src: 'manifest-icon-192.maskable.png',
+          src: (process.env.NUXT_APP_BASE_URL || '/') + 'manifest-icon-192.maskable.png',
           sizes: '192x192',
           type: 'image/png',
           purpose: 'any'
         },
         {
-          src: 'manifest-icon-192.maskable.png',
+          src: (process.env.NUXT_APP_BASE_URL || '/') + 'manifest-icon-192.maskable.png',
           sizes: '192x192',
           type: 'image/png',
           purpose: 'maskable'
         },
         {
-          src: 'manifest-icon-512.maskable.png',
+          src: (process.env.NUXT_APP_BASE_URL || '/') + 'manifest-icon-512.maskable.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'any'
         },
         {
-          src: 'manifest-icon-512.maskable.png',
+          src: (process.env.NUXT_APP_BASE_URL || '/') + 'manifest-icon-512.maskable.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'maskable'

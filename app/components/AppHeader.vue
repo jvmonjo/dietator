@@ -3,10 +3,12 @@ const colorMode = useColorMode()
 
 const isDark = computed({
   get () {
-    return colorMode.value === 'dark'
+    return colorMode?.value === 'dark'
   },
   set (value: boolean) {
-    colorMode.preference = value ? 'dark' : 'light'
+    if (colorMode) {
+      colorMode.preference = value ? 'dark' : 'light'
+    }
   }
 })
 
