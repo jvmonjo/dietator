@@ -57,10 +57,11 @@ const getBackupPayload = () => ({
   settings: {
     halfDietPrice: settingsStore.halfDietPrice,
     fullDietPrice: settingsStore.fullDietPrice,
-    monthlyTemplate: settingsStore.monthlyTemplate,
-    serviceTemplate: settingsStore.serviceTemplate,
+    monthlyTemplate: settingsStore.exportTemplates ? settingsStore.monthlyTemplate : null,
+    serviceTemplate: settingsStore.exportTemplates ? settingsStore.serviceTemplate : null,
     monthlyTemplateLocation: settingsStore.monthlyTemplateLocation,
-    serviceTemplateLocation: settingsStore.serviceTemplateLocation
+    serviceTemplateLocation: settingsStore.serviceTemplateLocation,
+    exportTemplates: settingsStore.exportTemplates
   }
 })
 
@@ -416,6 +417,12 @@ const formatTimestamp = (value?: string) => {
               placeholder="Introdueix una contrasenya"
             />
           </UFormField>
+          <UCheckbox
+            v-model="settingsStore.exportTemplates"
+            label="Incloure plantilles"
+            help="Si ho marques, el fitxer de backup serà més gran ja que inclourà els Word."
+            class="mb-4"
+          />
           <UButton :loading="isExporting" icon="i-heroicons-arrow-down-on-square-stack" @click="exportBackup">
             Exportar backup
           </UButton>
