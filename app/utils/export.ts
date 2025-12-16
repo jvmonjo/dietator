@@ -1,5 +1,5 @@
 import JSZip from 'jszip'
-import { saveAs } from 'file-saver'
+import * as FileSaver from 'file-saver'
 import type { MonthOption, ServiceTotals } from '~/composables/useServiceStats'
 import type { ServiceRecord } from '~/stores/services'
 import type { TemplateFile } from '~/stores/settings'
@@ -230,7 +230,7 @@ const fillTemplateAndDownload = async (template: TemplateFile, context: Template
   const rendered = renderTemplate(cleaned, context)
   zip.file('word/document.xml', rendered)
   const blob = await zip.generateAsync({ type: 'blob' })
-  saveAs(blob, filename)
+  FileSaver.saveAs(blob, filename)
 }
 
 const renderTemplate = (content: string, context: TemplateContext): string => {
