@@ -66,7 +66,7 @@ jobs:
         env:
           NUXT_APP_BASE_URL: /dietator/
           NITRO_PRESET: github-pages
-          NUXT_DEBUG: true
+          NUXT_DEBUG: "1"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
