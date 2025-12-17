@@ -13,10 +13,23 @@
             z-index: 9999;
         }
 
+        .splash-content {
+            text-align: center;
+            color: #434343;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
         .splash-icon {
             width: 128px;
             height: 128px;
             animation: pulse 2s infinite ease-in-out;
+        }
+
+        .splash-text {
+            margin-top: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
         }
 
         @keyframes pulse {
@@ -36,7 +49,10 @@
             }
         }
     </style>
-    <img src="icon.svg" alt="Dietator Loading" class="splash-icon">
+    <div class="splash-content">
+        <img src="icon.svg" alt="Dietator Loading" class="splash-icon">
+        <div class="splash-text">Dietator</div>
+    </div>
     <script>
         // Fallback to ensure icon path is correct if base URL is needed, though /dietator/icon.svg should work for GitHub pages
         // We can't easily access process.env here easily without injection, so hardcoding /dietator/ is safer for the specific GH deployment
