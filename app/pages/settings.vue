@@ -19,7 +19,10 @@ const formState = reactive({
 })
 
 const exportState = reactive({
-  password: ''
+  password: '',
+  includeSettings: true,
+  includeData: true,
+  selectedMonth: 'all'
 })
 
 const importState = reactive({
@@ -31,6 +34,48 @@ const { monthlyTemplate, serviceTemplate, monthlyTemplateLocation, serviceTempla
 
 const isExporting = ref(false)
 const isImporting = ref(false)
+
+const monthFormatter = new Intl.DateTimeFormat('ca-ES', { month: 'long', year: 'numeric' })
+
+const monthsWithData = computed(() => {
+  const months = new Map<string, string>()
+  serviceStore.records.forEach((record) => {
+    const date = new Date(record.startTime)
+    if (Number.isNaN(date.getTime())) { return }
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    if (!months.has(key)) {
+      const label = monthFormatter.format(date)
+      months.set(key, label.charAt(0).toUpperCase() + label.slice(1))
+    }
+  })
+  return [...months.entries()]
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([value, label]) => ({ value, label }))
+})
+
+const monthOptions = computed(() => [
+  { label: 'Tots els mesos', value: 'all', disabled: monthsWithData.value.length === 0 },
+  ...monthsWithData.value
+])
+
+const hasMonthData = computed(() => monthsWithData.value.length > 0)
+
+const filteredServices = computed(() => {
+  if (!exportState.includeData) {
+    return []
+  }
+  if (exportState.selectedMonth === 'all') {
+    return serviceStore.records
+  }
+  const targetPrefix = `${exportState.selectedMonth}-`
+  return serviceStore.records.filter(record => record.startTime?.startsWith(targetPrefix))
+})
+
+watch(monthsWithData, (months) => {
+  if (exportState.selectedMonth !== 'all' && !months.some(month => month.value === exportState.selectedMonth)) {
+    exportState.selectedMonth = 'all'
+  }
+})
 
 const saveSettings = () => {
   const normalizedHalfPrice = Number(formState.halfDietPrice) || 0
@@ -52,18 +97,31 @@ const onFileChange = (event: Event) => {
   importState.file = target.files?.[0] ?? null
 }
 
-const getBackupPayload = () => ({
-  services: JSON.parse(JSON.stringify(serviceStore.records)),
-  settings: {
-    halfDietPrice: settingsStore.halfDietPrice,
-    fullDietPrice: settingsStore.fullDietPrice,
-    monthlyTemplate: settingsStore.exportTemplates ? settingsStore.monthlyTemplate : null,
-    serviceTemplate: settingsStore.exportTemplates ? settingsStore.serviceTemplate : null,
-    monthlyTemplateLocation: settingsStore.monthlyTemplateLocation,
-    serviceTemplateLocation: settingsStore.serviceTemplateLocation,
-    exportTemplates: settingsStore.exportTemplates
+const getBackupPayload = () => {
+  const payload: Record<string, any> = {}
+
+  if (exportState.includeData) {
+    payload.services = JSON.parse(JSON.stringify(filteredServices.value))
+    payload.meta = {
+      ...(payload.meta || {}),
+      month: exportState.selectedMonth
+    }
   }
-})
+
+  if (exportState.includeSettings) {
+    payload.settings = {
+      halfDietPrice: settingsStore.halfDietPrice,
+      fullDietPrice: settingsStore.fullDietPrice,
+      monthlyTemplate: settingsStore.exportTemplates ? settingsStore.monthlyTemplate : null,
+      serviceTemplate: settingsStore.exportTemplates ? settingsStore.serviceTemplate : null,
+      monthlyTemplateLocation: settingsStore.monthlyTemplateLocation,
+      serviceTemplateLocation: settingsStore.serviceTemplateLocation,
+      exportTemplates: settingsStore.exportTemplates
+    }
+  }
+
+  return payload
+}
 
 const exportBackup = async () => {
   if (!exportState.password) {
@@ -71,9 +129,19 @@ const exportBackup = async () => {
     return
   }
 
+  if (!exportState.includeSettings && !exportState.includeData) {
+    toast.add({ title: 'Selecciona què vols exportar', color: 'warning' })
+    return
+  }
+
   isExporting.value = true
   try {
-    const backup = await encryptBackup(exportState.password, getBackupPayload())
+    const payload = getBackupPayload()
+    if (!payload.services && !payload.settings) {
+      toast.add({ title: 'No hi ha contingut per exportar', color: 'warning' })
+      return
+    }
+    const backup = await encryptBackup(exportState.password, payload)
     const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -107,14 +175,25 @@ const importBackup = async () => {
     const content = await importState.file.text()
     const parsed = JSON.parse(content)
     const payload = await decryptBackup(importState.password, parsed)
-    if (!payload?.services || !payload?.settings) {
+    const hasServices = Array.isArray(payload?.services)
+    const hasSettings = payload?.settings && typeof payload.settings === 'object'
+    if (!hasServices && !hasSettings) {
       throw new Error('Backup malformat')
     }
-    serviceStore.setRecords(payload.services)
-    settingsStore.loadSettings(payload.settings)
-    formState.halfDietPrice = settingsStore.halfDietPrice
-    formState.fullDietPrice = settingsStore.fullDietPrice
-    toast.add({ title: 'Backup importat', color: 'success' })
+    if (hasServices) {
+      serviceStore.setRecords(payload.services)
+    }
+    if (hasSettings) {
+      settingsStore.loadSettings(payload.settings)
+      formState.halfDietPrice = settingsStore.halfDietPrice
+      formState.fullDietPrice = settingsStore.fullDietPrice
+    }
+    const description = hasServices && hasSettings
+      ? 'S\'han actualitzat les dades i la configuració'
+      : hasServices
+          ? 'S\'han actualitzat les dades'
+          : 'S\'ha actualitzat la configuració'
+    toast.add({ title: 'Backup importat', description, color: 'success' })
     importState.file = null
     if (importFileInput.value) {
       importFileInput.value.value = ''
@@ -418,11 +497,38 @@ const formatTimestamp = (value?: string) => {
             />
           </UFormField>
           <UCheckbox
+            v-model="exportState.includeSettings"
+            label="Incloure configuració"
+            help="Preus, plantilles i ubicacions guardades."
+          />
+          <UCheckbox
+            v-model="exportState.includeData"
+            label="Incloure totes les dades"
+            help="Serveis registrats a Dietator."
+          />
+          <UCheckbox
             v-model="settingsStore.exportTemplates"
             label="Incloure plantilles"
             help="Si ho marques, el fitxer de backup serà més gran ja que inclourà els Word."
+            :disabled="!exportState.includeSettings"
             class="mb-4"
           />
+          <UFormField
+            v-if="exportState.includeData"
+            label="Mes per exportar"
+            help="Selecciona un mes concret o escull 'Tots els mesos'."
+          >
+            <USelect
+              v-model="exportState.selectedMonth"
+              :items="monthOptions"
+              :disabled="monthOptions.length <= 1"
+              placeholder="Tots els mesos"
+              menu-teleport-to="body"
+            />
+            <p v-if="!hasMonthData" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              Encara no hi ha dades registrades. Quan hi hagi serveis, podràs triar el mes a exportar.
+            </p>
+          </UFormField>
           <UButton :loading="isExporting" icon="i-heroicons-arrow-down-on-square-stack" @click="exportBackup">
             Exportar backup
           </UButton>
