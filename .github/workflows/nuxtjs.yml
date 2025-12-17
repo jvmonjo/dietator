@@ -66,6 +66,25 @@ jobs:
         env:
           NUXT_APP_BASE_URL: /dietator/
           NITRO_PRESET: github-pages
+      - name: Inspect generated files
+        run: |
+          echo "Root:"
+          ls -la .
+          echo ".output/public:"
+          ls -la .output/public
+          echo ".output/public/_nuxt:"
+          ls -la .output/public/_nuxt
+          echo "Checking PWA assets:"
+          if [ -f .output/public/sw.js ]; then
+            echo "sw.js present"
+          else
+            echo "sw.js missing"
+          fi
+          if ls .output/public/workbox-*.js >/dev/null 2>&1; then
+            echo "workbox bundle present"
+          else
+            echo "workbox bundle missing"
+          fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
