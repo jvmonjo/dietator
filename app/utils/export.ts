@@ -52,20 +52,30 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
   const { templates } = options
   const { monthly, service } = templates
 
-  const tasks: Promise<void>[] = []
+  const tasks: Promise<{ filename: string; blob: Blob }>[] = []
   const { monthlyContext, serviceDocuments } = buildContexts(options)
 
   if (monthly && monthlyContext) {
-    tasks.push(fillTemplateAndDownload(monthly, monthlyContext, `dietator-mensual-${options.month.value}.docx`))
+    tasks.push(renderDocumentFromTemplate(monthly, monthlyContext, `dietator-mensual-${options.month.value}.docx`))
   }
 
   if (service && serviceDocuments.length > 0) {
     serviceDocuments.forEach((doc) => {
-      tasks.push(fillTemplateAndDownload(service, doc.context, `dietator-servei-${doc.reference}.docx`))
+      tasks.push(renderDocumentFromTemplate(service, doc.context, `dietator-servei-${doc.reference}.docx`))
     })
   }
 
-  await Promise.all(tasks)
+  const files = await Promise.all(tasks)
+  if (files.length === 0) {
+    return
+  }
+
+  const archive = new JSZip()
+  files.forEach((file) => {
+    archive.file(file.filename, file.blob)
+  })
+  const zipBlob = await archive.generateAsync({ type: 'blob' })
+  FileSaver.saveAs(zipBlob, `dietator-documents-${options.month.value}.zip`)
 }
 
 const buildContexts = (options: GenerateWordReportOptions) => {
@@ -217,7 +227,7 @@ const buildDisplacementVariables = (
   }
 }
 
-const fillTemplateAndDownload = async (template: TemplateFile, context: TemplateContext, filename: string) => {
+const renderDocumentFromTemplate = async (template: TemplateFile, context: TemplateContext, filename: string) => {
   const buffer = decodeDataUrl(template.dataUrl)
   const zip = await JSZip.loadAsync(buffer)
   const documentFile = zip.file('word/document.xml')
@@ -230,7 +240,7 @@ const fillTemplateAndDownload = async (template: TemplateFile, context: Template
   const rendered = renderTemplate(cleaned, context)
   zip.file('word/document.xml', rendered)
   const blob = await zip.generateAsync({ type: 'blob' })
-  FileSaver.saveAs(blob, filename)
+  return { filename, blob }
 }
 
 const renderTemplate = (content: string, context: TemplateContext): string => {
@@ -290,6 +300,9 @@ const formatValue = (value: TemplateValue, modifier?: string): string => {
     const parsed = toDate(value)
     if (!parsed) return ''
     return formatSlashDate(parsed)
+  }
+  if (modifier === 'shortdate') {
+    return formatShortDate(value)
   }
 
   if (value === null || value === undefined) {
