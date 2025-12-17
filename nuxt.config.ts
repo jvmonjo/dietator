@@ -1,3 +1,14 @@
+const normalizeBaseURL = (value?: string) => {
+  if (!value) { return '/' }
+  let base = value.startsWith('/') ? value : `/${value}`
+  if (!base.endsWith('/')) {
+    base = `${base}/`
+  }
+  return base
+}
+
+const appBaseURL = normalizeBaseURL(process.env.NUXT_APP_BASE_URL)
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -10,18 +21,18 @@ export default defineNuxtConfig({
   spaLoadingTemplate: 'spa-loading-template.html',
 
   app: {
-    baseURL: process.env.NUXT_APP_BASE_URL || '/',
+    baseURL: appBaseURL,
     head: {
       link: [
-        { rel: 'icon', type: 'image/png', sizes: '196x196', href: (process.env.NUXT_APP_BASE_URL || '/') + 'favicon-196.png' },
-        { rel: 'icon', type: 'image/x-icon', href: (process.env.NUXT_APP_BASE_URL || '/') + 'favicon.ico' },
-        { rel: 'apple-touch-icon', href: (process.env.NUXT_APP_BASE_URL || '/') + 'apple-icon-180.png' }
+        { rel: 'icon', type: 'image/png', sizes: '196x196', href: appBaseURL + 'favicon-196.png' },
+        { rel: 'icon', type: 'image/x-icon', href: appBaseURL + 'favicon.ico' },
+        { rel: 'apple-touch-icon', href: appBaseURL + 'apple-icon-180.png' }
       ],
       meta: [
-        { name: 'msapplication-square70x70logo', content: (process.env.NUXT_APP_BASE_URL || '/') + 'mstile-icon-128.png' },
-        { name: 'msapplication-square150x150logo', content: (process.env.NUXT_APP_BASE_URL || '/') + 'mstile-icon-270.png' },
-        { name: 'msapplication-square310x310logo', content: (process.env.NUXT_APP_BASE_URL || '/') + 'mstile-icon-558.png' },
-        { name: 'msapplication-wide310x150logo', content: (process.env.NUXT_APP_BASE_URL || '/') + 'mstile-icon-558-270.png' }
+        { name: 'msapplication-square70x70logo', content: appBaseURL + 'mstile-icon-128.png' },
+        { name: 'msapplication-square150x150logo', content: appBaseURL + 'mstile-icon-270.png' },
+        { name: 'msapplication-square310x310logo', content: appBaseURL + 'mstile-icon-558.png' },
+        { name: 'msapplication-wide310x150logo', content: appBaseURL + 'mstile-icon-558-270.png' }
       ]
     }
   },
@@ -39,36 +50,40 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'github-pages',
-    debug: true
+    debug: process.env.NUXT_DEBUG === '1'
   },
 
   pwa: {
+    base: appBaseURL,
+    scope: appBaseURL,
     registerType: 'autoUpdate',
     manifest: {
       name: 'Dietator',
       short_name: 'Dietator',
       theme_color: '#f5dc00ff',
+      scope: appBaseURL,
+      start_url: appBaseURL,
       icons: [
         {
-          src: (process.env.NUXT_APP_BASE_URL || '/') + 'manifest-icon-192.maskable.png',
+          src: appBaseURL + 'manifest-icon-192.maskable.png',
           sizes: '192x192',
           type: 'image/png',
           purpose: 'any'
         },
         {
-          src: (process.env.NUXT_APP_BASE_URL || '/') + 'manifest-icon-192.maskable.png',
+          src: appBaseURL + 'manifest-icon-192.maskable.png',
           sizes: '192x192',
           type: 'image/png',
           purpose: 'maskable'
         },
         {
-          src: (process.env.NUXT_APP_BASE_URL || '/') + 'manifest-icon-512.maskable.png',
+          src: appBaseURL + 'manifest-icon-512.maskable.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'any'
         },
         {
-          src: (process.env.NUXT_APP_BASE_URL || '/') + 'manifest-icon-512.maskable.png',
+          src: appBaseURL + 'manifest-icon-512.maskable.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'maskable'
@@ -76,6 +91,7 @@ export default defineNuxtConfig({
       ]
     },
     workbox: {
+      navigateFallback: appBaseURL,
       globPatterns: ['**/*.{js,css,html,png,svg,ico}']
     },
     client: {
@@ -84,7 +100,7 @@ export default defineNuxtConfig({
     devOptions: {
       enabled: false,
       suppressWarnings: true,
-      navigateFallback: '/',
+      navigateFallback: appBaseURL,
       type: 'module',
     },
   }
