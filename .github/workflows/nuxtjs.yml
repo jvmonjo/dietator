@@ -74,6 +74,7 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} run generate
         env:
           NUXT_APP_BASE_URL: /dietator/
+          NITRO_PRESET: github-pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
