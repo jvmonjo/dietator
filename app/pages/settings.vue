@@ -23,7 +23,7 @@ const exportState = reactive({
   password: '',
   includeSettings: true,
   includeData: true,
-  selectedMonth: 'all'
+  selectedMonth: 'all' as string
 })
 
 const importState = reactive({
@@ -134,6 +134,29 @@ const getBackupPayload = (): BackupPayload => {
   return payload
 }
 
+const sanitizeSegment = (value: string) => value
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
+
+const buildBackupFilename = (timestamp: string) => {
+  const segments = ['dietator']
+  if (exportState.includeSettings && exportState.includeData) {
+    segments.push('config-dades')
+  } else if (exportState.includeSettings) {
+    segments.push('config')
+  } else if (exportState.includeData) {
+    segments.push('dades')
+  }
+
+  if (exportState.includeData && exportState.selectedMonth !== 'all') {
+    segments.push(`mes-${sanitizeSegment(exportState.selectedMonth)}`)
+  }
+
+  segments.push(timestamp)
+  return `${segments.filter(Boolean).join('-')}.json`
+}
+
 const exportBackup = async () => {
   if (!exportState.password) {
     toast.add({ title: 'Indica una contrasenya', color: 'warning' })
@@ -156,9 +179,10 @@ const exportBackup = async () => {
     const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    const timestamp = new Date().toISOString().split('T')[0]
+    const timestamp = new Date().toISOString().split('T')[0] ?? new Date().toISOString()
+    const filename = buildBackupFilename(timestamp)
     link.href = url
-    link.download = `dietator-backup-${timestamp}.json`
+    link.download = filename
     link.click()
     URL.revokeObjectURL(url)
     toast.add({ title: 'Backup exportat correctament', color: 'success' })
@@ -194,7 +218,14 @@ const importBackup = async () => {
       throw new Error('Backup malformat')
     }
     if (services) {
-      serviceStore.setRecords(services)
+      const importMonth = payload.meta?.month ?? 'all'
+      if (importMonth !== 'all') {
+        const targetPrefix = `${importMonth}-`
+        const preserved = serviceStore.records.filter(record => !record.startTime?.startsWith(targetPrefix))
+        serviceStore.setRecords([...preserved, ...services])
+      } else {
+        serviceStore.setRecords(services)
+      }
     }
     if (settings) {
       settingsStore.loadSettings(settings)

@@ -8,19 +8,12 @@ export default defineNuxtConfig({
   ssr: false,
 
   modules: [
-    '@nuxtjs/tailwindcss',
     '@nuxt/ui',
     '@vite-pwa/nuxt',
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
     '@nuxt/eslint'
   ],
-
-  tailwindcss: {
-    cssPath: './app/assets/css/main.css',
-    configPath: 'tailwind.config.ts',
-    viewer: false,
-  },
 
   spaLoadingTemplate: 'spa-loading-template.html',
 
