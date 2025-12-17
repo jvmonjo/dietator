@@ -196,11 +196,13 @@ const exceedsDurationLimit = computed(() => serviceDurationMs.value > DURATION_L
             <UCheckbox
               v-model="displacement.hasLunch"
               label="Lunch Included"
+              :disabled="state.displacements.some((d, idx) => idx !== index && d.hasLunch)"
               :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
             />
             <UCheckbox
               v-model="displacement.hasDinner"
               label="Dinner Included"
+              :disabled="state.displacements.some((d, idx) => idx !== index && d.hasDinner)"
               :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
             />
           </div>

@@ -58,6 +58,11 @@ const averageWeeklyHours = computed(() => {
   return totalHoursWorked.value / weeksInSelectedMonth.value
 })
 
+const averageHoursPerService = computed(() => {
+  if (selectionTotals.value.serviceCount <= 0) return 0
+  return totalHoursWorked.value / selectionTotals.value.serviceCount
+})
+
 const hoursFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 const weeksFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
 const formatHours = (value: number) => `${hoursFormatter.format(value || 0)} h`
@@ -175,7 +180,7 @@ const exportReport = async () => {
     </section>
 
     <!-- Worked Hours -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
@@ -183,7 +188,7 @@ const exportReport = async () => {
           </div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(totalHoursWorked) }}</div>
           <p class="text-xs text-gray-400">
-            Basat en {{ formatWeeks(weeksInSelectedMonth) }} setmanes del mes seleccionat
+            No inclou dies sense dieta
           </p>
         </div>
       </UCard>
@@ -193,6 +198,15 @@ const exportReport = async () => {
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(averageWeeklyHours) }}</div>
           <p class="text-xs text-gray-400">
             Mitjana de {{ formatWeeks(weeksInSelectedMonth) }} setmanes de {{ selectedMonthLabel.toLowerCase() }}
+          </p>
+        </div>
+      </UCard>
+      <UCard>
+        <div class="text-center space-y-1">
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Mitjana per servei</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(averageHoursPerService) }}</div>
+          <p class="text-xs text-gray-400">
+            Mitjana basada en {{ selectionTotals.serviceCount }} serveis
           </p>
         </div>
       </UCard>
