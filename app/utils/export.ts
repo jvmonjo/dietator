@@ -277,6 +277,23 @@ const resolveValue = (context: TemplateContext, key: string): TemplateValue => {
   return ''
 }
 
+const findIsoValue = (context: TemplateContext | undefined, key?: string): TemplateValue | undefined => {
+  if (!context || !key) return undefined
+  const candidates = new Set<string>()
+  candidates.add(`${key}_iso`)
+  const strippedKey = key.replace(/_(?:date|time)$/, '')
+  if (strippedKey && strippedKey !== key) {
+    candidates.add(`${strippedKey}_iso`)
+  }
+  for (const candidate of candidates) {
+    const resolved = resolveValue(context, candidate)
+    if (resolved) {
+      return resolved
+    }
+  }
+  return undefined
+}
+
 const formatValue = (value: TemplateValue, modifier?: string, key?: string, context?: TemplateContext): string => {
   if (modifier?.startsWith('limit')) {
     const count = Number(modifier.replace('limit', ''))
@@ -293,9 +310,7 @@ const formatValue = (value: TemplateValue, modifier?: string, key?: string, cont
   }
 
   if (modifier === 'human') {
-    const isoKey = key ? `${key}_iso` : undefined
-    const sourceValue = isoKey && context ? resolveValue(context, isoKey) : undefined
-    const parsed = toDate(sourceValue ?? value)
+    const parsed = toDate(findIsoValue(context, key) ?? value)
     return parsed ? HUMAN_DATE_FORMATTER.format(parsed) : ''
   }
   if (modifier === 'slash') {
