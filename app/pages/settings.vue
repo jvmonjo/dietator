@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TemplateType } from '~/stores/settings'
 import type { ServiceRecord } from '~/stores/services'
-import { encryptBackup, decryptBackup } from '~/utils/secureBackup'
+import { encryptBackup, decryptBackup, type BackupPayload } from '~/utils/secureBackup'
 
 const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
@@ -21,9 +21,8 @@ const formState = reactive({
 
 const exportState = reactive({
   password: '',
-  includeSettings: true,
-  includeData: true,
-  selectedMonth: 'all' as string
+  selectedMonth: 'all' as string,
+  includeTemplates: true
 })
 
 const importState = reactive({
@@ -31,9 +30,17 @@ const importState = reactive({
   file: null as File | null
 })
 
+const confirmModal = reactive({
+  isOpen: false,
+  title: '',
+  description: '',
+  action: null as (() => Promise<void>) | null
+})
+
 const { monthlyTemplate, serviceTemplate } = storeToRefs(settingsStore)
 
-const isExporting = ref(false)
+const isExportingConfig = ref(false)
+const isExportingData = ref(false)
 const isImporting = ref(false)
 
 const monthFormatter = new Intl.DateTimeFormat('ca-ES', { month: 'long', year: 'numeric' })
@@ -62,9 +69,6 @@ const monthOptions = computed(() => [
 const hasMonthData = computed(() => monthsWithData.value.length > 0)
 
 const filteredServices = computed(() => {
-  if (!exportState.includeData) {
-    return []
-  }
   if (exportState.selectedMonth === 'all') {
     return serviceStore.records
   }
@@ -86,7 +90,7 @@ const saveSettings = () => {
     half: normalizedHalfPrice,
     full: normalizedFullPrice
   })
-  toast.add({ title: 'Configuracio guardada', color: 'success' })
+  toast.add({ title: 'Configuració guardada', color: 'success' })
 }
 
 const handleFileSelect = () => {
@@ -98,87 +102,74 @@ const onFileChange = (event: Event) => {
   importState.file = target.files?.[0] ?? null
 }
 
-const buildSettingsPayload = () => ({
+const buildSettingsPayload = (includeTemplates: boolean) => ({
   halfDietPrice: settingsStore.halfDietPrice,
   fullDietPrice: settingsStore.fullDietPrice,
-  monthlyTemplate: settingsStore.exportTemplates ? settingsStore.monthlyTemplate : null,
-  serviceTemplate: settingsStore.exportTemplates ? settingsStore.serviceTemplate : null,
-  exportTemplates: settingsStore.exportTemplates
+  monthlyTemplate: includeTemplates ? settingsStore.monthlyTemplate : null,
+  serviceTemplate: includeTemplates ? settingsStore.serviceTemplate : null,
+  exportTemplates: includeTemplates
 })
 
-type BackupPayload = {
-  services?: ServiceRecord[]
-  settings?: ReturnType<typeof buildSettingsPayload>
-  meta?: {
-    month: string
-  }
-}
 
-const getBackupPayload = (): BackupPayload => {
-  const payload: BackupPayload = {}
-
-  if (exportState.includeData) {
-    payload.services = JSON.parse(JSON.stringify(filteredServices.value)) as ServiceRecord[]
-    payload.meta = {
-      ...(payload.meta || {}),
-      month: exportState.selectedMonth
-    }
-  }
-
-  if (exportState.includeSettings) {
-    payload.settings = buildSettingsPayload()
-  }
-
-  return payload
-}
 
 const sanitizeSegment = (value: string) => value
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/^-+|-+$/g, '')
 
-const buildBackupFilename = (timestamp: string) => {
+const buildBackupFilename = (type: 'config' | 'data', timestamp: string) => {
   const segments = ['dietator']
-  if (exportState.includeSettings && exportState.includeData) {
-    segments.push('config-dades')
-  } else if (exportState.includeSettings) {
+  
+  if (type === 'config') {
     segments.push('config')
-  } else if (exportState.includeData) {
+  } else {
     segments.push('dades')
-  }
-
-  if (exportState.includeData && exportState.selectedMonth !== 'all') {
-    segments.push(`mes-${sanitizeSegment(exportState.selectedMonth)}`)
+    if (exportState.selectedMonth !== 'all') {
+      segments.push(`mes-${sanitizeSegment(exportState.selectedMonth)}`)
+    }
   }
 
   segments.push(timestamp)
   return `${segments.filter(Boolean).join('-')}.json`
 }
 
-const exportBackup = async () => {
+const exportBackup = async (type: 'config' | 'data') => {
   if (!exportState.password) {
     toast.add({ title: 'Indica una contrasenya', color: 'warning' })
     return
   }
 
-  if (!exportState.includeSettings && !exportState.includeData) {
-    toast.add({ title: 'Selecciona què vols exportar', color: 'warning' })
-    return
+  if (type === 'config') {
+    isExportingConfig.value = true
+  } else {
+    isExportingData.value = true
   }
 
-  isExporting.value = true
   try {
-    const payload = getBackupPayload()
-    if (!payload.services && !payload.settings) {
-      toast.add({ title: 'No hi ha contingut per exportar', color: 'warning' })
-      return
+    const payload: BackupPayload = {}
+    
+    if (type === 'config') {
+      payload.settings = buildSettingsPayload(exportState.includeTemplates)
+      payload.meta = { type: 'config' }
+    } else {
+      payload.services = JSON.parse(JSON.stringify(filteredServices.value)) as ServiceRecord[]
+      payload.meta = { 
+        type: 'data',
+        month: exportState.selectedMonth
+      }
+      
+      if (!payload.services || payload.services.length === 0) {
+        toast.add({ title: 'No hi ha dades per exportar', color: 'warning' })
+        return
+      }
     }
+
     const backup = await encryptBackup(exportState.password, payload)
     const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     const timestamp = new Date().toISOString().split('T')[0] ?? new Date().toISOString()
-    const filename = buildBackupFilename(timestamp)
+    const filename = buildBackupFilename(type, timestamp)
     link.href = url
     link.download = filename
     link.click()
@@ -188,11 +179,51 @@ const exportBackup = async () => {
     console.error(error)
     toast.add({ title: 'No s\'ha pogut exportar', color: 'error' })
   } finally {
-    isExporting.value = false
+    isExportingConfig.value = false
+    isExportingData.value = false
   }
 }
 
-const importBackup = async () => {
+const processImport = async (payload: any) => {
+  const services = Array.isArray(payload?.services) ? payload.services : undefined
+  const settings = payload?.settings
+  
+  if (services) {
+    const importMonth = payload.meta?.month ?? 'all'
+    if (importMonth !== 'all') {
+      const targetPrefix = `${importMonth}-`
+      const preserved = serviceStore.records.filter(record => !record.startTime?.startsWith(targetPrefix))
+      serviceStore.setRecords([...preserved, ...services])
+    } else {
+      serviceStore.setRecords(services)
+    }
+  }
+
+  if (settings) {
+    settingsStore.loadSettings(settings)
+    formState.halfDietPrice = settingsStore.halfDietPrice
+    formState.fullDietPrice = settingsStore.fullDietPrice
+  }
+
+  const description = services && settings
+    ? 'S\'han actualitzat les dades i la configuració'
+    : services
+        ? 'S\'han actualitzat les dades'
+        : 'S\'ha actualitzat la configuració'
+  
+  toast.add({ title: 'Backup importat', description, color: 'success' })
+  
+  // Cleanup
+  importState.file = null
+  if (importFileInput.value) {
+    importFileInput.value.value = ''
+  }
+  Object.values(templateInputs).forEach((input) => {
+    if (input.value) input.value.value = ''
+  })
+}
+
+const prepareImport = async () => {
   if (!importState.password) {
     toast.add({ title: 'Introdueix la contrasenya per importar', color: 'warning' })
     return
@@ -208,47 +239,53 @@ const importBackup = async () => {
     const content = await importState.file.text()
     const parsed = JSON.parse(content)
     const payload = await decryptBackup(importState.password, parsed)
+    
+    // Validate content
     const services = Array.isArray(payload?.services) ? payload.services : undefined
     const settings = payload?.settings
-    const hasServices = Boolean(services)
-    const hasSettings = Boolean(settings)
-    if (!hasServices && !hasSettings) {
-      throw new Error('Backup malformat')
+    
+    if (!services && !settings) {
+      throw new Error('Backup malformat o buit')
     }
-    if (services) {
-      const importMonth = payload.meta?.month ?? 'all'
-      if (importMonth !== 'all') {
-        const targetPrefix = `${importMonth}-`
-        const preserved = serviceStore.records.filter(record => !record.startTime?.startsWith(targetPrefix))
-        serviceStore.setRecords([...preserved, ...services])
+
+    // Determine warning message
+    let title = ''
+    let description = ''
+
+    if (settings) {
+      title = 'Importar Configuració'
+      description = 'Això sobreescriurà la configuració actual, incloent els preus i les plantilles. Vols continuar?'
+    } else if (services) {
+      title = 'Importar Dades'
+      const month = payload.meta?.month
+      if (month && month !== 'all') {
+        const [year, monthNum] = month.split('-')
+        const date = new Date(Number(year), Number(monthNum) - 1)
+        const monthName = monthFormatter.format(date)
+        description = `Estàs a punt de sobreescriure les dades del mes de ${monthName}. Vols continuar?`
       } else {
-        serviceStore.setRecords(services)
+        description = 'Estàs a punt de sobreescriure TOTES les dades de serveis. Aquesta acció no es pot desfer. Vols continuar?'
       }
     }
-    if (settings) {
-      settingsStore.loadSettings(settings)
-      formState.halfDietPrice = settingsStore.halfDietPrice
-      formState.fullDietPrice = settingsStore.fullDietPrice
-    }
-    const description = hasServices && hasSettings
-      ? 'S\'han actualitzat les dades i la configuració'
-      : hasServices
-          ? 'S\'han actualitzat les dades'
-          : 'S\'ha actualitzat la configuració'
-    toast.add({ title: 'Backup importat', description, color: 'success' })
-    importState.file = null
-    if (importFileInput.value) {
-      importFileInput.value.value = ''
-    }
-    Object.values(templateInputs).forEach((input) => {
-      if (input.value) input.value.value = ''
-    })
+
+    confirmModal.title = title
+    confirmModal.description = description
+    confirmModal.action = () => processImport(payload)
+    confirmModal.isOpen = true
+
   } catch (error) {
     console.error(error)
-    toast.add({ title: 'Error en importar el backup', color: 'error' })
+    toast.add({ title: 'Error en importar (contrasenya incorrecta?)', color: 'error' })
   } finally {
     isImporting.value = false
   }
+}
+
+const handleConfirm = async () => {
+  if (confirmModal.action) {
+    await confirmModal.action()
+  }
+  confirmModal.isOpen = false
 }
 
 const readFileAsDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
@@ -379,7 +416,7 @@ const formatTimestamp = (value?: string) => {
         </div>
 
         <div class="flex gap-3 pt-2">
-          <UButton type="submit" icon="i-heroicons-check-circle">Desar configuracio</UButton>
+          <UButton type="submit" icon="i-heroicons-check-circle">Desar configuració</UButton>
           <UButton to="/" variant="ghost" icon="i-heroicons-arrow-left">Tornar a l'inici</UButton>
         </div>
       </UForm>
@@ -502,73 +539,131 @@ const formatTimestamp = (value?: string) => {
             <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 text-primary-500" />
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Exportar / Importar dades</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Protegeix els teus registres amb una contrasenya.</p>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Exportar / Importar</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Gestió de backups i transferència de dades.</p>
           </div>
         </div>
       </template>
 
       <div class="space-y-8">
-        <section class="space-y-4">
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white">Exportar còpia de seguretat</h3>
-          <UFormField label="Contrasenya per xifrar" name="exportPassword">
+        
+        <!-- Common Password Field -->
+        <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-800">
+           <UFormField label="Contrasenya d'encriptació" name="exportPassword" help="S'utilitza tant per exportar com per importar.">
             <UInput
               v-model="exportState.password"
               type="password"
-              placeholder="Introdueix una contrasenya"
+              placeholder="Introdueix una contrasenya segura"
+              icon="i-heroicons-lock-closed"
             />
-          </UFormField>
-          <UCheckbox
-            v-model="exportState.includeSettings"
-            label="Incloure configuració"
-            help="Preus, plantilles i ubicacions guardades."
-          />
-          <UCheckbox
-            v-model="exportState.includeData"
-            label="Incloure dades dels serveis"
-            help="Serveis registrats a Dietator."
-          />
-          <UCheckbox
-            v-model="settingsStore.exportTemplates"
-            label="Incloure plantilles"
-            help="Si ho marques, el fitxer de backup serà més gran ja que inclourà els Word."
-            :disabled="!exportState.includeSettings"
-            class="mb-4"
-          />
-          <UFormField
-            v-if="exportState.includeData"
-            label="Mes per exportar"
-            help="Selecciona un mes concret o escull 'Tots els mesos'."
-          >
-            <USelect
-              v-model="exportState.selectedMonth"
-              :items="monthOptions"
-              :disabled="monthOptions.length <= 1"
-              placeholder="Tots els mesos"
-              menu-teleport-to="body"
-            />
-            <p v-if="!hasMonthData" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Encara no hi ha dades registrades. Quan hi hagi serveis, podràs triar el mes a exportar.
+          </UFormField> 
+          <!-- Sync import password for UX simplicity if desired, or keep separate? 
+               User request implies separate acts, but shared password field is cleaner if user is doing both. 
+               However, to match previous logic perfectly, I'll bind both to this valid field or sync them.
+               Actually, let's keep it simple: One password field for the "Session" of export/import actions? 
+               Or just sync: -->
+           <!-- Let's map this input to both states or just use exportState.password as the 'session' password -->
+           <!-- But wait, import might need a DIFFERENT password if the file was encrypted differently. 
+                So let's keep the UI split logic but maybe cleaner. 
+                Original had separate fields. I'll defer to distinct fields inside the sections to avoid confusion. -->
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- EXPORT CONFIG -->
+          <section class="space-y-4">
+            <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <UIcon name="i-heroicons-cog-6-tooth" class="w-5 h-5 text-gray-500" />
+              Exportar Configuració
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Guarda els preus, les plantilles Word i les opcions de l'aplicació.
             </p>
-          </UFormField>
-          <UButton :loading="isExporting" icon="i-heroicons-arrow-down-on-square-stack" @click="exportBackup">
-            Exportar backup
-          </UButton>
-        </section>
+            
+            <div class="space-y-4 pt-2">
+              <UCheckbox
+                v-model="exportState.includeTemplates"
+                label="Incloure plantilles Word" 
+                help="El fitxer serà més gran."
+              />
+              <UButton 
+                :loading="isExportingConfig" 
+                block 
+                variant="soft" 
+                icon="i-heroicons-arrow-down-on-square" 
+                @click="exportBackup('config')"
+              >
+                Exportar Config
+              </UButton>
+            </div>
+          </section>
+
+          <!-- EXPORT DATA -->
+          <section class="space-y-4">
+            <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <UIcon name="i-heroicons-table-cells" class="w-5 h-5 text-gray-500" />
+              Exportar Dades
+            </h3>
+             <p class="text-sm text-gray-500 dark:text-gray-400">
+              Guarda els registres dels serveis realitzats.
+            </p>
+
+            <div class="space-y-4 pt-2">
+              <USelect
+                v-model="exportState.selectedMonth"
+                :items="monthOptions"
+                :disabled="monthOptions.length <= 1"
+                placeholder="Tots els mesos"
+                class="w-full"
+              />
+               <UButton 
+                :loading="isExportingData" 
+                block 
+                variant="soft"
+                icon="i-heroicons-arrow-down-on-square-stack" 
+                @click="exportBackup('data')"
+              >
+                Exportar Dades
+              </UButton>
+            </div>
+          </section>
+        </div>
 
         <USeparator />
 
+        <!-- IMPORT SECTION -->
         <section class="space-y-4">
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white">Importar còpia de seguretat</h3>
-          <UFormField label="Fitxer" name="importFile">
-            <div class="flex items-center gap-3">
-              <UButton variant="soft" icon="i-heroicons-folder-arrow-down" @click="handleFileSelect">
-                Selecciona fitxer
-              </UButton>
-              <span class="text-sm text-gray-500 dark:text-gray-400 truncate">
-                {{ importState.file ? importState.file.name : 'Cap fitxer seleccionat' }}
-              </span>
-            </div>
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white">Importar Backup</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Restaura una configuració o dades des d'un fitxer `.json` anterior.
+          </p>
+          
+          <div class="grid md:grid-cols-2 gap-4 items-end">
+            <UFormField label="Contrasenya del fitxer" name="importPassword">
+              <UInput
+                v-model="importState.password"
+                type="password"
+                placeholder="Contrasenya..."
+                icon="i-heroicons-key"
+              />
+            </UFormField>
+
+            <UFormField label="Selecciona fitxer" name="importFile">
+              <div class="flex gap-2">
+                 <UButton 
+                  color="neutral" 
+                  variant="outline"
+                  icon="i-heroicons-folder-open" 
+                  class="flex-1"
+                  @click="handleFileSelect"
+                >
+                  {{ importState.file ? 'Canviar fitxer' : 'Buscar fitxer...' }}
+                </UButton>
+              </div>
+              <p v-if="importState.file" class="mt-1 text-xs text-primary-600 truncate font-medium">
+                {{ importState.file.name }}
+              </p>
+            </UFormField>
+          </div>
             <input
               ref="importFileInput"
               type="file"
@@ -576,21 +671,28 @@ const formatTimestamp = (value?: string) => {
               accept="application/json"
               @change="onFileChange"
             >
-          </UFormField>
 
-          <UFormField label="Contrasenya per desencriptar" name="importPassword">
-            <UInput
-              v-model="importState.password"
-              type="password"
-              placeholder="Introdueix la contrasenya del backup"
-            />
-          </UFormField>
-
-          <UButton :loading="isImporting" color="primary" icon="i-heroicons-arrow-up-on-square-stack" @click="importBackup">
-            Importar backup
+          <UButton 
+            :loading="isImporting" 
+            block 
+            color="primary" 
+            icon="i-heroicons-arrow-up-on-square" 
+            :disabled="!importState.file || !importState.password"
+            @click="prepareImport"
+          >
+            Processar Importació
           </UButton>
         </section>
       </div>
     </UCard>
+
+    <!-- Confirmation Modal -->
+    <UModal v-model="confirmModal.isOpen" :title="confirmModal.title" :description="confirmModal.description">
+      <template #footer>
+        <UButton color="neutral" variant="ghost" @click="confirmModal.isOpen = false">Cancel·lar</UButton>
+        <UButton color="primary" @click="handleConfirm">Confirmar i Importar</UButton>
+      </template>
+    </UModal>
+
   </div>
 </template>

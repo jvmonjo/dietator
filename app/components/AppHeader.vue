@@ -30,7 +30,10 @@ const links = [
       <div class="flex items-center gap-8">
         <div class="flex items-center gap-2">
           <SiteLogo class="w-8 h-8" />
-          <span class="text-xl font-bold text-gray-900 dark:text-white">Dietator</span>
+          <div class="flex items-center gap-1">
+            <span class="text-xl font-bold text-gray-900 dark:text-white">Dietator</span>
+            <UBadge label="Beta" variant="subtle" size="xs" />
+          </div>
         </div>
 
         <nav class="hidden md:flex items-center gap-6">

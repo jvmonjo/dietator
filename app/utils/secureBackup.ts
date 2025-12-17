@@ -13,7 +13,8 @@ export interface BackupPayload {
   services?: ServiceRecord[]
   settings?: SettingsSnapshot
   meta?: {
-    month: string
+    month?: string
+    type?: 'config' | 'data' | 'full'
   }
 }
 
