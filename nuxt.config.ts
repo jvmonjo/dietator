@@ -26,7 +26,8 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', type: 'image/png', sizes: '196x196', href: appBaseURL + 'favicon-196.png' },
         { rel: 'icon', type: 'image/x-icon', href: appBaseURL + 'favicon.ico' },
-        { rel: 'apple-touch-icon', href: appBaseURL + 'apple-icon-180.png' }
+        { rel: 'apple-touch-icon', href: appBaseURL + 'apple-icon-180.png' },
+        { rel: 'manifest', href: appBaseURL + 'manifest.webmanifest' }
       ],
       meta: [
         { name: 'msapplication-square70x70logo', content: appBaseURL + 'mstile-icon-128.png' },
@@ -60,7 +61,9 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Dietator',
       short_name: 'Dietator',
+      background_color: '#f5dc00ff',
       theme_color: '#f5dc00ff',
+      display: 'standalone',
       scope: appBaseURL,
       start_url: appBaseURL,
       icons: [
