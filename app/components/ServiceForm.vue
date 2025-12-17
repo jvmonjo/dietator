@@ -122,6 +122,16 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
 }
 
 const submitLabel = computed(() => isEditing.value ? 'Update Service Record' : 'Save Service Record')
+
+const DURATION_LIMIT_MS = 24 * 60 * 60 * 1000
+const serviceDurationMs = computed(() => {
+  if (!state.startTime || !state.endTime) return 0
+  const start = new Date(state.startTime)
+  const end = new Date(state.endTime)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0
+  return Math.max(0, end.getTime() - start.getTime())
+})
+const exceedsDurationLimit = computed(() => serviceDurationMs.value > DURATION_LIMIT_MS)
 </script>
 
 <template>
@@ -136,6 +146,12 @@ const submitLabel = computed(() => isEditing.value ? 'Update Service Record' : '
         <UInput v-model="state.endTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
       </UFormField>
     </div>
+    <p
+      v-if="exceedsDurationLimit"
+      class="text-xs text-amber-600 dark:text-amber-400 mt-1"
+    >
+      📌 La durada supera les 24 hores; comprova que la data final sigui correcta.
+    </p>
 
     <USeparator label="Displacements" />
 

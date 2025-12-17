@@ -5,7 +5,7 @@ import { generateWordReport } from '~/utils/export'
 
 const settingsStore = useSettingsStore()
 const toast = useToast()
-const { calculateTotals } = useServiceStats()
+const { calculateTotals, currentMonthValue } = useServiceStats()
 
 const selectedRecords = ref<ServiceRecord[]>([])
 const selectedMonth = ref<MonthOption | null>(null)
@@ -13,6 +13,55 @@ const selectionTotals = computed(() => calculateTotals(selectedRecords.value))
 
 const currencyFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
 const formatCurrency = (value: number) => currencyFormatter.format(value || 0)
+
+const HOURS_PER_MS = 1 / (1000 * 60 * 60)
+interface ParsedMonth {
+  year: number
+  month: number
+}
+
+const parseMonthValueFromString = (value?: string | null): ParsedMonth | null => {
+  if (!value) return null
+  const [yearStr, monthStr] = value.split('-')
+  const year = Number(yearStr)
+  const month = Number(monthStr)
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return null
+  if (month < 1 || month > 12) return null
+  return { year, month }
+}
+
+const calculateRecordDurationMs = (record: ServiceRecord) => {
+  const start = new Date(record.startTime)
+  const end = new Date(record.endTime)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0
+  return Math.max(0, end.getTime() - start.getTime())
+}
+
+const getWeeksInMonth = (value?: string | null) => {
+  const targetValue = value ?? currentMonthValue.value
+  const parsed = parseMonthValueFromString(targetValue)
+  if (!parsed) return 1
+
+  const lastDay = new Date(parsed.year, parsed.month, 0)
+  const daysInMonth = lastDay.getDate()
+  return Math.max(1, daysInMonth / 7)
+}
+
+const totalHoursWorked = computed(() => {
+  const totalMs = selectedRecords.value.reduce((sum, record) => sum + calculateRecordDurationMs(record), 0)
+  return totalMs * HOURS_PER_MS
+})
+
+const weeksInSelectedMonth = computed(() => getWeeksInMonth(selectedMonth.value?.value ?? currentMonthValue.value))
+const averageWeeklyHours = computed(() => {
+  if (weeksInSelectedMonth.value <= 0) return 0
+  return totalHoursWorked.value / weeksInSelectedMonth.value
+})
+
+const hoursFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+const weeksFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
+const formatHours = (value: number) => `${hoursFormatter.format(value || 0)} h`
+const formatWeeks = (value: number) => weeksFormatter.format(value || 0)
 
 const selectedMonthLabel = computed(() => selectedMonth.value?.label ?? 'Tots els mesos')
 const hasTemplates = computed(() => Boolean(settingsStore.monthlyTemplate || settingsStore.serviceTemplate))
@@ -123,6 +172,30 @@ const exportReport = async () => {
         :description="serviceListDescription"
         @records-change="handleRecordsChange"
       />
+    </section>
+
+    <!-- Worked Hours -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <UCard>
+        <div class="text-center space-y-1">
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            Hores treballades {{ selectedMonthLabel.toLowerCase() }}
+          </div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(totalHoursWorked) }}</div>
+          <p class="text-xs text-gray-400">
+            Basat en {{ formatWeeks(weeksInSelectedMonth) }} setmanes del mes seleccionat
+          </p>
+        </div>
+      </UCard>
+      <UCard>
+        <div class="text-center space-y-1">
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Mitjana setmanal</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(averageWeeklyHours) }}</div>
+          <p class="text-xs text-gray-400">
+            Mitjana de {{ formatWeeks(weeksInSelectedMonth) }} setmanes de {{ selectedMonthLabel.toLowerCase() }}
+          </p>
+        </div>
+      </UCard>
     </section>
 
     <!-- Quick Stats -->
