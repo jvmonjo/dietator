@@ -1,13 +1,5 @@
 <script setup lang="ts">
-let colorMode: ReturnType<typeof useColorMode> | null = null
-
-try {
-  colorMode = useColorMode()
-} catch (error) {
-  if (import.meta.dev) {
-    console.warn('[AppHeader] useColorMode is not available.', error)
-  }
-}
+const colorMode = useColorMode()
 
 const isDark = computed({
   get () {
