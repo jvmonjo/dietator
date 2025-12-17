@@ -1,2 +1,16 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+@theme static {
+    --color-dietator-50: #fffee7;
+    --color-dietator-100: #fffcc3;
+    --color-dietator-200: #fff888;
+    --color-dietator-300: #ffef44;
+    --color-dietator-400: #f5dc00;
+    --color-dietator-500: #f5dc00;
+    --color-dietator-600: #cba800;
+    --color-dietator-700: #a27d05;
+    --color-dietator-800: #86640d;
+    --color-dietator-900: #725211;
+    --color-dietator-950: #432d03;
+}
