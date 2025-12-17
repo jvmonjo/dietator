@@ -29,7 +29,7 @@ const links = [
     <div class="container mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-8">
         <div class="flex items-center gap-2">
-          <UIcon name="i-heroicons-clipboard-document-check" class="w-8 h-8 text-primary-500" />
+          <SiteLogo class="w-8 h-8" />
           <span class="text-xl font-bold text-gray-900 dark:text-white">Dietator</span>
         </div>
 

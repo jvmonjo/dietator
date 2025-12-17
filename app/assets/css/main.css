@@ -14,3 +14,23 @@
     --color-dietator-900: #725211;
     --color-dietator-950: #432d03;
 }
+
+@layer theme {
+    :root {
+        --ui-color-primary-400: var(--color-dietator-500);
+        --ui-color-primary-500: var(--color-dietator-600);
+        --ui-color-primary-600: var(--color-dietator-700);
+        --site-logo-gradient-start: var(--color-dietator-400);
+        --site-logo-gradient-end: var(--color-dietator-600);
+        --site-logo-foreground: var(--ui-color-neutral-900);
+    }
+
+    .dark {
+        --ui-color-primary-400: var(--color-dietator-400);
+        --ui-color-primary-500: var(--color-dietator-500);
+        --ui-color-primary-600: var(--color-dietator-600);
+        --site-logo-gradient-start: var(--color-dietator-500);
+        --site-logo-gradient-end: var(--color-dietator-700);
+        --site-logo-foreground: var(--ui-color-neutral-50);
+    }
+}
