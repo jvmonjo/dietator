@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed, useColorMode } from '#imports'
+
 const colorMode = useColorMode()
 
 const isDark = computed({
