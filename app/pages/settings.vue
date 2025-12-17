@@ -525,7 +525,7 @@ const formatTimestamp = (value?: string) => {
           />
           <UCheckbox
             v-model="exportState.includeData"
-            label="Incloure totes les dades"
+            label="Incloure dades dels serveis"
             help="Serveis registrats a Dietator."
           />
           <UCheckbox
