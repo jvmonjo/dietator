@@ -7,14 +7,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
 
-  modules: [
-    '@nuxt/ui',
-    '@vite-pwa/nuxt',
-    '@pinia/nuxt',
-    'pinia-plugin-persistedstate/nuxt',
-    '@nuxt/eslint'
-  ],
-
   spaLoadingTemplate: 'spa-loading-template.html',
 
   app: {
@@ -35,6 +27,18 @@ export default defineNuxtConfig({
   },
 
   css: ['./app/assets/css/main.css'],
+
+  modules: [
+    '@nuxt/ui',
+    '@pinia/nuxt',
+    'pinia-plugin-persistedstate/nuxt',
+    '@vite-pwa/nuxt',
+    '@nuxt/eslint'
+  ],
+
+  nitro: {
+    preset: 'github-pages'
+  },
 
   pwa: {
     registerType: 'autoUpdate',
