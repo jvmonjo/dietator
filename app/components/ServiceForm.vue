@@ -13,8 +13,10 @@ const uuidv4 = () => {
 
 const props = withDefaults(defineProps<{
   initialData?: ServiceRecord | null
+  isDuplicate?: boolean
 }>(), {
-  initialData: null
+  initialData: null,
+  isDuplicate: false
 })
 
 const emit = defineEmits<{
@@ -56,7 +58,7 @@ const state = reactive({
   displacements: [createEmptyDisplacement()]
 })
 
-const isEditing = computed(() => Boolean(props.initialData))
+const isEditing = computed(() => Boolean(props.initialData) && !props.isDuplicate)
 
 // Load locations
 const { provinces, getMunicipalities } = useLocations()
@@ -80,7 +82,7 @@ const loadRecord = (record: ServiceRecord) => {
   state.endTime = record.endTime
   state.displacements = record.displacements.map(displacement => ({
     ...displacement,
-    id: displacement.id || uuidv4()
+    id: props.isDuplicate ? uuidv4() : (displacement.id || uuidv4())
   }))
 }
 
@@ -94,7 +96,7 @@ watch(() => props.initialData, (record) => {
 
 async function onSubmit (event: FormSubmitEvent<Schema>) {
   const baseRecord: ServiceRecord = {
-    id: props.initialData?.id ?? uuidv4(),
+    id: (props.initialData?.id && !props.isDuplicate) ? props.initialData.id : uuidv4(),
     startTime: event.data.startTime,
     endTime: event.data.endTime,
     displacements: state.displacements.map(displacement => ({

@@ -94,6 +94,7 @@ const handleMonthChange = (value: MonthOption | null | undefined) => {
 
 const isModalOpen = ref(false)
 const selectedRecord = ref<ServiceRecord | null>(null)
+const isDuplicateMode = ref(false)
 
 const columns = [
   { accessorKey: 'startTime', id: 'startTime', header: 'Inici' },
@@ -105,17 +106,26 @@ const columns = [
 
 const openNewService = () => {
   selectedRecord.value = null
+  isDuplicateMode.value = false
   isModalOpen.value = true
 }
 
 const openRecord = (record: ServiceRecord) => {
   selectedRecord.value = record
+  isDuplicateMode.value = false
+  isModalOpen.value = true
+}
+
+const duplicateRecord = (record: ServiceRecord) => {
+  selectedRecord.value = record
+  isDuplicateMode.value = true
   isModalOpen.value = true
 }
 
 const closeModal = () => {
   isModalOpen.value = false
   selectedRecord.value = null
+  isDuplicateMode.value = false
 }
 
 const handleSaved = () => {
@@ -196,6 +206,15 @@ const formatDate = (value: string) => {
         </template>
         <template #actions-cell="{ row }">
           <div class="flex gap-2">
+            <UTooltip text="Duplicar">
+              <UButton
+                icon="i-heroicons-document-duplicate"
+                size="xs"
+                variant="soft"
+                color="neutral"
+                @click="duplicateRecord(row.original as ServiceRecord)"
+              />
+            </UTooltip>
             <UButton
               v-if="props.enableEdit"
               icon="i-heroicons-pencil-square"
@@ -231,10 +250,10 @@ const formatDate = (value: string) => {
             <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
                 <div>
                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ selectedRecord ? 'Editar servei' : 'Nou servei' }}
+                        {{ isDuplicateMode ? 'Duplicar servei' : (selectedRecord ? 'Editar servei' : 'Nou servei') }}
                     </h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ selectedRecord ? 'Actualitza les dades del servei seleccionat' : 'Ompli les dades del servei' }}
+                        {{ isDuplicateMode ? 'Crea un nou servei a partir de les dades existents' : (selectedRecord ? 'Actualitza les dades del servei seleccionat' : 'Ompli les dades del servei') }}
                     </p>
                 </div>
                 <UButton icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" @click="closeModal" />
@@ -245,6 +264,7 @@ const formatDate = (value: string) => {
                  <ServiceForm
                     v-if="selectedRecord || !selectedRecord"
                     :initial-data="selectedRecord"
+                    :is-duplicate="isDuplicateMode"
                     @saved="handleSaved"
                 />
             </div>

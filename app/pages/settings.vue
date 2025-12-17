@@ -687,7 +687,7 @@ const formatTimestamp = (value?: string) => {
     </UCard>
 
     <!-- Confirmation Modal -->
-    <UModal v-model="confirmModal.isOpen" :title="confirmModal.title" :description="confirmModal.description">
+    <UModal v-model:open="confirmModal.isOpen" :title="confirmModal.title" :description="confirmModal.description">
       <template #footer>
         <UButton color="neutral" variant="ghost" @click="confirmModal.isOpen = false">Cancel·lar</UButton>
         <UButton color="primary" @click="handleConfirm">Confirmar i Importar</UButton>
