@@ -187,9 +187,9 @@ const formatDate = (value: string) => {
         <template #displacements-cell="{ row }">
           <div class="text-sm text-gray-700 dark:text-gray-300">
             <p v-for="displacement in (row.original as ServiceRecord).displacements" :key="displacement.id">
-              {{ displacement.province }} - {{ displacement.municipality }}
+              {{ displacement.municipality }}
               <span class="text-xs text-gray-500 dark:text-gray-400">
-                ({{ displacement.hasLunch ? 'Dinar' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? ' · ' : '' }}{{ displacement.hasDinner ? 'Sopar' : '' }})
+                {{ displacement.hasLunch ? '(Dinar)' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? ' · ' : '' }}{{ displacement.hasDinner ? '(Sopar)' : '' }}
               </span>
             </p>
           </div>
