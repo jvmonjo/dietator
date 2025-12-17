@@ -11,10 +11,36 @@ const links = [
     to: '/settings'
   }
 ]
+
+const swNeedsRefresh = useState<boolean>('swUpdateAvailable', () => false)
+const swUpdateTrigger = useState<(() => void) | null>('swUpdateTrigger', () => null)
+
+const refreshApp = () => {
+  swUpdateTrigger.value?.()
+}
+
+const dismissUpdateBanner = () => {
+  swNeedsRefresh.value = false
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+    <div v-if="swNeedsRefresh" class="bg-yellow-50/80 dark:bg-yellow-900/40 border-b border-yellow-300 dark:border-yellow-700">
+      <div class="container mx-auto px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="text-sm font-semibold text-yellow-800 dark:text-white">Nova versió disponible</p>
+          <p class="text-xs text-yellow-700 dark:text-yellow-200">
+            Hi ha actualitzacions a la versió del front. Torna a carregar la pàgina per veure els canvis.
+          </p>
+        </div>
+        <div class="flex gap-2 justify-end">
+          <UButton size="sm" color="primary" @click="refreshApp">Actualitza</UButton>
+          <UButton size="sm" variant="ghost" color="neutral" @click="dismissUpdateBanner">Tancar</UButton>
+        </div>
+      </div>
+    </div>
+
     <!-- Header -->
     <AppHeader />
 

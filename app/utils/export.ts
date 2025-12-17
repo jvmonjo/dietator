@@ -262,7 +262,7 @@ const renderTemplate = (content: string, context: TemplateContext): string => {
 
   return withConditionals.replace(VARIABLE_REGEX, (_, raw: string, modifier?: string) => {
     const value = resolveValue(context, raw)
-    return formatValue(value, modifier)
+    return formatValue(value, modifier, raw, context)
   })
 }
 
@@ -277,7 +277,7 @@ const resolveValue = (context: TemplateContext, key: string): TemplateValue => {
   return ''
 }
 
-const formatValue = (value: TemplateValue, modifier?: string): string => {
+const formatValue = (value: TemplateValue, modifier?: string, key?: string, context?: TemplateContext): string => {
   if (modifier?.startsWith('limit')) {
     const count = Number(modifier.replace('limit', ''))
     const safeCount = Number.isFinite(count) && count > 0 ? count : 0
@@ -293,7 +293,9 @@ const formatValue = (value: TemplateValue, modifier?: string): string => {
   }
 
   if (modifier === 'human') {
-    const parsed = toDate(value)
+    const isoKey = key ? `${key}_iso` : undefined
+    const sourceValue = isoKey && context ? resolveValue(context, isoKey) : undefined
+    const parsed = toDate(sourceValue ?? value)
     return parsed ? HUMAN_DATE_FORMATTER.format(parsed) : ''
   }
   if (modifier === 'slash') {
@@ -397,24 +399,35 @@ const formatShortDateFromDate = (date: Date) => {
 
 const formatShortDate = (value: TemplateValue) => {
   if (value === null || value === undefined) return ''
+
   if (value instanceof Date) {
     return formatShortDateFromDate(value)
   }
 
-  if (typeof value === 'string') {
-    const displayMatch = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/)
-    if (displayMatch) {
-      const [, rawDay, rawMonth, rawYear] = displayMatch
-      const day = rawDay.padStart(2, '0')
-      const month = rawMonth.padStart(2, '0')
-      const year = rawYear.length === 4 ? rawYear.slice(-2) : rawYear.padStart(2, '0')
-      return `${day}/${month}/${year}`
-    }
+  const normalized = String(value).trim()
+  if (!normalized) return ''
 
-    const parsed = toDate(value)
-    if (parsed) {
-      return formatShortDateFromDate(parsed)
-    }
+  const displayMatch = normalized.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/)
+  if (displayMatch) {
+    const [, rawDay, rawMonth, rawYear] = displayMatch
+    const day = rawDay.padStart(2, '0')
+    const month = rawMonth.padStart(2, '0')
+    const year = rawYear.length === 4 ? rawYear.slice(-2) : rawYear.padStart(2, '0')
+    return `${day}/${month}/${year}`
+  }
+
+  const isoMatch = normalized.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) {
+    const [, rawYear, rawMonth, rawDay] = isoMatch
+    const day = rawDay.padStart(2, '0')
+    const month = rawMonth.padStart(2, '0')
+    const year = rawYear.slice(-2)
+    return `${day}/${month}/${year}`
+  }
+
+  const parsed = toDate(normalized)
+  if (parsed) {
+    return formatShortDateFromDate(parsed)
   }
 
   return ''
