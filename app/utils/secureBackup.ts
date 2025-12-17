@@ -6,8 +6,6 @@ interface SettingsSnapshot {
   fullDietPrice: number
   monthlyTemplate: TemplateFile | null
   serviceTemplate: TemplateFile | null
-  monthlyTemplateLocation: string
-  serviceTemplateLocation: string
   exportTemplates: boolean
 }
 

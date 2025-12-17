@@ -16,8 +16,6 @@ interface SettingsState {
   fullDietPrice: number
   monthlyTemplate: TemplateFile | null
   serviceTemplate: TemplateFile | null
-  monthlyTemplateLocation: string
-  serviceTemplateLocation: string
   exportTemplates: boolean
 }
 
@@ -29,8 +27,6 @@ export const useSettingsStore = defineStore('settings', {
     fullDietPrice: 0,
     monthlyTemplate: null,
     serviceTemplate: null,
-    monthlyTemplateLocation: '',
-    serviceTemplateLocation: '',
     exportTemplates: false
   }),
   actions: {
@@ -45,20 +41,11 @@ export const useSettingsStore = defineStore('settings', {
         this.serviceTemplate = template
       }
     },
-    updateTemplateLocation(type: TemplateType, location: string) {
-      if (type === 'monthly') {
-        this.monthlyTemplateLocation = location
-      } else {
-        this.serviceTemplateLocation = location
-      }
-    },
     loadSettings(settings: Partial<SettingsState>) {
       if (typeof settings.halfDietPrice === 'number') this.halfDietPrice = settings.halfDietPrice
       if (typeof settings.fullDietPrice === 'number') this.fullDietPrice = settings.fullDietPrice
       if (settings.monthlyTemplate || settings.monthlyTemplate === null) this.monthlyTemplate = settings.monthlyTemplate
       if (settings.serviceTemplate || settings.serviceTemplate === null) this.serviceTemplate = settings.serviceTemplate
-      if (typeof settings.monthlyTemplateLocation === 'string') this.monthlyTemplateLocation = settings.monthlyTemplateLocation
-      if (typeof settings.serviceTemplateLocation === 'string') this.serviceTemplateLocation = settings.serviceTemplateLocation
       if (typeof settings.exportTemplates === 'boolean') this.exportTemplates = settings.exportTemplates
     }
   },

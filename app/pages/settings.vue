@@ -31,7 +31,7 @@ const importState = reactive({
   file: null as File | null
 })
 
-const { monthlyTemplate, serviceTemplate, monthlyTemplateLocation, serviceTemplateLocation } = storeToRefs(settingsStore)
+const { monthlyTemplate, serviceTemplate } = storeToRefs(settingsStore)
 
 const isExporting = ref(false)
 const isImporting = ref(false)
@@ -103,8 +103,6 @@ const buildSettingsPayload = () => ({
   fullDietPrice: settingsStore.fullDietPrice,
   monthlyTemplate: settingsStore.exportTemplates ? settingsStore.monthlyTemplate : null,
   serviceTemplate: settingsStore.exportTemplates ? settingsStore.serviceTemplate : null,
-  monthlyTemplateLocation: settingsStore.monthlyTemplateLocation,
-  serviceTemplateLocation: settingsStore.serviceTemplateLocation,
   exportTemplates: settingsStore.exportTemplates
 })
 
@@ -395,7 +393,7 @@ const formatTimestamp = (value?: string) => {
           </div>
           <div>
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Plantilles Word</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Puja la plantilla `.docx` o indica la ubicació on la tens guardada.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Puja la plantilla `.docx` per generar els documents des d'aquesta aplicació.</p>
           </div>
         </div>
       </template>
@@ -445,16 +443,6 @@ const formatTimestamp = (value?: string) => {
           <div v-else class="text-sm text-gray-500 dark:text-gray-400">
             Encara no hi ha cap plantilla mensual guardada.
           </div>
-          <UFormField
-            label="Ubicació externa (opcional)"
-            help="Ruta local, URL o qualsevol pista sobre on tens la plantilla original."
-          >
-            <UInput
-              v-model="monthlyTemplateLocation"
-              placeholder="Ex. OneDrive/Plantilles/Dietator-Mensual.docx"
-              icon="i-heroicons-map-pin"
-            />
-          </UFormField>
         </section>
 
         <USeparator />
@@ -503,16 +491,6 @@ const formatTimestamp = (value?: string) => {
           <div v-else class="text-sm text-gray-500 dark:text-gray-400">
             Encara no hi ha cap plantilla individual guardada.
           </div>
-          <UFormField
-            label="Ubicació externa (opcional)"
-            help="Serveix per recordar on tens la plantilla oficial si no la puges aquí."
-          >
-            <UInput
-              v-model="serviceTemplateLocation"
-              placeholder="Ex. SharePoint/Plantilla-Servei.docx"
-              icon="i-heroicons-map-pin"
-            />
-          </UFormField>
         </section>
       </div>
     </UCard>

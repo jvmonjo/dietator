@@ -387,6 +387,39 @@ const formatSlashDate = (date: Date) => {
   return `${day}/${month}/${year}`
 }
 
+const formatShortDateFromDate = (date: Date) => {
+  if (Number.isNaN(date.getTime())) return ''
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = String(date.getFullYear()).slice(-2)
+  return `${day}/${month}/${year}`
+}
+
+const formatShortDate = (value: TemplateValue) => {
+  if (value === null || value === undefined) return ''
+  if (value instanceof Date) {
+    return formatShortDateFromDate(value)
+  }
+
+  if (typeof value === 'string') {
+    const displayMatch = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/)
+    if (displayMatch) {
+      const [, rawDay, rawMonth, rawYear] = displayMatch
+      const day = rawDay.padStart(2, '0')
+      const month = rawMonth.padStart(2, '0')
+      const year = rawYear.length === 4 ? rawYear.slice(-2) : rawYear.padStart(2, '0')
+      return `${day}/${month}/${year}`
+    }
+
+    const parsed = toDate(value)
+    if (parsed) {
+      return formatShortDateFromDate(parsed)
+    }
+  }
+
+  return ''
+}
+
 const isIsoDateString = (value: string) => /^-?\d{4}-\d{2}-\d{2}$/.test(value)
 
 const formatLocalTime = (date: Date) => {
