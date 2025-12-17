@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TemplateType } from '~/stores/settings'
+import type { ServiceRecord } from '~/stores/services'
 import { encryptBackup, decryptBackup } from '~/utils/secureBackup'
 
 const settingsStore = useSettingsStore()
@@ -97,11 +98,29 @@ const onFileChange = (event: Event) => {
   importState.file = target.files?.[0] ?? null
 }
 
-const getBackupPayload = () => {
-  const payload: Record<string, any> = {}
+const buildSettingsPayload = () => ({
+  halfDietPrice: settingsStore.halfDietPrice,
+  fullDietPrice: settingsStore.fullDietPrice,
+  monthlyTemplate: settingsStore.exportTemplates ? settingsStore.monthlyTemplate : null,
+  serviceTemplate: settingsStore.exportTemplates ? settingsStore.serviceTemplate : null,
+  monthlyTemplateLocation: settingsStore.monthlyTemplateLocation,
+  serviceTemplateLocation: settingsStore.serviceTemplateLocation,
+  exportTemplates: settingsStore.exportTemplates
+})
+
+type BackupPayload = {
+  services?: ServiceRecord[]
+  settings?: ReturnType<typeof buildSettingsPayload>
+  meta?: {
+    month: string
+  }
+}
+
+const getBackupPayload = (): BackupPayload => {
+  const payload: BackupPayload = {}
 
   if (exportState.includeData) {
-    payload.services = JSON.parse(JSON.stringify(filteredServices.value))
+    payload.services = JSON.parse(JSON.stringify(filteredServices.value)) as ServiceRecord[]
     payload.meta = {
       ...(payload.meta || {}),
       month: exportState.selectedMonth
@@ -109,15 +128,7 @@ const getBackupPayload = () => {
   }
 
   if (exportState.includeSettings) {
-    payload.settings = {
-      halfDietPrice: settingsStore.halfDietPrice,
-      fullDietPrice: settingsStore.fullDietPrice,
-      monthlyTemplate: settingsStore.exportTemplates ? settingsStore.monthlyTemplate : null,
-      serviceTemplate: settingsStore.exportTemplates ? settingsStore.serviceTemplate : null,
-      monthlyTemplateLocation: settingsStore.monthlyTemplateLocation,
-      serviceTemplateLocation: settingsStore.serviceTemplateLocation,
-      exportTemplates: settingsStore.exportTemplates
-    }
+    payload.settings = buildSettingsPayload()
   }
 
   return payload
@@ -175,16 +186,18 @@ const importBackup = async () => {
     const content = await importState.file.text()
     const parsed = JSON.parse(content)
     const payload = await decryptBackup(importState.password, parsed)
-    const hasServices = Array.isArray(payload?.services)
-    const hasSettings = payload?.settings && typeof payload.settings === 'object'
+    const services = Array.isArray(payload?.services) ? payload.services : undefined
+    const settings = payload?.settings
+    const hasServices = Boolean(services)
+    const hasSettings = Boolean(settings)
     if (!hasServices && !hasSettings) {
       throw new Error('Backup malformat')
     }
-    if (hasServices) {
-      serviceStore.setRecords(payload.services)
+    if (services) {
+      serviceStore.setRecords(services)
     }
-    if (hasSettings) {
-      settingsStore.loadSettings(payload.settings)
+    if (settings) {
+      settingsStore.loadSettings(settings)
       formState.halfDietPrice = settingsStore.halfDietPrice
       formState.fullDietPrice = settingsStore.fullDietPrice
     }

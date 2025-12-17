@@ -8,6 +8,7 @@ export default defineNuxtConfig({
   ssr: false,
 
   modules: [
+    '@nuxtjs/tailwindcss',
     '@nuxt/ui',
     '@vite-pwa/nuxt',
     '@pinia/nuxt',

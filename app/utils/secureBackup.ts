@@ -1,13 +1,22 @@
 import type { ServiceRecord } from '~/stores/services'
+import type { TemplateFile } from '~/stores/settings'
 
 interface SettingsSnapshot {
   halfDietPrice: number
   fullDietPrice: number
+  monthlyTemplate: TemplateFile | null
+  serviceTemplate: TemplateFile | null
+  monthlyTemplateLocation: string
+  serviceTemplateLocation: string
+  exportTemplates: boolean
 }
 
 export interface BackupPayload {
-  services: ServiceRecord[]
-  settings: SettingsSnapshot
+  services?: ServiceRecord[]
+  settings?: SettingsSnapshot
+  meta?: {
+    month: string
+  }
 }
 
 export interface EncryptedBackup {
