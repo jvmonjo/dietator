@@ -50,13 +50,20 @@
         }
     </style>
     <div class="splash-content">
-        <img src="icon.svg" alt="Dietator Loading" class="splash-icon">
+        <img data-src="icon.svg" alt="Dietator Loading" class="splash-icon">
         <div class="splash-text">Dietator</div>
     </div>
     <script>
-        // Fallback to ensure icon path is correct if base URL is needed, though /dietator/icon.svg should work for GitHub pages
-        // We can't easily access process.env here easily without injection, so hardcoding /dietator/ is safer for the specific GH deployment
-        // OR rely on relative path?
-        // Let's stick to /dietator/icon.svg if we know the base.
+        (function loadSplashIcon () {
+            const img = document.querySelector('.splash-icon')
+            if (!img) { return }
+            const src = img.getAttribute('data-src') || 'icon.svg'
+            try {
+                const resolved = new URL(src, document.baseURI || window.location.origin).pathname
+                img.src = resolved
+            } catch {
+                img.src = src
+            }
+        })()
     </script>
 </div>
