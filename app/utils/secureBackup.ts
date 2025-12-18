@@ -115,3 +115,14 @@ export const decryptBackup = async (password: string, backup: EncryptedBackup): 
 
   return JSON.parse(textDecoder.decode(decrypted))
 }
+
+export const isEncryptedBackup = (data: unknown): data is EncryptedBackup => {
+  if (typeof data !== 'object' || data === null) return false
+  const record = data as Record<string, unknown>
+  return (
+    'ciphertext' in record &&
+    'iv' in record &&
+    'salt' in record &&
+    'version' in record
+  )
+}

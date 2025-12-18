@@ -424,7 +424,9 @@ const formatShortDate = (value: TemplateValue) => {
 
   const displayMatch = normalized.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/)
   if (displayMatch) {
-    const [, rawDay, rawMonth, rawYear] = displayMatch
+    const rawDay = displayMatch[1] ?? ''
+    const rawMonth = displayMatch[2] ?? ''
+    const rawYear = displayMatch[3] ?? ''
     const day = rawDay.padStart(2, '0')
     const month = rawMonth.padStart(2, '0')
     const year = rawYear.length === 4 ? rawYear.slice(-2) : rawYear.padStart(2, '0')
@@ -433,7 +435,9 @@ const formatShortDate = (value: TemplateValue) => {
 
   const isoMatch = normalized.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (isoMatch) {
-    const [, rawYear, rawMonth, rawDay] = isoMatch
+    const rawYear = isoMatch[1] ?? ''
+    const rawMonth = isoMatch[2] ?? ''
+    const rawDay = isoMatch[3] ?? ''
     const day = rawDay.padStart(2, '0')
     const month = rawMonth.padStart(2, '0')
     const year = rawYear.slice(-2)

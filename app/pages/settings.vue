@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TemplateType } from '~/stores/settings'
 import type { ServiceRecord } from '~/stores/services'
-import { encryptBackup, decryptBackup, type BackupPayload } from '~/utils/secureBackup'
+import { encryptBackup, decryptBackup, isEncryptedBackup, type BackupPayload } from '~/utils/secureBackup'
 
 const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
@@ -22,12 +22,14 @@ const formState = reactive({
 const exportState = reactive({
   password: '',
   selectedMonth: 'all' as string,
-  includeTemplates: true
+  includeTemplates: true,
+  encrypt: true
 })
 
 const importState = reactive({
   password: '',
-  file: null as File | null
+  file: null as File | null,
+  isEncryptedFile: false
 })
 
 const confirmModal = reactive({
@@ -66,7 +68,7 @@ const monthOptions = computed(() => [
   ...monthsWithData.value
 ])
 
-const hasMonthData = computed(() => monthsWithData.value.length > 0)
+
 
 const filteredServices = computed(() => {
   if (exportState.selectedMonth === 'all') {
@@ -97,9 +99,23 @@ const handleFileSelect = () => {
   importFileInput.value?.click()
 }
 
-const onFileChange = (event: Event) => {
+const onFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement
-  importState.file = target.files?.[0] ?? null
+  const file = target.files?.[0] ?? null
+  importState.file = file
+  
+  if (file) {
+    try {
+      const content = await file.text()
+      const parsed = JSON.parse(content)
+      importState.isEncryptedFile = isEncryptedBackup(parsed)
+    } catch (e) {
+      console.error('Error sniffing file', e)
+      importState.isEncryptedFile = false
+    }
+  } else {
+    importState.isEncryptedFile = false
+  }
 }
 
 const buildSettingsPayload = (includeTemplates: boolean) => ({
@@ -134,7 +150,7 @@ const buildBackupFilename = (type: 'config' | 'data', timestamp: string) => {
 }
 
 const exportBackup = async (type: 'config' | 'data') => {
-  if (!exportState.password) {
+  if (exportState.encrypt && !exportState.password) {
     toast.add({ title: 'Indica una contrasenya', color: 'warning' })
     return
   }
@@ -164,9 +180,18 @@ const exportBackup = async (type: 'config' | 'data') => {
       }
     }
 
-    const backup = await encryptBackup(exportState.password, payload)
-    const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
+
+
+    let resultBlob: Blob
+    
+    if (exportState.encrypt) {
+      const backup = await encryptBackup(exportState.password, payload)
+      resultBlob = new Blob([JSON.stringify(backup)], { type: 'application/json' })
+    } else {
+      resultBlob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    }
+
+    const url = URL.createObjectURL(resultBlob)
     const link = document.createElement('a')
     const timestamp = new Date().toISOString().split('T')[0] ?? new Date().toISOString()
     const filename = buildBackupFilename(type, timestamp)
@@ -184,7 +209,7 @@ const exportBackup = async (type: 'config' | 'data') => {
   }
 }
 
-const processImport = async (payload: any) => {
+const processImport = async (payload: BackupPayload) => {
   const services = Array.isArray(payload?.services) ? payload.services : undefined
   const settings = payload?.settings
   
@@ -224,7 +249,7 @@ const processImport = async (payload: any) => {
 }
 
 const prepareImport = async () => {
-  if (!importState.password) {
+  if (importState.isEncryptedFile && !importState.password) {
     toast.add({ title: 'Introdueix la contrasenya per importar', color: 'warning' })
     return
   }
@@ -238,7 +263,13 @@ const prepareImport = async () => {
   try {
     const content = await importState.file.text()
     const parsed = JSON.parse(content)
-    const payload = await decryptBackup(importState.password, parsed)
+    
+    let payload: BackupPayload
+    if (isEncryptedBackup(parsed)) {
+      payload = await decryptBackup(importState.password, parsed)
+    } else {
+      payload = parsed as BackupPayload
+    }
     
     // Validate content
     const services = Array.isArray(payload?.services) ? payload.services : undefined
@@ -548,24 +579,30 @@ const formatTimestamp = (value?: string) => {
       <div class="space-y-8">
         
         <!-- Common Password Field -->
-        <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-800">
-           <UFormField label="Contrasenya d'encriptació" name="exportPassword" help="S'utilitza tant per exportar com per importar.">
-            <UInput
-              v-model="exportState.password"
-              type="password"
-              placeholder="Introdueix una contrasenya segura"
-              icon="i-heroicons-lock-closed"
-            />
-          </UFormField> 
-          <!-- Sync import password for UX simplicity if desired, or keep separate? 
-               User request implies separate acts, but shared password field is cleaner if user is doing both. 
-               However, to match previous logic perfectly, I'll bind both to this valid field or sync them.
-               Actually, let's keep it simple: One password field for the "Session" of export/import actions? 
-               Or just sync: -->
-           <!-- Let's map this input to both states or just use exportState.password as the 'session' password -->
-           <!-- But wait, import might need a DIFFERENT password if the file was encrypted differently. 
-                So let's keep the UI split logic but maybe cleaner. 
-                Original had separate fields. I'll defer to distinct fields inside the sections to avoid confusion. -->
+        <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-800 space-y-4">
+           <UCheckbox
+             v-model="exportState.encrypt"
+             label="Encriptar còpia de seguretat"
+             help="Protegeix el fitxer amb una contrasenya."
+           />
+
+           <transition
+             enter-active-class="transition duration-200 ease-out"
+             enter-from-class="transform -translate-y-2 opacity-0"
+             enter-to-class="transform translate-y-0 opacity-100"
+             leave-active-class="transition duration-150 ease-in"
+             leave-from-class="transform translate-y-0 opacity-100"
+             leave-to-class="transform -translate-y-2 opacity-0"
+           >
+             <UFormField v-if="exportState.encrypt" label="Contrasenya d'encriptació" name="exportPassword" help="S'utilitza per protegir el fitxer exportat.">
+              <UInput
+                v-model="exportState.password"
+                type="password"
+                placeholder="Introdueix una contrasenya segura"
+                icon="i-heroicons-lock-closed"
+              />
+            </UFormField> 
+           </transition>
         </div>
 
         <div class="grid md:grid-cols-2 gap-8">
@@ -638,7 +675,7 @@ const formatTimestamp = (value?: string) => {
           </p>
           
           <div class="grid md:grid-cols-2 gap-4 items-end">
-            <UFormField label="Contrasenya del fitxer" name="importPassword">
+            <UFormField v-if="importState.isEncryptedFile" label="Contrasenya del fitxer" name="importPassword">
               <UInput
                 v-model="importState.password"
                 type="password"
@@ -677,7 +714,7 @@ const formatTimestamp = (value?: string) => {
             block 
             color="primary" 
             icon="i-heroicons-arrow-up-on-square" 
-            :disabled="!importState.file || !importState.password"
+            :disabled="!importState.file || (importState.isEncryptedFile && !importState.password)"
             @click="prepareImport"
           >
             Processar Importació

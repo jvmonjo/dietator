@@ -12,7 +12,7 @@ const setWaitingListener = (registration: ServiceWorkerRegistration, onUpdate: (
 }
 
 export default defineNuxtPlugin(() => {
-  if (!process.client || !('serviceWorker' in navigator)) {
+  if (!import.meta.client || !('serviceWorker' in navigator)) {
     return
   }
 

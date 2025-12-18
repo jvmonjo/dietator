@@ -152,7 +152,7 @@ const exceedsDurationLimit = computed(() => serviceDurationMs.value > DURATION_L
       v-if="exceedsDurationLimit"
       class="text-xs text-amber-600 dark:text-amber-400 mt-1"
     >
-      📌 La durada supera les 24 hores; comprova que la data final sigui correcta.
+      📌 La durada supera les 24 hores; comprova que la data final sigui correcta.
     </p>
 
     <USeparator label="Displacements" />
