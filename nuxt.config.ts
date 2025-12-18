@@ -73,6 +73,22 @@ export default defineNuxtConfig({
           type: 'image/png',
           purpose: 'maskable'
         }
+      ],
+      screenshots: [
+        {
+          src: 'pwa-screenshots/mobile.png',
+          sizes: '750x1334',
+          type: 'image/png',
+          form_factor: 'narrow',
+          label: 'Mobile'
+        },
+        {
+          src: 'pwa-screenshots/desktop.png',
+          sizes: '1920x1080',
+          type: 'image/png',
+          form_factor: 'wide',
+          label: 'Desktop'
+        }
       ]
     },
     workbox: {
