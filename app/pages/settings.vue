@@ -23,7 +23,7 @@ const exportState = reactive({
   password: '',
   selectedMonth: 'all' as string,
   includeTemplates: true,
-  encrypt: true
+  encrypt: false
 })
 
 const importState = reactive({
