@@ -57,7 +57,7 @@ export default defineNuxtConfig({
   pwa: {
     base: appBaseURL,
     scope: appBaseURL,
-    registerType: 'autoUpdate',
+    registerType: 'prompt',
     manifest: {
       name: 'Dietator',
       short_name: 'Dietator',
