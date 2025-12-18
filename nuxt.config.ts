@@ -10,16 +10,16 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        { rel: 'icon', type: 'image/png', sizes: '196x196', href: '/favicon-196.png' },
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'apple-touch-icon', href: '/apple-icon-180.png' },
-        { rel: 'manifest', href: '/manifest.webmanifest' }
+        { rel: 'icon', type: 'image/png', sizes: '196x196', href: 'favicon-196.png' },
+        { rel: 'icon', type: 'image/x-icon', href: 'favicon.ico' },
+        { rel: 'apple-touch-icon', href: 'apple-icon-180.png' },
+        { rel: 'manifest', href: 'manifest.webmanifest' }
       ],
       meta: [
-        { name: 'msapplication-square70x70logo', content: '/mstile-icon-128.png' },
-        { name: 'msapplication-square150x150logo', content: '/mstile-icon-270.png' },
-        { name: 'msapplication-square310x310logo', content: '/mstile-icon-558.png' },
-        { name: 'msapplication-wide310x150logo', content: '/mstile-icon-558-270.png' }
+        { name: 'msapplication-square70x70logo', content: 'mstile-icon-128.png' },
+        { name: 'msapplication-square150x150logo', content: 'mstile-icon-270.png' },
+        { name: 'msapplication-square310x310logo', content: 'mstile-icon-558.png' },
+        { name: 'msapplication-wide310x150logo', content: 'mstile-icon-558-270.png' }
       ]
     }
   },

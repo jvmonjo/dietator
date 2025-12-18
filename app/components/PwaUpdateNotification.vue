@@ -23,14 +23,15 @@ const showUpdateToast = () => {
     description: 'Fes clic per actualitzar l\'aplicació',
     icon: 'i-heroicons-arrow-path',
     color: 'primary',
-    timeout: 0,
+    duration: 0,
     actions: [{
       label: 'Actualitzar',
       click: () => {
         $pwa?.updateServiceWorker()
       }
-    }]
-  } as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any]
+  })
 }
 </script>
 
