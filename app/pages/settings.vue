@@ -15,8 +15,8 @@ const templateInputs: Record<TemplateType, Ref<HTMLInputElement | null>> = {
 }
 
 const formState = reactive({
-  halfDietPrice: settingsStore.halfDietPrice || 0,
-  fullDietPrice: settingsStore.fullDietPrice || 0
+  halfDietPrice: (settingsStore.halfDietPrice || 0) as number | string,
+  fullDietPrice: (settingsStore.fullDietPrice || 0) as number | string
 })
 
 const exportState = reactive({
@@ -84,9 +84,21 @@ watch(monthsWithData, (months) => {
   }
 })
 
+const parseCurrency = (input: string | number) => {
+  if (typeof input === 'number') return input
+  // Replace commas with dots
+  const normalized = String(input).replace(/,/g, '.')
+  const val = parseFloat(normalized)
+  return Number.isNaN(val) ? 0 : val
+}
+
 const saveSettings = () => {
-  const normalizedHalfPrice = Number(formState.halfDietPrice) || 0
-  const normalizedFullPrice = Number(formState.fullDietPrice) || 0
+  const normalizedHalfPrice = parseCurrency(formState.halfDietPrice)
+  const normalizedFullPrice = parseCurrency(formState.fullDietPrice)
+
+  // Update UI with parsed values
+  formState.halfDietPrice = normalizedHalfPrice
+  formState.fullDietPrice = normalizedFullPrice
 
   settingsStore.updateDietPrices({
     half: normalizedHalfPrice,
@@ -420,23 +432,21 @@ const formatTimestamp = (value?: string) => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <UFormField label="Preu mitja dieta" name="halfDietPrice" hint="Dinar o sopar." >
             <UInput
-              v-model.number="formState.halfDietPrice"
-              type="number"
-              step="0.01"
-              min="0"
+              v-model="formState.halfDietPrice"
+              type="text"
               icon="i-heroicons-currency-euro"
               inputmode="decimal"
+              placeholder="0.00"
             />
           </UFormField>
 
           <UFormField label="Preu dieta completa" name="fullDietPrice" hint="Dinar i sopar.">
             <UInput
-              v-model.number="formState.fullDietPrice"
-              type="number"
-              step="0.01"
-              min="0"
+              v-model="formState.fullDietPrice"
+              type="text"
               icon="i-heroicons-currency-euro"
               inputmode="decimal"
+              placeholder="0.00"
             />
           </UFormField>
         </div>
