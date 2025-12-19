@@ -39,7 +39,7 @@ const dismissUpdateBanner = () => {
         <div>
           <p class="text-sm font-semibold text-yellow-800 dark:text-white">Nova versió disponible</p>
           <p class="text-xs text-yellow-700 dark:text-yellow-200">
-            Hi ha actualitzacions a la versió del front. Torna a carregar la pàgina per veure els canvis.
+            Hi ha actualitzacions a Dietator. Torna a carregar la pàgina per veure els canvis.
           </p>
         </div>
         <div class="flex gap-2 justify-end">
