@@ -49,6 +49,5 @@ export default defineNuxtPlugin(() => {
       return
     }
     currentRegistration.waiting.postMessage({ type: 'SKIP_WAITING' })
-    updateAvailable.value = false
   }
 })

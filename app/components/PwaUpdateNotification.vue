@@ -28,7 +28,6 @@ const showUpdateToast = () => {
       label: 'Actualitzar',
       click: () => {
         triggerUpdate.value?.()
-        updateAvailable.value = false
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any]
