@@ -2,6 +2,8 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import type { Displacement, ServiceRecord } from '~/stores/services'
+import { useSettingsStore } from '~/stores/settings'
+import { useDistanceCalculator } from '~/composables/useDistanceCalculator'
 
 // Replaced uuid import with local function to avoid potential crash
 const uuidv4 = () => {
@@ -24,6 +26,9 @@ const emit = defineEmits<{
 }>()
 const toast = useToast()
 const serviceStore = useServiceStore()
+const settingsStore = useSettingsStore()
+
+const { calculateRouteDistance } = useDistanceCalculator()
 
 // Schema for validation
 const schema = z.object({
@@ -34,7 +39,8 @@ const schema = z.object({
     municipality: z.string().min(1, 'El municipi és obligatori'),
     hasLunch: z.boolean(),
     hasDinner: z.boolean()
-  })).min(1, 'Es requereix almenys un desplaçament')
+  })).min(1, 'Es requereix almenys un desplaçament'),
+  kilometers: z.number().optional()
 }).refine((data) => new Date(data.endTime) > new Date(data.startTime), {
   message: 'L\'hora de fi ha de ser posterior a l\'hora d\'inici',
   path: ['endTime']
@@ -55,8 +61,11 @@ const createEmptyDisplacement = (): FormDisplacement => ({
 const state = reactive({
   startTime: '',
   endTime: '',
-  displacements: [createEmptyDisplacement()]
+  displacements: [createEmptyDisplacement()],
+  kilometers: undefined as number | undefined
 })
+
+const autoCalculateKm = ref(!!settingsStore.googleMapsApiKey)
 
 const isEditing = computed(() => Boolean(props.initialData) && !props.isDuplicate)
 
@@ -75,6 +84,7 @@ const resetState = () => {
   state.startTime = ''
   state.endTime = ''
   state.displacements = [createEmptyDisplacement()]
+  state.kilometers = undefined
 }
 
 const loadRecord = (record: ServiceRecord) => {
@@ -84,6 +94,10 @@ const loadRecord = (record: ServiceRecord) => {
     ...displacement,
     id: props.isDuplicate ? uuidv4() : (displacement.id || uuidv4())
   }))
+  // Preserve kilometers if editing or duplicating (can be manually changed later)
+  if (record.kilometers !== undefined) {
+      state.kilometers = record.kilometers
+  }
 }
 
 watch(() => props.initialData, (record) => {
@@ -95,6 +109,24 @@ watch(() => props.initialData, (record) => {
 }, { immediate: true })
 
 async function onSubmit (event: FormSubmitEvent<Schema>) {
+  // Auto-calculate kilometers if enabled
+  if (autoCalculateKm.value && state.displacements.length >= 2) {
+      try {
+          // Filter out incomplete displacements
+          const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
+          if (validDisplacements.length >= 2) {
+            const calculated = await calculateRouteDistance(validDisplacements)
+            if (calculated > 0) {
+                state.kilometers = calculated
+                toast.add({ title: `Kilòmetres calculats: ${calculated}`, color: 'info' })
+            }
+          }
+      } catch (e) {
+          console.error('Error calculating distance', e)
+          toast.add({ title: 'Error calculant distància', color: 'warning' })
+      }
+  }
+
   const baseRecord: ServiceRecord = {
     id: (props.initialData?.id && !props.isDuplicate) ? props.initialData.id : uuidv4(),
     startTime: event.data.startTime,
@@ -102,7 +134,8 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
     displacements: state.displacements.map(displacement => ({
       ...displacement,
       id: displacement.id || uuidv4()
-    }))
+    })),
+    kilometers: state.kilometers
   }
 
   const hasMeals = baseRecord.displacements.some(d => d.hasLunch || d.hasDinner)
@@ -153,6 +186,20 @@ const serviceWarnings = computed(() => {
       >
         📌 {{ warning.message }}
       </p>
+    </div>
+
+    <!-- Km Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+         <UFormField label="Kilòmetres (Opcional)" name="kilometers">
+            <UInput v-model="state.kilometers" type="number" step="0.01" icon="i-heroicons-truck" placeholder="0.00" />
+         </UFormField>
+         
+         <div v-if="settingsStore.googleMapsApiKey" class="pb-2">
+             <UCheckbox 
+                v-model="autoCalculateKm" 
+                label="Calcular automàticament en guardar"
+            />
+         </div>
     </div>
 
     <USeparator label="Desplaçaments" />

@@ -14,6 +14,7 @@ export interface ServiceTotals {
   dietUnits: number
   allowance: number
   serviceCount: number
+  kilometers: number
 }
 
 const formatMonthKey = (year: number, month: number) => `${year}-${String(month).padStart(2, '0')}`
@@ -76,10 +77,15 @@ export const useServiceStats = () => {
     let dinners = 0
     let halfDietCount = 0
     let fullDietCount = 0
+    let kilometers = 0
 
     source.forEach((record) => {
       let serviceHasLunch = false
       let serviceHasDinner = false
+
+      if (record.kilometers) {
+        kilometers += record.kilometers
+      }
 
       record.displacements.forEach(({ hasLunch, hasDinner }) => {
         if (hasLunch) {
@@ -109,7 +115,8 @@ export const useServiceStats = () => {
       fullDietCount,
       dietUnits,
       allowance,
-      serviceCount: source.length
+      serviceCount: source.length,
+      kilometers: Math.round(kilometers * 100) / 100
     }
   }
 

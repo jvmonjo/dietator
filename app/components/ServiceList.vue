@@ -215,15 +215,6 @@ const formatDate = (value: string) => {
         <template #actions-cell="{ row }">
           <div class="flex gap-2">
             <UButton
-              icon="i-heroicons-document-duplicate"
-              size="xs"
-              variant="soft"
-              color="neutral"
-              @click="duplicateRecord(row.original as ServiceRecord)"
-            >
-              Duplicar
-            </UButton>
-            <UButton
               v-if="props.enableEdit"
               icon="i-heroicons-pencil-square"
               size="xs"
@@ -231,6 +222,15 @@ const formatDate = (value: string) => {
               @click="openRecord(row.original as ServiceRecord)"
             >
               Editar
+            </UButton>
+             <UButton
+              icon="i-heroicons-document-duplicate"
+              size="xs"
+              variant="soft"
+              color="neutral"
+              @click="duplicateRecord(row.original as ServiceRecord)"
+            >
+              Duplicar
             </UButton>
             <UButton
               v-if="props.enableDelete"

@@ -16,7 +16,8 @@ const templateInputs: Record<TemplateType, Ref<HTMLInputElement | null>> = {
 
 const formState = reactive({
   halfDietPrice: (settingsStore.halfDietPrice || 0) as number | string,
-  fullDietPrice: (settingsStore.fullDietPrice || 0) as number | string
+  fullDietPrice: (settingsStore.fullDietPrice || 0) as number | string,
+  googleMapsApiKey: settingsStore.googleMapsApiKey || ''
 })
 
 const exportState = reactive({
@@ -104,6 +105,7 @@ const saveSettings = () => {
     half: normalizedHalfPrice,
     full: normalizedFullPrice
   })
+  settingsStore.$patch({ googleMapsApiKey: formState.googleMapsApiKey })
   toast.add({ title: 'Configuració guardada', color: 'success' })
 }
 
@@ -459,6 +461,27 @@ const formatTimestamp = (value?: string) => {
         <div class="flex gap-3 pt-2">
           <UButton type="submit" icon="i-heroicons-check-circle">Desar configuració</UButton>
           <UButton to="/" variant="ghost" icon="i-heroicons-arrow-left">Tornar a l'inici</UButton>
+        </div>
+
+        <USeparator />
+
+        <div class="space-y-4">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <UIcon name="i-heroicons-puzzle-piece" class="w-5 h-5 text-gray-500" />
+            Integracions
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Configureu serveis externs per automatitzar tasques.
+          </p>
+
+          <UFormField label="Google Maps API Key" name="googleMapsApiKey" help="Necessari per al càlcul automàtic de quilòmetres.">
+            <UInput
+              v-model="formState.googleMapsApiKey"
+              type="password"
+              icon="i-heroicons-key"
+              placeholder="AIza..."
+            />
+          </UFormField>
         </div>
       </UForm>
     </UCard>

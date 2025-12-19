@@ -17,6 +17,7 @@ interface SettingsState {
   monthlyTemplate: TemplateFile | null
   serviceTemplate: TemplateFile | null
   exportTemplates: boolean
+  googleMapsApiKey: string
 }
 
 const settingsStorage = piniaPluginPersistedstate.localStorage()
@@ -27,7 +28,8 @@ export const useSettingsStore = defineStore('settings', {
     fullDietPrice: 0,
     monthlyTemplate: null,
     serviceTemplate: null,
-    exportTemplates: false
+    exportTemplates: false,
+    googleMapsApiKey: ''
   }),
   actions: {
     updateDietPrices(prices: { half: number, full: number }) {
@@ -47,6 +49,7 @@ export const useSettingsStore = defineStore('settings', {
       if (settings.monthlyTemplate || settings.monthlyTemplate === null) this.monthlyTemplate = settings.monthlyTemplate
       if (settings.serviceTemplate || settings.serviceTemplate === null) this.serviceTemplate = settings.serviceTemplate
       if (typeof settings.exportTemplates === 'boolean') this.exportTemplates = settings.exportTemplates
+      this.googleMapsApiKey = settings.googleMapsApiKey || ''
     }
   },
   persist: {

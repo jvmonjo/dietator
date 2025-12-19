@@ -101,6 +101,7 @@ const buildContexts = (options: GenerateWordReportOptions) => {
     month_half_diets: totals.halfDietCount,
     month_full_diets: totals.fullDietCount,
     month_diet_units: totals.dietUnits.toString(),
+    month_kilometers: (totals.kilometers || 0).toLocaleString('ca-ES'),
     month_allowance: CURRENCY_FORMATTER.format(totals.allowance || 0),
     month_allowance_value: totals.allowance,
     previous_month_last_working_day: laborDays[0]?.iso ?? '',
@@ -201,10 +202,9 @@ const buildServiceVariables = (record: ServiceRecord, recordIndex: number, setti
     service_full_diets: fullDiets,
     service_lunches: lunches,
     service_dinners: dinners,
-    service_total_lunches: lunches,
-    service_total_dinners: dinners,
     service_total_allowance: CURRENCY_FORMATTER.format(allowance || 0),
-    service_total_allowance_value: allowance
+    service_total_allowance_value: allowance,
+    service_kilometers: record.kilometers || 0
   }
 }
 

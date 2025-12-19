@@ -63,6 +63,11 @@ const averageHoursPerService = computed(() => {
   return totalHoursWorked.value / selectionTotals.value.serviceCount
 })
 
+const averageKmPerService = computed(() => {
+  if (selectionTotals.value.serviceCount <= 0) return 0
+  return (selectionTotals.value.kilometers || 0) / selectionTotals.value.serviceCount
+})
+
 const hoursFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 const weeksFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
 const formatHours = (value: number) => `${hoursFormatter.format(value || 0)} h`
@@ -149,6 +154,9 @@ const exportReport = async () => {
             <p class="text-xs text-gray-400">
               Dietes: {{ selectionTotals.fullDietCount }} completes · {{ selectionTotals.halfDietCount }} mitges
             </p>
+            <p class="text-xs text-gray-400">
+              Kilòmetres: <strong>{{ selectionTotals.kilometers?.toLocaleString('ca-ES') ?? 0 }} km</strong>
+            </p>
             <p v-if="!hasTemplates" class="text-xs text-red-500 dark:text-red-400">
               S'ha de pujar una plantilla mensual o per servei des de Configuració.
             </p>
@@ -233,6 +241,15 @@ const exportReport = async () => {
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Preus configurats</div>
           <p class="text-base text-gray-800 dark:text-gray-200">Completa: {{ formatCurrency(settingsStore.fullDietPrice || 0) }}</p>
           <p class="text-base text-gray-800 dark:text-gray-200">Mitja: {{ formatCurrency(settingsStore.halfDietPrice || 0) }}</p>
+        </div>
+      </UCard>
+      <UCard>
+        <div class="text-center space-y-1">
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Kilòmetres</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.kilometers?.toLocaleString('ca-ES') ?? 0 }} <span class="text-sm font-normal text-gray-500">km</span></div>
+          <p class="text-xs text-gray-400">
+             Mitjana: {{ averageKmPerService.toLocaleString('ca-ES', { maximumFractionDigits: 1 }) }} km/servei
+          </p>
         </div>
       </UCard>
     </section>

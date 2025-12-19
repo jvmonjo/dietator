@@ -18,6 +18,7 @@ const monthlyVariables = [
   { name: '[month_half_diets]', desc: 'Total de mitges dietes.' },
   { name: '[month_full_diets]', desc: 'Total de dietes completes.' },
   { name: '[month_diet_units]', desc: 'Unitats de dieta (completa=1, mitja=0.5).' },
+  { name: '[month_kilometers]', desc: 'Total de quilòmetres registrats al mes.' },
   { name: '[month_allowance]', desc: 'Import total a percebre.' },
   { name: '[month_allowance_value]', desc: 'Valor numèric de l\'import total.' },
   { name: '[previous_month_last_working_day]', desc: 'Data de l\'últim dia laborable del mes anterior (ISO).' },
@@ -46,6 +47,7 @@ const serviceVariables = [
   { name: '[service_dinners]', desc: 'Nombre de sopars en aquest servei.' },
   { name: '[service_total_lunches]', desc: 'Total de dinars (alias).' },
   { name: '[service_total_dinners]', desc: 'Total de sopars (alias).' },
+  { name: '[service_kilometers]', desc: 'Total de quilòmetres del servei.' },
   { name: '[service_total_allowance]', desc: 'Import total del servei.' },
   { name: '[service_total_allowance_value]', desc: 'Valor numèric de l\'import total.' }
 ]
@@ -71,7 +73,7 @@ const loops = [
 const columns = [
   { accessorKey: 'name', header: 'Variable', id: 'name' },
   { accessorKey: 'desc', header: 'Descripció', id: 'desc' }
-] as any[]
+]
 </script>
 
 <template>
