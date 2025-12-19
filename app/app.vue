@@ -4,7 +4,7 @@
       <NuxtPage />
     </NuxtLayout>
     <ClientOnly>
-      <PwaUpdateNotification />
+
     </ClientOnly>
   </UApp>
 </template>
