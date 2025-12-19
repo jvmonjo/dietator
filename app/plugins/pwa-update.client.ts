@@ -49,5 +49,10 @@ export default defineNuxtPlugin(() => {
       return
     }
     currentRegistration.waiting.postMessage({ type: 'SKIP_WAITING' })
+
+    // Fallback: Force reload if controllerchange doesn't fire automatically
+    setTimeout(() => {
+      window.location.reload()
+    }, 500)
   }
 })
