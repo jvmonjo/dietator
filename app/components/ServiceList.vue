@@ -214,15 +214,15 @@ const formatDate = (value: string) => {
         </template>
         <template #actions-cell="{ row }">
           <div class="flex gap-2">
-            <UTooltip text="Duplicar">
-              <UButton
-                icon="i-heroicons-document-duplicate"
-                size="xs"
-                variant="soft"
-                color="neutral"
-                @click="duplicateRecord(row.original as ServiceRecord)"
-              />
-            </UTooltip>
+            <UButton
+              icon="i-heroicons-document-duplicate"
+              size="xs"
+              variant="soft"
+              color="neutral"
+              @click="duplicateRecord(row.original as ServiceRecord)"
+            >
+              Duplicar
+            </UButton>
             <UButton
               v-if="props.enableEdit"
               icon="i-heroicons-pencil-square"
