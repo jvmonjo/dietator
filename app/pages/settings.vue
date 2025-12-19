@@ -137,7 +137,8 @@ const buildSettingsPayload = (includeTemplates: boolean) => ({
   fullDietPrice: settingsStore.fullDietPrice,
   monthlyTemplate: includeTemplates ? settingsStore.monthlyTemplate : null,
   serviceTemplate: includeTemplates ? settingsStore.serviceTemplate : null,
-  exportTemplates: includeTemplates
+  exportTemplates: includeTemplates,
+  googleMapsApiKey: settingsStore.googleMapsApiKey
 })
 
 
@@ -242,6 +243,7 @@ const processImport = async (payload: BackupPayload) => {
     settingsStore.loadSettings(settings)
     formState.halfDietPrice = settingsStore.halfDietPrice
     formState.fullDietPrice = settingsStore.fullDietPrice
+    formState.googleMapsApiKey = settingsStore.googleMapsApiKey
   }
 
   const description = services && settings
