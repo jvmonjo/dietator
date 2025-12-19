@@ -1,3 +1,10 @@
+## [1.3.7](https://github.com/jvmonjo/dietator/compare/v1.3.6...v1.3.7) (2025-12-19)
+
+
+### Bug Fixes
+
+* dynamically construct logo URL using runtime config baseURL to ensure accurate path resolution ([fe620fe](https://github.com/jvmonjo/dietator/commit/fe620fefa5dde491112d65cae88f706d7c5048ff))
+
 ## [1.3.6](https://github.com/jvmonjo/dietator/compare/v1.3.5...v1.3.6) (2025-12-19)
 
 
