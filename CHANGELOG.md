@@ -1,3 +1,15 @@
+# [1.8.0](https://github.com/jvmonjo/dietator/compare/v1.7.0...v1.8.0) (2025-12-19)
+
+
+### Bug Fixes
+
+* update UI text from 'informes' and 'informe Word' to 'documents' ([788fa48](https://github.com/jvmonjo/dietator/commit/788fa4893a21d5dbf7925e9b9a24da3d3f2e97e2))
+
+
+### Features
+
+* Add optional notes field to service records, form, export, and help documentation. ([7cabc73](https://github.com/jvmonjo/dietator/commit/7cabc731a2974ecc3b20885c9b020bd9bbf6665b))
+
 # [1.7.0](https://github.com/jvmonjo/dietator/compare/v1.6.0...v1.7.0) (2025-12-19)
 
 
