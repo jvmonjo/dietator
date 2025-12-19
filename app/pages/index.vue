@@ -188,14 +188,14 @@ const exportReport = async () => {
       icon="i-heroicons-exclamation-triangle"
       variant="subtle"
       title="Afegeix el preu de la dieta"
-      description="Configura el preu per poder calcular correctament els totals i generar informes."
+      description="Configura el preu per poder calcular correctament els totals i generar documents."
     />
 
     <section>
       <UCard>
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="space-y-1">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Generar informe Word</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Generar documents</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               Mes seleccionat: <strong>{{ selectedMonthLabel }}</strong> — {{ selectedRecords.length }} serveis
             </p>
