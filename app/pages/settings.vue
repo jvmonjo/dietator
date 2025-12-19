@@ -149,19 +149,16 @@ const sanitizeSegment = (value: string) => value
   .replace(/^-+|-+$/g, '')
 
 const buildBackupFilename = (type: 'config' | 'data', timestamp: string) => {
-  const segments = ['dietator']
-  
   if (type === 'config') {
-    segments.push('config')
-  } else {
-    segments.push('dades')
-    if (exportState.selectedMonth !== 'all') {
-      segments.push(`mes-${sanitizeSegment(exportState.selectedMonth)}`)
-    }
+    return `config-${timestamp}-dietator.json`
   }
-
-  segments.push(timestamp)
-  return `${segments.filter(Boolean).join('-')}.json`
+  
+  // Data export
+  if (exportState.selectedMonth !== 'all') {
+    return `${exportState.selectedMonth}-dades-mensuals-dietator-${timestamp}.json`
+  }
+  
+  return `dades-dietator-${timestamp}.json`
 }
 
 const exportBackup = async (type: 'config' | 'data') => {

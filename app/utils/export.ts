@@ -63,12 +63,15 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
   const { monthlyContext, serviceDocuments } = buildContexts(contextOptions)
 
   if (monthly && monthlyContext) {
-    tasks.push(renderDocumentFromTemplate(monthly, monthlyContext, `dietator-mensual-${options.month.value}.docx`))
+    tasks.push(renderDocumentFromTemplate(monthly, monthlyContext, `${options.month.value}-dietator-mensual.docx`))
   }
 
   if (service && serviceDocuments.length > 0) {
     serviceDocuments.forEach((doc) => {
-      tasks.push(renderDocumentFromTemplate(service, doc.context, `dietator-servei-${doc.reference}.docx`))
+      // Extract date from reference SERV-YYYY-MM-DD-XX
+      const dateMatch = doc.reference.match(/SERV-(\d{4}-\d{2}-\d{2})/)
+      const datePrefix = dateMatch ? dateMatch[1] : options.month.value
+      tasks.push(renderDocumentFromTemplate(service, doc.context, `${datePrefix}-servei-dietator-${doc.reference}.docx`))
     })
   }
 
@@ -82,7 +85,7 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
       settings: options.settings,
       records: sortedRecords
     })
-    files.push({ filename: `dietator-estadistiques-${options.month.value}.pdf`, blob: pdfBlob })
+    files.push({ filename: `${options.month.value}-estadistiques-dietator.pdf`, blob: pdfBlob })
   } catch (e) {
     console.error('Error generating PDF', e)
   }
@@ -96,7 +99,7 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
     archive.file(file.filename, file.blob)
   })
   const zipBlob = await archive.generateAsync({ type: 'blob' })
-  FileSaver.saveAs(zipBlob, `dietator-documents-${options.month.value}.zip`)
+  FileSaver.saveAs(zipBlob, `${options.month.value}-documents-dietator.zip`)
 }
 
 const buildContexts = (options: GenerateWordReportOptions) => {
