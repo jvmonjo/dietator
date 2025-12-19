@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/jvmonjo/dietator/compare/v1.3.3...v1.3.4) (2025-12-19)
+
+
+### Bug Fixes
+
+* Introduce fallback page reload for PWA updates if controllerchange doesn't fire. ([755320a](https://github.com/jvmonjo/dietator/commit/755320a380438259ec772fad1bc476e81daa9ccd))
+
 ## [1.3.3](https://github.com/jvmonjo/dietator/compare/v1.3.2...v1.3.3) (2025-12-19)
 
 
