@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/jvmonjo/dietator/compare/v1.3.2...v1.3.3) (2025-12-19)
+
+
+### Bug Fixes
+
+* Update Google Maps API loading and enhance distance calculation to provide detailed route information including path and source. ([ce75a2d](https://github.com/jvmonjo/dietator/commit/ce75a2deb396ff48bb7a554071e5dca06a354cdc))
+
 ## [1.3.2](https://github.com/jvmonjo/dietator/compare/v1.3.1...v1.3.2) (2025-12-19)
 
 
