@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/jvmonjo/dietator/compare/v1.1.0...v1.1.1) (2025-12-19)
+
+
+### Bug Fixes
+
+* apply lunch and dinner warnings only if service starts and ends on the same day ([c1d85c4](https://github.com/jvmonjo/dietator/commit/c1d85c4ed236aec76fb27e67dad4ffdbea9629bf))
+
 # [1.1.0](https://github.com/jvmonjo/dietator/compare/v1.0.0...v1.1.0) (2025-12-19)
 
 
