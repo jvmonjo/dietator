@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/jvmonjo/dietator/compare/v1.5.1...v1.5.2) (2025-12-19)
+
+
+### Bug Fixes
+
+* remove explicit auto-calculate kilometers checkbox and trigger calculation implicitly when API key is present and kilometers are not set. ([208ad9a](https://github.com/jvmonjo/dietator/commit/208ad9aa0f5a9c12fbf704afabe308368680449c))
+
 ## [1.5.1](https://github.com/jvmonjo/dietator/compare/v1.5.0...v1.5.1) (2025-12-19)
 
 
