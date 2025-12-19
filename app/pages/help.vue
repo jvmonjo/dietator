@@ -67,7 +67,10 @@ const displacementVariables = [
 const loops = [
   { name: '[loop:services] ... [endloop:services]', desc: 'Itera sobre cada servei del mes.' },
   { name: '[loop:service_displacements] ... [endloop:service_displacements]', desc: 'Itera sobre els desplaçaments d\'un servei (dins de loop:services).' },
-  { name: '[loop:month_displacements] ... [endloop:month_displacements]', desc: 'Itera sobre tots els desplaçaments del mes, sense agrupar.' }
+  { name: '[loop:month_displacements] ... [endloop:month_displacements]', desc: 'Itera sobre tots els desplaçaments del mes, sense agrupar.' },
+  { name: '[if:has_next] ... [endif:has_next]', desc: 'Mostra el contingut només si NO és l\'últim element. Ideal per a comes.' },
+  { name: '[if:is_last] ... [endif:is_last]', desc: 'Mostra el contingut només si és l\'últim element.' },
+  { name: '[if:is_first] ... [endif:is_first]', desc: 'Mostra el contingut només si és el primer element.' }
 ]
 
 const columns = [

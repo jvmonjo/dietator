@@ -186,7 +186,7 @@ const buildContexts = (options: GenerateWordReportOptions) => {
     const serviceContext: TemplateContext = {
       variables: serviceVariables,
       loops: {
-        service_displacements: displacementContexts
+        service_displacements: decorateWithLoopStatus(displacementContexts)
       }
     }
     serviceContexts.push(serviceContext)
@@ -198,7 +198,7 @@ const buildContexts = (options: GenerateWordReportOptions) => {
           ...serviceVariables
         },
         loops: {
-          service_displacements: displacementContexts
+          service_displacements: decorateWithLoopStatus(displacementContexts)
         }
       }
     })
@@ -207,8 +207,8 @@ const buildContexts = (options: GenerateWordReportOptions) => {
   const monthlyContext: TemplateContext = {
     variables: globalVariables,
     loops: {
-      services: serviceContexts,
-      month_displacements: monthlyDisplacements
+      services: decorateWithLoopStatus(serviceContexts),
+      month_displacements: decorateWithLoopStatus(monthlyDisplacements)
     }
   }
 
@@ -216,6 +216,22 @@ const buildContexts = (options: GenerateWordReportOptions) => {
     monthlyContext,
     serviceDocuments
   }
+}
+
+const decorateWithLoopStatus = (contexts: TemplateContext[]): TemplateContext[] => {
+  return contexts.map((ctx, index) => {
+    const isFirst = index === 0
+    const isLast = index === contexts.length - 1
+    return {
+      ...ctx,
+      variables: {
+        ...ctx.variables,
+        is_first: isFirst,
+        is_last: isLast,
+        has_next: !isLast
+      }
+    }
+  })
 }
 
 const buildServiceVariables = (record: ServiceRecord, recordIndex: number, settings: ExportSettings) => {
