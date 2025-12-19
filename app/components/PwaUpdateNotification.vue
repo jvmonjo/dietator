@@ -1,14 +1,18 @@
 <script setup lang="ts">
+const { $pwa } = useNuxtApp()
 const toast = useToast()
 
-const updateAvailable = useState<boolean>('swUpdateAvailable', () => false)
-const triggerUpdate = useState<(() => void) | null>('swUpdateTrigger', () => null)
-
-watch(updateAvailable, (available) => {
-  if (available) {
+onMounted(() => {
+  if ($pwa && $pwa.needRefresh) {
     showUpdateToast()
   }
-}, { immediate: true })
+})
+
+watch(() => $pwa?.needRefresh, (needRefresh) => {
+  if (needRefresh) {
+    showUpdateToast()
+  }
+})
 
 const showUpdateToast = () => {
     // Check if toast already exists to avoid duplicates
@@ -27,7 +31,7 @@ const showUpdateToast = () => {
     actions: [{
       label: 'Actualitzar',
       click: () => {
-        triggerUpdate.value?.()
+        $pwa?.updateServiceWorker()
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any]
