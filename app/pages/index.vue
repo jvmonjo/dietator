@@ -5,10 +5,50 @@ import { generateWordReport } from '~/utils/export'
 
 const settingsStore = useSettingsStore()
 const toast = useToast()
-const { calculateTotals, currentMonthValue } = useServiceStats()
+const { calculateTotals, currentMonthValue, monthOptions, getRecordsForMonth } = useServiceStats()
 
-const selectedRecords = ref<ServiceRecord[]>([])
-const selectedMonth = ref<MonthOption | null>(null)
+const monthFormatter = new Intl.DateTimeFormat('ca-ES', { year: 'numeric', month: 'long' })
+const extendedMonthOptions = computed<MonthOption[]>(() => {
+  const options = monthOptions.value.slice()
+  const hasCurrent = options.some(option => option.value === currentMonthValue.value)
+  if (!hasCurrent && currentMonthValue.value) {
+    const [yearStr, monthStr] = currentMonthValue.value.split('-')
+    const year = Number(yearStr)
+    const month = Number(monthStr)
+    if (Number.isFinite(year) && Number.isFinite(month)) {
+      const fallbackDate = new Date(year, month - 1, 1)
+      options.push({
+        value: currentMonthValue.value,
+        label: monthFormatter.format(fallbackDate)
+      })
+    }
+  }
+  return options.sort((a, b) => (a.value < b.value ? 1 : -1))
+})
+
+const selectedMonth = ref<MonthOption | undefined>()
+const showAllMonths = ref(false)
+
+watch(extendedMonthOptions, (options) => {
+  if (!showAllMonths.value && !selectedMonth.value) {
+    selectedMonth.value = options.find(option => option.value === currentMonthValue.value) ?? options[0]
+  }
+}, { immediate: true })
+
+const activeMonth = computed<MonthOption | null>(() => {
+  if (showAllMonths.value) {
+    return null
+  }
+  if (!selectedMonth.value) {
+    return extendedMonthOptions.value.find(option => option.value === currentMonthValue.value) ?? null
+  }
+  return selectedMonth.value
+})
+
+const selectedRecords = computed(() => {
+    return getRecordsForMonth(activeMonth.value?.value ?? null)
+})
+
 const selectionTotals = computed(() => calculateTotals(selectedRecords.value))
 
 const currencyFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
@@ -52,7 +92,7 @@ const totalHoursWorked = computed(() => {
   return totalMs * HOURS_PER_MS
 })
 
-const weeksInSelectedMonth = computed(() => getWeeksInMonth(selectedMonth.value?.value ?? currentMonthValue.value))
+const weeksInSelectedMonth = computed(() => getWeeksInMonth(activeMonth.value?.value ?? currentMonthValue.value))
 const averageWeeklyHours = computed(() => {
   if (weeksInSelectedMonth.value <= 0) return 0
   return totalHoursWorked.value / weeksInSelectedMonth.value
@@ -73,15 +113,23 @@ const weeksFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1
 const formatHours = (value: number) => `${hoursFormatter.format(value || 0)} h`
 const formatWeeks = (value: number) => weeksFormatter.format(value || 0)
 
-const selectedMonthLabel = computed(() => selectedMonth.value?.label ?? 'Tots els mesos')
+const selectedMonthLabel = computed(() => {
+    if (showAllMonths.value) return 'Tots els mesos'
+    return activeMonth.value?.label ?? 'Mes actual'
+})
 const hasTemplates = computed(() => Boolean(settingsStore.monthlyTemplate || settingsStore.serviceTemplate))
 const dietPriceSet = computed(() => settingsStore.fullDietPrice > 0 || settingsStore.halfDietPrice > 0)
-const canExportReport = computed(() => Boolean(selectedMonth.value) && selectedRecords.value.length > 0 && hasTemplates.value)
+const canExportReport = computed(() => Boolean(activeMonth.value) && selectedRecords.value.length > 0 && hasTemplates.value)
 const serviceListDescription = computed(() => `Dinars: ${selectionTotals.value.lunches} | Sopars: ${selectionTotals.value.dinners}`)
 
-const handleRecordsChange = (payload: { records: ServiceRecord[], month: MonthOption | null }) => {
-  selectedRecords.value = payload.records
-  selectedMonth.value = payload.month
+const handleMonthChange = (value: MonthOption | null | undefined) => {
+  if (!value) {
+    showAllMonths.value = true
+    selectedMonth.value = undefined
+  } else {
+    showAllMonths.value = false
+    selectedMonth.value = value
+  }
 }
 
 const exportReport = async () => {
@@ -162,12 +210,17 @@ const exportReport = async () => {
             </p>
           </div>
           <div class="flex items-center gap-3">
-            <UBadge v-if="selectedMonth" color="primary" variant="soft">
-              {{ selectedMonth.label }}
-            </UBadge>
+             <UInputMenu
+               :model-value="showAllMonths ? undefined : selectedMonth"
+               :items="extendedMonthOptions"
+               placeholder="Selecciona un mes"
+               clearable
+               class="min-w-[200px]"
+               @update:model-value="handleMonthChange"
+             />
             <UButton
               icon="i-heroicons-document-arrow-down"
-              color="success"
+              color="primary"
               :disabled="!canExportReport"
               @click="exportReport"
             >
@@ -183,7 +236,7 @@ const exportReport = async () => {
       <ServiceList
         title="Serveis registrats"
         :description="serviceListDescription"
-        @records-change="handleRecordsChange"
+        :records="selectedRecords"
       />
     </section>
 
