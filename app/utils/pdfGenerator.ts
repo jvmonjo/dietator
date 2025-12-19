@@ -118,7 +118,6 @@ export const generateStatsPdf = async (options: PdfGeneratorOptions): Promise<Bl
         { label: 'Dietes Mitges', value: Totals.halfDietCount },
         { label: 'Total Dinars', value: Totals.lunches },
         { label: 'Total Sopars', value: Totals.dinners },
-        { label: 'Unitats de Dieta', value: Totals.dietUnits },
         { label: 'Mitjana Km/Servei', value: ((Totals.kilometers || 0) / (Totals.serviceCount || 1)).toLocaleString('ca-ES', { maximumFractionDigits: 1 }) + ' km' },
         { label: 'Hores Totals', value: totalHours.toLocaleString('ca-ES', { maximumFractionDigits: 1 }) + ' h' },
         { label: 'Mitjana Hores/Servei', value: avgHours.toLocaleString('ca-ES', { maximumFractionDigits: 1 }) + ' h' },
