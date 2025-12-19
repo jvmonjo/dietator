@@ -27,16 +27,16 @@ const serviceStore = useServiceStore()
 
 // Schema for validation
 const schema = z.object({
-  startTime: z.string().min(1, 'Start time is required'),
-  endTime: z.string().min(1, 'End time is required'),
+  startTime: z.string().min(1, 'L\'hora d\'inici és obligatòria'),
+  endTime: z.string().min(1, 'L\'hora de fi és obligatòria'),
   displacements: z.array(z.object({
-    province: z.string().min(1, 'Province is required'),
-    municipality: z.string().min(1, 'Municipality is required'),
+    province: z.string().min(1, 'La província és obligatòria'),
+    municipality: z.string().min(1, 'El municipi és obligatori'),
     hasLunch: z.boolean(),
     hasDinner: z.boolean()
-  })).min(1, 'At least one displacement is required')
+  })).min(1, 'Es requereix almenys un desplaçament')
 }).refine((data) => new Date(data.endTime) > new Date(data.startTime), {
-  message: 'End time must be after start time',
+  message: 'L\'hora de fi ha de ser posterior a l\'hora d\'inici',
   path: ['endTime']
 })
 
@@ -113,17 +113,17 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
 
   if (isEditing.value) {
     serviceStore.updateRecord(baseRecord)
-    toast.add({ title: 'Service updated successfully', color: 'success' })
+    toast.add({ title: 'Servei actualitzat correctament', color: 'success' })
     emit('saved')
   } else {
     serviceStore.addRecord(baseRecord)
-    toast.add({ title: 'Service registered successfully', color: 'success' })
+    toast.add({ title: 'Servei registrat correctament', color: 'success' })
     resetState()
     emit('saved')
   }
 }
 
-const submitLabel = computed(() => isEditing.value ? 'Update Service Record' : 'Save Service Record')
+const submitLabel = computed(() => isEditing.value ? 'Actualitzar servei' : 'Guardar servei')
 
 const { getServiceWarnings } = useServiceWarnings()
 
@@ -137,11 +137,11 @@ const serviceWarnings = computed(() => {
   <UForm :schema="schema" :state="state" class="space-y-8" @submit="onSubmit">
     <!-- Time Selection -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <UFormField label="Start Time" name="startTime" required>
+      <UFormField label="Hora d'inici" name="startTime" required>
         <UInput v-model="state.startTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
       </UFormField>
 
-      <UFormField label="End Time" name="endTime" required>
+      <UFormField label="Hora de fi" name="endTime" required>
         <UInput v-model="state.endTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
       </UFormField>
     </div>
@@ -155,7 +155,7 @@ const serviceWarnings = computed(() => {
       </p>
     </div>
 
-    <USeparator label="Displacements" />
+    <USeparator label="Desplaçaments" />
 
     <!-- Displacements List -->
     <div class="space-y-4">
@@ -176,34 +176,34 @@ const serviceWarnings = computed(() => {
         </div>
 
         <div class="grid grid-cols-1 gap-4 pr-8">
-          <UFormField label="Province" :name="`displacements.${index}.province`" required>
+          <UFormField label="Província" :name="`displacements.${index}.province`" required>
             <ProvinceSelect
               v-model="displacement.province"
               :items="provinces"
-              placeholder="Select province"
+              placeholder="Selecciona província"
               @update:model-value="displacement.municipality = ''"
             />
           </UFormField>
 
-          <UFormField label="Municipality" :name="`displacements.${index}.municipality`" required>
+          <UFormField label="Municipi" :name="`displacements.${index}.municipality`" required>
             <MunicipalitySelect
               v-model="displacement.municipality"
               :items="getMunicipalities(displacement.province)"
               :disabled="!displacement.province"
-              placeholder="Select municipality"
+              placeholder="Selecciona municipi"
             />
           </UFormField>
 
           <div class="flex flex-wrap gap-4">
             <UCheckbox
               v-model="displacement.hasLunch"
-              label="Lunch Included"
+              label="Dinar inclòs"
               :disabled="state.displacements.some((d, idx) => idx !== index && d.hasLunch)"
               :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
             />
             <UCheckbox
               v-model="displacement.hasDinner"
-              label="Dinner Included"
+              label="Sopar inclòs"
               :disabled="state.displacements.some((d, idx) => idx !== index && d.hasDinner)"
               :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
             />
@@ -218,7 +218,7 @@ const serviceWarnings = computed(() => {
         class="border-dashed border-2 border-gray-300 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500"
         @click="addDisplacement"
       >
-        Add Another Displacement
+        Afegir un altre desplaçament
       </UButton>
     </div>
 

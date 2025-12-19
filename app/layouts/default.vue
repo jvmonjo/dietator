@@ -1,17 +1,17 @@
 <script setup lang="ts">
 const links = [
   {
-    label: 'Home',
+    label: 'Inici',
     icon: 'i-heroicons-home',
     to: '/'
   },
   {
-    label: 'Settings',
+    label: 'Configuració',
     icon: 'i-heroicons-cog-6-tooth',
     to: '/settings'
   },
   {
-    label: 'Help',
+    label: 'Ajuda',
     icon: 'i-heroicons-question-mark-circle',
     to: '/help'
   }
@@ -62,7 +62,7 @@ const { public: { appVersion } } = useRuntimeConfig()
     <!-- Footer (Desktop) -->
     <footer class="hidden md:block border-t border-gray-200 dark:border-gray-800 py-6 text-center text-sm text-gray-500">
       <p>
-        &copy; {{ new Date().getFullYear() }} Dietator. All rights reserved. <span class="ml-2 text-xs opacity-60">v{{ appVersion }}</span>
+        &copy; {{ new Date().getFullYear() }} Dietator. Tots els drets reservats. <span class="ml-2 text-xs opacity-60">v{{ appVersion }}</span>
         <span class="mx-2">·</span>
         <NuxtLink to="/help" class="hover:text-primary-500 transition-colors">Ajuda</NuxtLink>
       </p>

@@ -410,7 +410,7 @@ const formatTimestamp = (value?: string) => {
   <div class="max-w-2xl mx-auto space-y-6">
     <div class="flex items-start justify-between gap-4">
       <div class="space-y-2">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuració</h1>
 
       </div>
     </div>

@@ -122,10 +122,10 @@ const exportReport = async () => {
     <!-- Hero Section -->
     <section class="text-center space-y-4 py-8">
       <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-        Welcome to <span class="text-primary-500">Dietator</span>
+        Benvingut a <span class="text-primary-500">Dietator</span>
       </h1>
       <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-        Track your services, meals, and allowances efficiently. Offline-first and always ready.
+        Gestiona els teus serveis i dietes de manera eficient. Funciona sense connexió a internet i sempre a punt.
       </p>
     </section>
 
@@ -150,7 +150,7 @@ const exportReport = async () => {
               Dietes: {{ selectionTotals.fullDietCount }} completes · {{ selectionTotals.halfDietCount }} mitges
             </p>
             <p v-if="!hasTemplates" class="text-xs text-red-500 dark:text-red-400">
-              S'ha de pujar una plantilla mensual o per servei des de Settings.
+              S'ha de pujar una plantilla mensual o per servei des de Configuració.
             </p>
           </div>
           <div class="flex items-center gap-3">

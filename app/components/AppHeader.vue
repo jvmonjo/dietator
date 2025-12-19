@@ -18,7 +18,7 @@ const links = [
     to: '/'
   },
   {
-    label: 'Settings',
+    label: 'Configuració',
     to: '/settings'
   }
 ]
