@@ -3,6 +3,7 @@ import * as FileSaver from 'file-saver'
 import type { MonthOption, ServiceTotals } from '~/composables/useServiceStats'
 import type { ServiceRecord } from '~/stores/services'
 import type { TemplateFile } from '~/stores/settings'
+import { generateStatsPdf } from './pdfGenerator'
 
 type TemplateValue = string | number | boolean | Date | null | undefined
 
@@ -66,6 +67,20 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
   }
 
   const files = await Promise.all(tasks)
+
+  // Generate PDF Stats
+  try {
+    const pdfBlob = generateStatsPdf({
+      totals: options.totals,
+      month: options.month,
+      settings: options.settings,
+      records: options.records
+    })
+    files.push({ filename: `dietator-estadistiques-${options.month.value}.pdf`, blob: pdfBlob })
+  } catch (e) {
+    console.error('Error generating PDF', e)
+  }
+
   if (files.length === 0) {
     return
   }
