@@ -90,6 +90,25 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
     console.error('Error generating PDF', e)
   }
 
+  // Generate JSON Data file
+  try {
+    const jsonPayload = {
+      meta: {
+        type: 'data',
+        version: 1,
+        month: options.month.value,
+        exportedAt: new Date().toISOString()
+      },
+      services: sortedRecords
+    }
+    const jsonString = JSON.stringify(jsonPayload, null, 2)
+    const jsonBlob = new Blob([jsonString], { type: 'application/json' })
+    const today = new Date().toISOString().split('T')[0]
+    files.push({ filename: `${options.month.value}-dades-mensuals-dietator-${today}.json`, blob: jsonBlob })
+  } catch (e) {
+    console.error('Error generating JSON', e)
+  }
+
   if (files.length === 0) {
     return
   }
