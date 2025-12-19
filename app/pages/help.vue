@@ -124,6 +124,47 @@ const columns = [
       </UCard>
     </section>
 
+    <!-- Google Maps API Section -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">API de Google Maps i Càlcul de Kilòmetres</h2>
+      <UCard>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-600 dark:text-gray-300">
+            L'aplicació permet calcular automàticament els quilòmetres de les rutes utilitzant la <strong>Distance Matrix API</strong> de Google Maps.
+          </p>
+
+          <h3 class="font-semibold text-gray-900 dark:text-white text-base">Funcionament del Càlcul</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">
+            El sistema calcula la distància sumant els trajectes de forma seqüencial entre els municipis introduïts, seguint l'ordre de la llista:
+          </p>
+          <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-300 ml-2">
+            <li>Tram 1: Origen ➜ Destinació 1</li>
+            <li>Tram 2: Destinació 1 ➜ Destinació 2</li>
+            <li>...</li>
+            <li>Tram Final: Penúltim ➜ Últim destí</li>
+          </ul>
+          <UAlert
+            icon="i-heroicons-information-circle"
+            color="primary"
+            variant="soft"
+            title="Nota important"
+            description="El sistema NO afegeix automàticament el retorn a l'origen inicial. Si el servei inclou tornada, cal afegir el municipi d'origen com a última destinació de la llista."
+            class="mt-2"
+          />
+
+          <h3 class="font-semibold text-gray-900 dark:text-white text-base mt-2">Estratègia de Caching (Estalvi de Costos)</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">
+            Per minimitzar el cost de la API de Google, l'aplicació implementa un sistema de <strong>memòria cau (caching)</strong> local:
+          </p>
+          <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-300 ml-2">
+            <li>Quan es calcula la distància entre dos punts (ex: "València" ➜ "Alzira"), el resultat es guarda al navegador.</li>
+            <li>Les properes vegades que es necessiti aquest mateix tram, s'utilitzarà el valor guardat i <strong>NO es farà cap petició a Google</strong>.</li>
+            <li>Això redueix dràsticament el consum de l'API, especialment per a rutes habituals.</li>
+          </ul>
+        </div>
+      </UCard>
+    </section>
+
     <!-- Templates Section -->
     <section class="space-y-6">
       <div>
