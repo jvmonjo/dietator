@@ -1,3 +1,14 @@
+# [1.2.0](https://github.com/jvmonjo/dietator/compare/v1.1.1...v1.2.0) (2025-12-19)
+
+
+### Features
+
+* add logo to PDF header and adjust header layout, making PDF generation asynchronous ([1f8f17f](https://github.com/jvmonjo/dietator/commit/1f8f17f204b6ce51efe414a9ab7c92144079e431))
+* add PDF generation for monthly service statistics and integrate it into the export process. ([68e2b14](https://github.com/jvmonjo/dietator/commit/68e2b14695e7fdbd6e45995252f2797f36e614ea))
+* Implement kilometer tracking for services with Google Maps distance calculation and display. ([28a6980](https://github.com/jvmonjo/dietator/commit/28a6980a92cc98eeac635653f51a1feef6892f31))
+* Sort records by start time in the service list and export utilities. ([4e374d0](https://github.com/jvmonjo/dietator/commit/4e374d0185fb3453eb7bdb858e6e75068263acbd))
+* Translate various UI texts, form fields, and navigation labels to Catalan. ([456a5c4](https://github.com/jvmonjo/dietator/commit/456a5c427d6d2c7d35b91b5138c157cc7a5ad8f1))
+
 ## [1.1.1](https://github.com/jvmonjo/dietator/compare/v1.1.0...v1.1.1) (2025-12-19)
 
 
