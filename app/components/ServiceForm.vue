@@ -142,11 +142,7 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
     kilometers: state.kilometers
   }
 
-  const hasMeals = baseRecord.displacements.some(d => d.hasLunch || d.hasDinner)
-  if (!hasMeals) {
-    toast.add({ title: 'Introdueix almenys un dinar o sopar', color: 'warning' })
-    return
-  }
+
 
   if (isEditing.value) {
     serviceStore.updateRecord(baseRecord)

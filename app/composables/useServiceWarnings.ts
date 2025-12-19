@@ -15,6 +15,15 @@ export const useServiceWarnings = () => {
 
         if (!startTime || !endTime) return warnings
 
+        // 0. CHECK: No diet claimed
+        const hasMeals = displacements.some(d => d.hasLunch || d.hasDinner)
+        if (!hasMeals) {
+            warnings.push({
+                message: 'Aquest servei no genera dret a dieta perquè encara no s\'ha declarat cap menjada.',
+                type: 'warning' // Using warning type to ensure visibility, though it's informational
+            })
+        }
+
         const start = new Date(startTime)
         const end = new Date(endTime)
 

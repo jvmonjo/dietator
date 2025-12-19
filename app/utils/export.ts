@@ -56,8 +56,14 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
   // Sort records by date ascending
   const sortedRecords = [...options.records].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
 
-  // Use sorted records for contexts
-  const contextOptions = { ...options, records: sortedRecords }
+  // Filter for Word reports: Only include services that have at least one lunch or dinner
+  const dietRecords = sortedRecords.filter(record =>
+    record.displacements.some(d => d.hasLunch || d.hasDinner)
+  )
+
+  // Use filtered records for contexts (Word documents)
+  // But keep original sortedRecords for PDF stats and JSON to reflect all work
+  const contextOptions = { ...options, records: dietRecords }
 
   const tasks: Promise<{ filename: string; blob: Blob }>[] = []
   const { monthlyContext, serviceDocuments } = buildContexts(contextOptions)
