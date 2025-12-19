@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/jvmonjo/dietator/compare/v1.3.1...v1.3.2) (2025-12-19)
+
+
+### Bug Fixes
+
+* Remove explicit `updateAvailable` flag reset from PWA update notification and client plugin ([8a2b19b](https://github.com/jvmonjo/dietator/commit/8a2b19b6ce42abd3a4935c90661a344e5d190b6b))
+
 ## [1.3.1](https://github.com/jvmonjo/dietator/compare/v1.3.0...v1.3.1) (2025-12-19)
 
 
