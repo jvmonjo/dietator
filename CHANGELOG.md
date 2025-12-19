@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/jvmonjo/dietator/compare/v1.3.5...v1.3.6) (2025-12-19)
+
+
+### Bug Fixes
+
+* Always trigger page reload after PWA update, conditionally skip waiting, and reduce reload delay. ([8e68f4b](https://github.com/jvmonjo/dietator/commit/8e68f4bed7b6f9eda2bed7b3035a77fc5670f3ce))
+
 ## [1.3.5](https://github.com/jvmonjo/dietator/compare/v1.3.4...v1.3.5) (2025-12-19)
 
 
