@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/jvmonjo/dietator/compare/v1.5.0...v1.5.1) (2025-12-19)
+
+
+### Bug Fixes
+
+* enable help link and separator in footer ([46e84ca](https://github.com/jvmonjo/dietator/commit/46e84ca71572f08ac9c060c31fd9c6189994d97b))
+
 # [1.5.0](https://github.com/jvmonjo/dietator/compare/v1.4.2...v1.5.0) (2025-12-19)
 
 
