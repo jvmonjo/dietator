@@ -1,3 +1,11 @@
+# [1.6.0](https://github.com/jvmonjo/dietator/compare/v1.5.3...v1.6.0) (2025-12-19)
+
+
+### Features
+
+* add duplicate start date validation to service form ([50aa911](https://github.com/jvmonjo/dietator/commit/50aa911cffb95265cce98c0f0cd0b0f7ade9cd49))
+* move meal validation from form to a warning and filter non-meal services from Word exports. ([61fa5a6](https://github.com/jvmonjo/dietator/commit/61fa5a6bfcd25f5a3916acff5f653bb4cd70930d))
+
 ## [1.5.3](https://github.com/jvmonjo/dietator/compare/v1.5.2...v1.5.3) (2025-12-19)
 
 
