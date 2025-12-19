@@ -65,7 +65,7 @@ const state = reactive({
   kilometers: undefined as number | undefined
 })
 
-const autoCalculateKm = ref(!!settingsStore.googleMapsApiKey)
+
 
 const isEditing = computed(() => Boolean(props.initialData) && !props.isDuplicate)
 
@@ -109,8 +109,8 @@ watch(() => props.initialData, (record) => {
 }, { immediate: true })
 
 async function onSubmit (event: FormSubmitEvent<Schema>) {
-  // Auto-calculate kilometers if enabled
-  if (autoCalculateKm.value && state.displacements.length >= 2) {
+  // Auto-calculate kilometers if API key is configured AND no value is present
+  if (settingsStore.googleMapsApiKey && state.displacements.length >= 2 && !state.kilometers) {
       try {
           // Filter out incomplete displacements
           const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
@@ -198,12 +198,7 @@ const serviceWarnings = computed(() => {
             <UInput v-model="state.kilometers" type="number" step="0.01" icon="i-heroicons-truck" placeholder="0.00" />
          </UFormField>
          
-         <div v-if="settingsStore.googleMapsApiKey" class="pb-2">
-             <UCheckbox 
-                v-model="autoCalculateKm" 
-                label="Calcular automàticament en guardar"
-            />
-         </div>
+
     </div>
 
     <USeparator label="Desplaçaments" />
