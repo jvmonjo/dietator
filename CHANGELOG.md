@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/jvmonjo/dietator/compare/v1.2.0...v1.3.0) (2025-12-19)
+
+
+### Features
+
+* Add Google Maps API key to settings form and loading. ([893dbae](https://github.com/jvmonjo/dietator/commit/893dbae64f6f7c2d4995714398c0eda9eb56f5b7))
+
 # [1.2.0](https://github.com/jvmonjo/dietator/compare/v1.1.1...v1.2.0) (2025-12-19)
 
 
