@@ -1,5 +1,5 @@
 import { storeToRefs } from 'pinia'
-import { type LoaderOptions } from '@googlemaps/js-api-loader'
+
 // We need to dynamic import the package because it might not be fully compatible with SSR imports directly if we used `import { Loader }` which was removed.
 // However, standard import should expose the functions.
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
