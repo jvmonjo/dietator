@@ -106,7 +106,7 @@ const columns = [
             </div>
             <div>
               <span class="font-semibold text-gray-700 dark:text-gray-300">Copyright:</span>
-              <span class="ml-2">&copy; 2025 Josep Vicent Monjo</span>
+              <span class="ml-2">&copy; 2025 Josep Monjo</span>
             </div>
           </div>
           <div class="flex justify-start pt-2">
