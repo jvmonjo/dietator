@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/jvmonjo/dietator/compare/v1.4.0...v1.4.1) (2025-12-19)
+
+
+### Bug Fixes
+
+* implement PWA update detection and display a notification banner in the default layout. ([df3cd17](https://github.com/jvmonjo/dietator/commit/df3cd175a5ba09548ebe6283db98d2a8dfff8bbf))
+
 # [1.4.0](https://github.com/jvmonjo/dietator/compare/v1.3.8...v1.4.0) (2025-12-19)
 
 
