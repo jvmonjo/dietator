@@ -74,7 +74,9 @@ watch([filteredRecords, activeMonth], ([records]) => {
 
 const recordCount = computed(() => filteredRecords.value.length)
 const hasRecords = computed(() => recordCount.value > 0)
-const tableData = computed(() => filteredRecords.value.slice())
+const tableData = computed(() => {
+  return filteredRecords.value.slice().sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+})
 const selectedMonthLabel = computed(() => {
   if (showAllMonths.value) {
     return 'Tots els mesos'

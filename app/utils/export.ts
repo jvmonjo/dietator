@@ -53,8 +53,14 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
   const { templates } = options
   const { monthly, service } = templates
 
+  // Sort records by date ascending
+  const sortedRecords = [...options.records].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+
+  // Use sorted records for contexts
+  const contextOptions = { ...options, records: sortedRecords }
+
   const tasks: Promise<{ filename: string; blob: Blob }>[] = []
-  const { monthlyContext, serviceDocuments } = buildContexts(options)
+  const { monthlyContext, serviceDocuments } = buildContexts(contextOptions)
 
   if (monthly && monthlyContext) {
     tasks.push(renderDocumentFromTemplate(monthly, monthlyContext, `dietator-mensual-${options.month.value}.docx`))
@@ -74,7 +80,7 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
       totals: options.totals,
       month: options.month,
       settings: options.settings,
-      records: options.records
+      records: sortedRecords
     })
     files.push({ filename: `dietator-estadistiques-${options.month.value}.pdf`, blob: pdfBlob })
   } catch (e) {
