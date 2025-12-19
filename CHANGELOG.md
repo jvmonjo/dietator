@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/jvmonjo/dietator/compare/v1.3.4...v1.3.5) (2025-12-19)
+
+
+### Bug Fixes
+
+* remove unused `LoaderOptions` type import from `useDistanceCalculator` ([758117b](https://github.com/jvmonjo/dietator/commit/758117b7244c2c6695b9730f637ace85eecf6216))
+
 ## [1.3.4](https://github.com/jvmonjo/dietator/compare/v1.3.3...v1.3.4) (2025-12-19)
 
 
