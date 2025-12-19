@@ -131,6 +131,19 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
       }
   }
 
+  // Check for duplicate start date (ignoring time)
+  const targetDate = event.data.startTime.split('T')[0]
+  const isDuplicateDate = serviceStore.records.some(record => {
+    const recordDate = record.startTime ? record.startTime.split('T')[0] : ''
+    return recordDate === targetDate && 
+      (!props.initialData || props.isDuplicate || record.id !== props.initialData.id)
+  })
+
+  if (isDuplicateDate) {
+    toast.add({ title: 'Ja existeix un servei amb aquesta data d\'inici', color: 'error' })
+    return
+  }
+
   const baseRecord: ServiceRecord = {
     id: (props.initialData?.id && !props.isDuplicate) ? props.initialData.id : uuidv4(),
     startTime: event.data.startTime,
