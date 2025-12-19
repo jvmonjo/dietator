@@ -143,10 +143,7 @@ const buildSettingsPayload = (includeTemplates: boolean) => ({
 
 
 
-const sanitizeSegment = (value: string) => value
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, '-')
-  .replace(/^-+|-+$/g, '')
+
 
 const buildBackupFilename = (type: 'config' | 'data', timestamp: string) => {
   if (type === 'config') {

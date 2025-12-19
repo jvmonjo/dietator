@@ -134,11 +134,28 @@ const handleSaved = () => {
   closeModal()
 }
 
+const confirmModal = reactive({
+  isOpen: false,
+  title: '',
+  description: '',
+  action: null as (() => void) | null
+})
+
+const handleConfirmDelete = () => {
+  if (confirmModal.action) {
+    confirmModal.action()
+  }
+  confirmModal.isOpen = false
+}
+
 const confirmDelete = (id: string) => {
-  if (confirm('Segur que vols eliminar aquest servei?')) {
+  confirmModal.title = 'Eliminar servei'
+  confirmModal.description = 'Estàs segur que vols eliminar aquest servei? Aquesta acció no es pot desfer.'
+  confirmModal.action = () => {
     serviceStore.deleteRecord(id)
     toast.add({ title: 'Servei eliminat', color: 'success' })
   }
+  confirmModal.isOpen = true
 }
 
 const formatDate = (value: string) => {
@@ -285,6 +302,14 @@ const formatMunicipality = (name: string) => {
             </div>
         </div>
     </div>
+
+    <!-- Confirmation Modal -->
+    <UModal v-model:open="confirmModal.isOpen" :title="confirmModal.title" :description="confirmModal.description">
+      <template #footer>
+        <UButton color="neutral" variant="ghost" @click="confirmModal.isOpen = false">Cancel·lar</UButton>
+        <UButton color="error" @click="handleConfirmDelete">Eliminar</UButton>
+      </template>
+    </UModal>
       
   </section>
 </template>
