@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/jvmonjo/dietator/compare/v1.4.2...v1.5.0) (2025-12-19)
+
+
+### Features
+
+* add JSON data file generation to export functionality ([bc29290](https://github.com/jvmonjo/dietator/commit/bc29290d87e58d99b37f9f2ac1d27b9cbad875a5))
+
 ## [1.4.2](https://github.com/jvmonjo/dietator/compare/v1.4.1...v1.4.2) (2025-12-19)
 
 
