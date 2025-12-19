@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/jvmonjo/dietator/compare/v1.0.0...v1.1.0) (2025-12-19)
+
+
+### Features
+
+* add dedicated help page with template variable documentation and integrate it into the navigation, footer, and settings. ([89ba5ba](https://github.com/jvmonjo/dietator/commit/89ba5ba582f01827d26d882852e1722bf097d844))
+
 # 1.0.0 (2025-12-19)
 
 
