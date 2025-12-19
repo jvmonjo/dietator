@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/jvmonjo/dietator/compare/v1.3.0...v1.3.1) (2025-12-19)
+
+
+### Bug Fixes
+
+* Remove return trip calculation from total distance in `useDistanceCalculator` composable. ([e62be5d](https://github.com/jvmonjo/dietator/commit/e62be5d306bb26a8d4acdd42be2760c283336a5d))
+
 # [1.3.0](https://github.com/jvmonjo/dietator/compare/v1.2.0...v1.3.0) (2025-12-19)
 
 
