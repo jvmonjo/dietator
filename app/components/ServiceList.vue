@@ -189,7 +189,15 @@ const formatDate = (value: string) => {
         :columns="columns"
       >
         <template #startTime-cell="{ row }">
-          {{ formatDate((row.original as ServiceRecord).startTime) }}
+          <div class="flex items-center gap-2">
+            <UTooltip
+              v-if="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).length > 0"
+              :text="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).map(w => w.message).join('\n')"
+            >
+              <UIcon name="i-heroicons-exclamation-triangle" class="text-amber-500 w-5 h-5 flex-shrink-0" />
+            </UTooltip>
+            <span>{{ formatDate((row.original as ServiceRecord).startTime) }}</span>
+          </div>
         </template>
         <template #endTime-cell="{ row }">
           {{ formatDate((row.original as ServiceRecord).endTime) }}
