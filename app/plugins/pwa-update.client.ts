@@ -45,14 +45,13 @@ export default defineNuxtPlugin(() => {
   navigator.serviceWorker.ready.then(watchRegistration)
 
   triggerUpdate.value = () => {
-    if (!currentRegistration?.waiting) {
-      return
+    if (currentRegistration?.waiting) {
+      currentRegistration.waiting.postMessage({ type: 'SKIP_WAITING' })
     }
-    currentRegistration.waiting.postMessage({ type: 'SKIP_WAITING' })
 
-    // Fallback: Force reload if controllerchange doesn't fire automatically
+    // Always force reload as a fallback, even if waiting worker is gone or skipped already
     setTimeout(() => {
       window.location.reload()
-    }, 500)
+    }, 100)
   }
 })
