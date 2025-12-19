@@ -33,24 +33,28 @@ export const useServiceWarnings = () => {
         const endMinutes = end.getMinutes()
         const totalMinutes = endHour * 60 + endMinutes
 
-        // 2. End < 15:30 (15,5 * 60 = 930 minutes)
-        // "Compte. Assegura't de que has dinat i tens dret a dieta"
-        if (totalMinutes < 930) {
-            warnings.push({
-                message: "Compte. Assegura't de que has dinat i tens dret a dieta",
-                type: 'warning'
-            })
-        }
+        const isSameDay = start.toDateString() === end.toDateString()
 
-        // 3. End < 23:30 && hasDinner
-        // 23:30 = 23 * 60 + 30 = 1380 + 30 = 1410
-        // "Compte. Assegura't de que has sopat i tens dret a dieta"
-        const hasDinner = displacements.some(d => d.hasDinner)
-        if (totalMinutes < 1410 && hasDinner) {
-            warnings.push({
-                message: "Compte. Assegura't de que has sopat i tens dret a dieta",
-                type: 'warning'
-            })
+        if (isSameDay) {
+            // 2. End < 15:30 (15,5 * 60 = 930 minutes)
+            // "Compte. Assegura't de que has dinat i tens dret a dieta"
+            if (totalMinutes < 930) {
+                warnings.push({
+                    message: "Compte. Assegura't de que has dinat i tens dret a dieta",
+                    type: 'warning'
+                })
+            }
+
+            // 3. End < 23:30 && hasDinner
+            // 23:30 = 23 * 60 + 30 = 1380 + 30 = 1410
+            // "Compte. Assegura't de que has sopat i tens dret a dieta"
+            const hasDinner = displacements.some(d => d.hasDinner)
+            if (totalMinutes < 1410 && hasDinner) {
+                warnings.push({
+                    message: "Compte. Assegura't de que has sopat i tens dret a dieta",
+                    type: 'warning'
+                })
+            }
         }
 
         return warnings
