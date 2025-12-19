@@ -472,6 +472,10 @@ const formatTimestamp = (value?: string) => {
           <div>
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Plantilles Word</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">Puja la plantilla `.docx` per generar els documents des d'aquesta aplicació.</p>
+            <NuxtLink to="/help" class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
+              <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" />
+              Veure ajudes i variables disponibles
+            </NuxtLink>
           </div>
         </div>
       </template>
