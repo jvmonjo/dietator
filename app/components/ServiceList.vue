@@ -148,6 +148,11 @@ const formatDate = (value: string) => {
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString()
 }
+
+const formatMunicipality = (name: string) => {
+  if (!name) return ''
+  return name.length > 3 ? name.substring(0, 3) : name
+}
 </script>
 
 <template>
@@ -206,12 +211,12 @@ const formatDate = (value: string) => {
         </template>
         <template #displacements-cell="{ row }">
           <div class="text-sm text-gray-700 dark:text-gray-300">
-            <p v-for="displacement in (row.original as ServiceRecord).displacements" :key="displacement.id">
-              {{ displacement.municipality }}
-              <span class="text-xs text-gray-500 dark:text-gray-400">
-                {{ displacement.hasLunch ? '(Dinar)' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? ' · ' : '' }}{{ displacement.hasDinner ? '(Sopar)' : '' }}
-              </span>
-            </p>
+            <span v-for="(displacement, index) in (row.original as ServiceRecord).displacements" :key="displacement.id">
+              {{ formatMunicipality(displacement.municipality) }}
+              <span v-if="displacement.hasLunch || displacement.hasDinner" class="text-xs text-gray-500 dark:text-gray-400">
+                ({{ displacement.hasLunch ? 'D' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? '+' : '' }}{{ displacement.hasDinner ? 'S' : '' }})
+              </span><span v-if="index < (row.original as ServiceRecord).displacements.length - 1">, </span>
+            </span>
           </div>
         </template>
         <template #actions-cell="{ row }">
