@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/jvmonjo/dietator/compare/v1.3.8...v1.4.0) (2025-12-19)
+
+
+### Features
+
+* add municipality name formatter and condense displacement details in service list display. ([3527d26](https://github.com/jvmonjo/dietator/commit/3527d267d2afc0d7b7580d3d0b9a91cdc1d44266))
+
 ## [1.3.8](https://github.com/jvmonjo/dietator/compare/v1.3.7...v1.3.8) (2025-12-19)
 
 
