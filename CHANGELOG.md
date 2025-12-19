@@ -1,3 +1,16 @@
+# [1.7.0](https://github.com/jvmonjo/dietator/compare/v1.6.0...v1.7.0) (2025-12-19)
+
+
+### Bug Fixes
+
+* Remove 'Unitats de Dieta' from PDF report generation. ([1262070](https://github.com/jvmonjo/dietator/commit/1262070f08c4d86ed266d18441fb4cd789a27e52))
+
+
+### Features
+
+* Add `is_first`, `is_last`, and `has_next` conditional loop variables and document their usage in the help page. ([a8d83f6](https://github.com/jvmonjo/dietator/commit/a8d83f6e15177bc241ad221e063ba460adf2a942))
+* Move month selection and record filtering logic from ServiceList to index page, passing filtered records as a prop. ([0eb9af3](https://github.com/jvmonjo/dietator/commit/0eb9af3a14fb2301fd2a25e3207f9596abbf51ab))
+
 # [1.6.0](https://github.com/jvmonjo/dietator/compare/v1.5.3...v1.6.0) (2025-12-19)
 
 
