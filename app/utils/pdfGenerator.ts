@@ -28,7 +28,12 @@ export const generateStatsPdf = async (options: PdfGeneratorOptions): Promise<Bl
 
     // Add Logo
     try {
-        const logoUrl = '/apple-icon-180.png'
+        const config = useRuntimeConfig()
+        const baseURL = config.app.baseURL
+        // Ensure accurate path construction handling trailing/leading slashes
+        const logoPath = 'apple-icon-180.png'
+        const logoUrl = baseURL.endsWith('/') ? `${baseURL}${logoPath}` : `${baseURL}/${logoPath}`
+
         const response = await fetch(logoUrl)
         const blob = await response.blob()
         const reader = new FileReader()
