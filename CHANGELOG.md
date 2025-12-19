@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/jvmonjo/dietator/compare/v1.5.2...v1.5.3) (2025-12-19)
+
+
+### Bug Fixes
+
+* Replace native confirm dialog with UModal for service deletion and remove unused `sanitizeSegment` function and empty `ClientOnly` block. ([005a558](https://github.com/jvmonjo/dietator/commit/005a558016fa1b07a578557f1366263fc8ec935c))
+
 ## [1.5.2](https://github.com/jvmonjo/dietator/compare/v1.5.1...v1.5.2) (2025-12-19)
 
 
