@@ -22,6 +22,8 @@ const refreshApp = () => {
 const dismissUpdateBanner = () => {
   swNeedsRefresh.value = false
 }
+
+const { public: { appVersion } } = useRuntimeConfig()
 </script>
 
 <template>
@@ -54,7 +56,7 @@ const dismissUpdateBanner = () => {
     
     <!-- Footer (Desktop) -->
     <footer class="hidden md:block border-t border-gray-200 dark:border-gray-800 py-6 text-center text-sm text-gray-500">
-      <p>&copy; {{ new Date().getFullYear() }} Dietator. All rights reserved.</p>
+      <p>&copy; {{ new Date().getFullYear() }} Dietator. All rights reserved. <span class="ml-2 text-xs opacity-60">v{{ appVersion }}</span></p>
     </footer>
   </div>
 </template>

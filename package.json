@@ -30,10 +30,16 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.11.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.2",
+    "@semantic-release/release-notes-generator": "^14.1.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^25.0.2",
     "eslint": "^9.39.1",
+    "semantic-release": "^25.0.2",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.1.5"
   }

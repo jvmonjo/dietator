@@ -4,6 +4,11 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
+  runtimeConfig: {
+    public: {
+      appVersion: process.env.NUXT_PUBLIC_APP_VERSION || 'dev'
+    }
+  },
   devtools: { enabled: true },
   ssr: false,
 
