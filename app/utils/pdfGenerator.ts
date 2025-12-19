@@ -15,7 +15,7 @@ const PRIMARY_COLOR = '#EAB308' // yellow-500
 const TEXT_COLOR = '#1F2937' // gray-800
 const LIGHT_TEXT_COLOR = '#6B7280' // gray-500
 
-export const generateStatsPdf = (options: PdfGeneratorOptions): Blob => {
+export const generateStatsPdf = async (options: PdfGeneratorOptions): Promise<Blob> => {
     const { Totals, Month, Settings, Records } = { Totals: options.totals, Month: options.month, Settings: options.settings, Records: options.records }
     const doc = new jsPDF()
 
@@ -26,22 +26,43 @@ export const generateStatsPdf = (options: PdfGeneratorOptions): Blob => {
     doc.setFillColor(PRIMARY_COLOR)
     doc.rect(0, 0, 210, 40, 'F')
 
-    doc.setTextColor('#FFFFFF')
+    // Add Logo
+    try {
+        const logoUrl = '/apple-icon-180.png'
+        const response = await fetch(logoUrl)
+        const blob = await response.blob()
+        const reader = new FileReader()
+
+        await new Promise<void>((resolve) => {
+            reader.onload = () => {
+                const base64 = reader.result as string
+                // Add image (x, y, w, h)
+                doc.addImage(base64, 'PNG', 170, 5, 30, 30)
+                resolve()
+            }
+            reader.readAsDataURL(blob)
+        })
+    } catch (e) {
+        console.error('Error loading logo', e)
+    }
+
+    // Month Badge (moved to left to avoid logo overlap)
+    doc.setFillColor('#FFFFFF')
+    doc.roundedRect(150, 15, 30, 0, 2, 2, 'F') // Hide/Remove old badge or move it
+    // Actually, let's move the month text to below the title instead of a badge on the right, since logo is now there.
+
+    // Title
     doc.setFontSize(24)
     doc.setFont('helvetica', 'bold')
-    doc.text('Dietator', 20, 20)
+    doc.text('Dietator', 20, 18)
 
-    doc.setFontSize(12)
+    doc.setFontSize(14)
     doc.setFont('helvetica', 'normal')
-    doc.text('Informe Mensual de Serveis', 20, 30)
+    doc.text(Month.label.toUpperCase(), 20, 28)
 
-    // Month Badge
-    doc.setFillColor('#FFFFFF')
-    doc.roundedRect(150, 10, 40, 20, 2, 2, 'F')
-    doc.setTextColor(TEXT_COLOR)
     doc.setFontSize(10)
-    doc.setFont('helvetica', 'bold')
-    doc.text(Month.label.toUpperCase(), 170, 22, { align: 'center' })
+    doc.setFont('helvetica', 'normal')
+    doc.text('Informe Mensual de Serveis', 20, 35)
 
     let y = 60
 

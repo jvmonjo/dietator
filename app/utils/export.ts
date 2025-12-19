@@ -76,7 +76,7 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
 
   // Generate PDF Stats
   try {
-    const pdfBlob = generateStatsPdf({
+    const pdfBlob = await generateStatsPdf({
       totals: options.totals,
       month: options.month,
       settings: options.settings,
