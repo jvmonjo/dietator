@@ -1,13 +1,13 @@
 import { storeToRefs } from 'pinia'
+import { type LoaderOptions } from '@googlemaps/js-api-loader'
+// We need to dynamic import the package because it might not be fully compatible with SSR imports directly if we used `import { Loader }` which was removed.
+// However, standard import should expose the functions.
+import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const google: any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const window: any;
-
-// We need to dynamic import the package because it might not be fully compatible with SSR imports directly if we used `import { Loader }` which was removed.
-// However, standard import should expose the functions.
-import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
 
 let isConfigured = false
 
@@ -114,14 +114,13 @@ export const useDistanceCalculator = () => {
      * Calculates the total distance for a route:
      * Origin (Displacement 0) -> Displacement 1 -> ... -> Displacement N -> Origin (Displacement 0)
      */
-    const calculateRouteDistance = async (displacements: { municipality: string, province: string }[]): Promise<{ distance: number, path: string[], sources: string[] }> => {
-        if (!displacements || displacements.length < 2) return { distance: 0, path: [], sources: [] }
+    const calculateRouteDistance = async (displacements: { municipality: string, province: string }[]): Promise<{ distance: number, path: string[] }> => {
+        if (!displacements || displacements.length < 2) return { distance: 0, path: [] }
 
         let totalKm = 0
         const places = displacements.map(d => `${d.municipality}`) // Display friendly name
         // FORCE "España" suffix to avoid ambiguity (e.g. Valencia, Venezuela)
         const queries = displacements.map(d => `${d.municipality}, ${d.province}, España`)
-        const sources: string[] = []
 
         // Loop through segments: 0->1, 1->2, ... (N-1)->N
         for (let i = 0; i < queries.length - 1; i++) {
@@ -131,15 +130,13 @@ export const useDistanceCalculator = () => {
                 const result = await getSegmentDistance(origin, dest)
                 if (result) {
                     totalKm += result.distance
-                    sources.push(result.source)
                 }
             }
         }
 
         return {
             distance: Math.round(totalKm * 100) / 100,
-            path: places,
-            sources
+            path: places
         }
     }
 

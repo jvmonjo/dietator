@@ -115,12 +115,12 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
           // Filter out incomplete displacements
           const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
             if (validDisplacements.length >= 2) {
-              const { distance, path, sources } = await calculateRouteDistance(validDisplacements)
+              const { distance, path } = await calculateRouteDistance(validDisplacements)
               if (distance > 0) {
                   state.kilometers = distance
                   toast.add({ 
                     title: `Kilòmetres calculats: ${distance}`,
-                    description: `Ruta: ${path.join(' ➜ ')} [${sources.join(', ')}]`,
+                    description: `Ruta: ${path.join(' ➜ ')}`,
                     color: 'info' 
                   })
               }
