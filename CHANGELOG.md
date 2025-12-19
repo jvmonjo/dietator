@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/jvmonjo/dietator/compare/v1.4.1...v1.4.2) (2025-12-19)
+
+
+### Bug Fixes
+
+* Reorder filename components for all exports and backups to start with date or month. ([87a876e](https://github.com/jvmonjo/dietator/commit/87a876ee2106bb87ac231e5a23b51d6482a17aef))
+
 ## [1.4.1](https://github.com/jvmonjo/dietator/compare/v1.4.0...v1.4.1) (2025-12-19)
 
 
