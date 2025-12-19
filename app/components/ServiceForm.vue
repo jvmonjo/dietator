@@ -114,13 +114,17 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
       try {
           // Filter out incomplete displacements
           const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
-          if (validDisplacements.length >= 2) {
-            const calculated = await calculateRouteDistance(validDisplacements)
-            if (calculated > 0) {
-                state.kilometers = calculated
-                toast.add({ title: `Kilòmetres calculats: ${calculated}`, color: 'info' })
+            if (validDisplacements.length >= 2) {
+              const { distance, path, sources } = await calculateRouteDistance(validDisplacements)
+              if (distance > 0) {
+                  state.kilometers = distance
+                  toast.add({ 
+                    title: `Kilòmetres calculats: ${distance}`,
+                    description: `Ruta: ${path.join(' ➜ ')} [${sources.join(', ')}]`,
+                    color: 'info' 
+                  })
+              }
             }
-          }
       } catch (e) {
           console.error('Error calculating distance', e)
           toast.add({ title: 'Error calculant distància', color: 'warning' })

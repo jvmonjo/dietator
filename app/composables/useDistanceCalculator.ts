@@ -5,62 +5,37 @@ declare const google: any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const window: any;
 
-let isLoading = false
-let isLoaded = false
-const waitingPromises: (() => void)[] = []
+// We need to dynamic import the package because it might not be fully compatible with SSR imports directly if we used `import { Loader }` which was removed.
+// However, standard import should expose the functions.
+import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
 
-const loadGoogleMapsManual = (apiKey: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        if (typeof window === 'undefined') {
-            reject(new Error('Google Maps only available on client-side'))
-            return
-        }
+let isConfigured = false
 
-        if (isLoaded || (window.google && window.google.maps)) {
-            isLoaded = true
-            resolve()
-            return
-        }
+const loadGoogleMapsManual = async (apiKey: string): Promise<void> => {
+    if (typeof window === 'undefined') {
+        throw new Error('Google Maps only available on client-side')
+    }
 
-        // Check if script already exists to avoid double injection
-        if (document.getElementById('google-maps-script')) {
-            if (isLoaded) {
-                resolve()
-            } else {
-                waitingPromises.push(resolve)
-            }
-            return
-        }
+    if (!isConfigured) {
+        setOptions({
+            key: apiKey,
+            v: 'weekly',
+            libraries: ['places', 'routes'],
+            region: 'ES', // Bias results to Spain
+            language: 'ca' // Prefer Catalan/local names
+        })
+        isConfigured = true
+    }
 
-        if (isLoading) {
-            waitingPromises.push(resolve)
-            return
-        }
-
-        isLoading = true
-
-        const script = document.createElement('script')
-        script.id = 'google-maps-script'
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`
-        script.async = true
-        script.defer = true
-
-        script.onload = () => {
-            isLoaded = true
-            isLoading = false
-            resolve()
-            waitingPromises.forEach(cb => cb())
-            waitingPromises.length = 0
-        }
-
-        script.onerror = (err) => {
-            isLoading = false
-            reject(err)
-            waitingPromises.length = 0
-        }
-
-        document.head.appendChild(script)
-    })
+    // We make sure the libraries are loaded. 
+    // DistanceMatrixService is in 'routes' (usually) or core 'maps'.
+    // But getting 'routes' is the safe bet for routing features.
+    // 'places' is also needed for other parts of the app potentially.
+    await Promise.all([
+        importLibrary('maps'),
+        importLibrary('routes'),
+        importLibrary('places')
+    ])
 }
 
 export const useDistanceCalculator = () => {
@@ -72,13 +47,13 @@ export const useDistanceCalculator = () => {
      * Calculates the distance between two points using the Google Maps Distance Matrix API.
      * Tries to fetch from local cache first.
      */
-    const getSegmentDistance = async (origin: string, destination: string): Promise<number | null> => {
-        if (!origin || !destination) return 0
+    const getSegmentDistance = async (origin: string, destination: string): Promise<{ distance: number, source: 'cache' | 'api' } | null> => {
+        if (!origin || !destination) return { distance: 0, source: 'cache' }
 
         // 1. Check Cache
         const cached = distancesStore.getDistance(origin, destination)
         if (cached !== null) {
-            return cached
+            return { distance: cached, source: 'cache' }
         }
 
         // 2. Check API Key
@@ -106,6 +81,8 @@ export const useDistanceCalculator = () => {
                         destinations: [destination],
                         travelMode: google.maps.TravelMode.DRIVING,
                         unitSystem: google.maps.UnitSystem.METRIC,
+                        avoidHighways: false,
+                        avoidTolls: false,
                     },
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (response: any, status: any) => {
@@ -124,7 +101,7 @@ export const useDistanceCalculator = () => {
                 // value is in meters
                 const km = Math.round((element.distance.value / 1000) * 100) / 100
                 distancesStore.setDistance(origin, destination, km)
-                return km
+                return { distance: km, source: 'api' }
             }
         } catch (error) {
             console.error('Error fetching distance:', error)
@@ -137,25 +114,33 @@ export const useDistanceCalculator = () => {
      * Calculates the total distance for a route:
      * Origin (Displacement 0) -> Displacement 1 -> ... -> Displacement N -> Origin (Displacement 0)
      */
-    const calculateRouteDistance = async (displacements: { municipality: string, province: string }[]): Promise<number> => {
-        if (!displacements || displacements.length < 2) return 0
+    const calculateRouteDistance = async (displacements: { municipality: string, province: string }[]): Promise<{ distance: number, path: string[], sources: string[] }> => {
+        if (!displacements || displacements.length < 2) return { distance: 0, path: [], sources: [] }
 
         let totalKm = 0
-        const places = displacements.map(d => `${d.municipality}, ${d.province}`)
+        const places = displacements.map(d => `${d.municipality}`) // Display friendly name
+        // FORCE "España" suffix to avoid ambiguity (e.g. Valencia, Venezuela)
+        const queries = displacements.map(d => `${d.municipality}, ${d.province}, España`)
+        const sources: string[] = []
 
         // Loop through segments: 0->1, 1->2, ... (N-1)->N
-        for (let i = 0; i < places.length - 1; i++) {
-            const origin = places[i]
-            const dest = places[i + 1]
+        for (let i = 0; i < queries.length - 1; i++) {
+            const origin = queries[i]
+            const dest = queries[i + 1]
             if (origin && dest) {
-                const segment = await getSegmentDistance(origin, dest)
-                if (segment !== null) {
-                    totalKm += segment
+                const result = await getSegmentDistance(origin, dest)
+                if (result) {
+                    totalKm += result.distance
+                    sources.push(result.source)
                 }
             }
         }
 
-        return Math.round(totalKm * 100) / 100
+        return {
+            distance: Math.round(totalKm * 100) / 100,
+            path: places,
+            sources
+        }
     }
 
     return {
