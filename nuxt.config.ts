@@ -24,7 +24,8 @@ export default defineNuxtConfig({
         { name: 'msapplication-square70x70logo', content: 'mstile-icon-128.png' },
         { name: 'msapplication-square150x150logo', content: 'mstile-icon-270.png' },
         { name: 'msapplication-square310x310logo', content: 'mstile-icon-558.png' },
-        { name: 'msapplication-wide310x150logo', content: 'mstile-icon-558-270.png' }
+        { name: 'msapplication-wide310x150logo', content: 'mstile-icon-558-270.png' },
+        { name: 'robots', content: 'noindex, nofollow' }
       ]
     }
   },
