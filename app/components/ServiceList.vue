@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { MonthOption } from '~/composables/useServiceStats'
 import type { ServiceRecord } from '~/stores/services'
 
 const props = withDefaults(defineProps<{
@@ -7,7 +6,7 @@ const props = withDefaults(defineProps<{
   description?: string
   enableEdit?: boolean
   enableDelete?: boolean
-  records: ServiceRecord[]
+  records?: ServiceRecord[]
 }>(), {
   title: 'Serveis registrats',
   description: 'Consulta, edita o esborra els registres existents.',

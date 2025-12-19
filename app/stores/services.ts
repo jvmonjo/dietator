@@ -15,6 +15,7 @@ export interface ServiceRecord {
     endTime: string // ISO string
     displacements: Displacement[]
     kilometers?: number
+    notes?: string
 }
 
 const servicesStorage = piniaPluginPersistedstate.localStorage()

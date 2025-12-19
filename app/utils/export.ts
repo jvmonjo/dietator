@@ -269,7 +269,8 @@ const buildServiceVariables = (record: ServiceRecord, recordIndex: number, setti
     service_dinners: dinners,
     service_total_allowance: CURRENCY_FORMATTER.format(allowance || 0),
     service_total_allowance_value: allowance,
-    service_kilometers: record.kilometers || 0
+    service_kilometers: record.kilometers || 0,
+    service_notes: record.notes || ''
   }
 }
 

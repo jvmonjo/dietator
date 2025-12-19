@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  (e: 'saved'): void
+  (e: 'saved', record: ServiceRecord): void
 }>()
 const toast = useToast()
 const serviceStore = useServiceStore()
@@ -62,7 +62,8 @@ const state = reactive({
   startTime: '',
   endTime: '',
   displacements: [createEmptyDisplacement()],
-  kilometers: undefined as number | undefined
+  kilometers: undefined as number | undefined,
+  notes: ''
 })
 
 
@@ -85,6 +86,7 @@ const resetState = () => {
   state.endTime = ''
   state.displacements = [createEmptyDisplacement()]
   state.kilometers = undefined
+  state.notes = ''
 }
 
 const loadRecord = (record: ServiceRecord) => {
@@ -98,6 +100,7 @@ const loadRecord = (record: ServiceRecord) => {
   if (record.kilometers !== undefined) {
       state.kilometers = record.kilometers
   }
+  state.notes = record.notes || ''
 }
 
 watch(() => props.initialData, (record) => {
@@ -152,7 +155,8 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
       ...displacement,
       id: displacement.id || uuidv4()
     })),
-    kilometers: state.kilometers
+    kilometers: state.kilometers,
+    notes: state.notes
   }
 
 
@@ -160,12 +164,12 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
   if (isEditing.value) {
     serviceStore.updateRecord(baseRecord)
     toast.add({ title: 'Servei actualitzat correctament', color: 'success' })
-    emit('saved')
+    emit('saved', baseRecord)
   } else {
     serviceStore.addRecord(baseRecord)
     toast.add({ title: 'Servei registrat correctament', color: 'success' })
     resetState()
-    emit('saved')
+    emit('saved', baseRecord)
   }
 }
 
@@ -209,6 +213,16 @@ const serviceWarnings = computed(() => {
          
 
     </div>
+
+    <UFormField label="Notes (Opcional)" name="notes">
+      <UTextarea 
+        v-model="state.notes" 
+        placeholder="Afegeix comentaris o observacions..." 
+        :rows="3" 
+        autoresize
+        class="w-full"
+      />
+    </UFormField>
 
     <USeparator label="Desplaçaments" />
 

@@ -49,7 +49,8 @@ const serviceVariables = [
   { name: '[service_total_dinners]', desc: 'Total de sopars (alias).' },
   { name: '[service_kilometers]', desc: 'Total de quilòmetres del servei.' },
   { name: '[service_total_allowance]', desc: 'Import total del servei.' },
-  { name: '[service_total_allowance_value]', desc: 'Valor numèric de l\'import total.' }
+  { name: '[service_total_allowance_value]', desc: 'Valor numèric de l\'import total.' },
+  { name: '[service_notes]', desc: 'Notes o observacions opcionals del servei.' }
 ]
 
 const displacementVariables = [
