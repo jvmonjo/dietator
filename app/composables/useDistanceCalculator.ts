@@ -155,16 +155,6 @@ export const useDistanceCalculator = () => {
             }
         }
 
-        // Return trip: Last -> First
-        const last = places[places.length - 1]
-        const first = places[0]
-        if (last && first) {
-            const returnSegment = await getSegmentDistance(last, first)
-            if (returnSegment !== null) {
-                totalKm += returnSegment
-            }
-        }
-
         return Math.round(totalKm * 100) / 100
     }
 
