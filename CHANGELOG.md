@@ -1,3 +1,10 @@
+## [1.3.8](https://github.com/jvmonjo/dietator/compare/v1.3.7...v1.3.8) (2025-12-19)
+
+
+### Bug Fixes
+
+* replace custom PWA update detection and trigger logic with the Nuxt PWA module's `$pwa` API. ([a893d61](https://github.com/jvmonjo/dietator/commit/a893d61eafca59d05101f68edcb7b4f0e00c0a4b))
+
 ## [1.3.7](https://github.com/jvmonjo/dietator/compare/v1.3.6...v1.3.7) (2025-12-19)
 
 
