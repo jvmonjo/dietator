@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/jvmonjo/dietator/compare/v1.10.0...v1.11.0) (2025-12-20)
+
+
+### Features
+
+* Add search and pagination functionality to the service records list. ([9d48877](https://github.com/jvmonjo/dietator/commit/9d48877ec4aee459032b6d6a9a4682df4e929ced))
+
 # [1.10.0](https://github.com/jvmonjo/dietator/compare/v1.9.0...v1.10.0) (2025-12-20)
 
 
