@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/jvmonjo/dietator/compare/v1.13.0...v1.13.1) (2025-12-20)
+
+
+### Bug Fixes
+
+* relocate record count badge and reorder `useSortable` import. ([49f6b4b](https://github.com/jvmonjo/dietator/commit/49f6b4be1e99f0e73191df8507fcada6805e49c4))
+
 # [1.13.0](https://github.com/jvmonjo/dietator/compare/v1.12.0...v1.13.0) (2025-12-20)
 
 
