@@ -177,7 +177,7 @@ const exportReport = async () => {
         Benvingut a <span class="text-primary-500">Dietator</span>
       </h1>
       <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-        Gestiona els teus serveis i dietes de manera eficient. Funciona sense connexió a internet. Ara pots afegir també serveis sense dieta.
+        Gestiona els teus serveis i dietes de manera eficient. Funciona sense connexió a internet.
       </p>
     </section>
 
@@ -252,9 +252,6 @@ const exportReport = async () => {
             Hores treballades {{ selectedMonthLabel.toLowerCase() }}
           </div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(totalHoursWorked) }}</div>
-          <p class="text-xs text-gray-400">
-            No inclou dies sense dieta
-          </p>
         </div>
       </UCard>
       <UCard>
