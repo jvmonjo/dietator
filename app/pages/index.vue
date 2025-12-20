@@ -167,19 +167,48 @@ const exportReport = async () => {
     toast.add({ title: 'No s\'han pogut generar els documents', color: 'error' })
   }
 }
+const showWelcome = ref(true)
+
+const dismissWelcome = () => {
+    showWelcome.value = false
+    try {
+        localStorage.setItem('dietator_welcome_dismissed', 'true')
+    } catch {
+        // Ignore storage errors
+    }
+}
+
+onMounted(() => {
+    try {
+        if (localStorage.getItem('dietator_welcome_dismissed') === 'true') {
+            showWelcome.value = false
+        }
+    } catch {
+        // Ignore storage errors
+    }
+})
 </script>
 
 <template>
   <div class="space-y-8">
     <!-- Hero Section -->
-    <section class="text-center space-y-4 py-8">
-      <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-        Benvingut a <span class="text-primary-500">Dietator</span>
-      </h1>
-      <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-        Gestiona els teus serveis i dietes de manera completament local. Dietator no guarda dades a cap servidor i funciona completament sense connexió a internet.
-      </p>
-    </section>
+    <div v-if="showWelcome" class="relative bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 sm:p-12">
+        <UButton
+            icon="i-heroicons-x-mark"
+            color="neutral"
+            variant="ghost"
+            class="absolute top-4 right-4"
+            @click="dismissWelcome"
+        />
+        <section class="text-center space-y-4">
+            <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                Benvingut a <span class="text-primary-500">Dietator</span>
+            </h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Gestiona els teus serveis i dietes de manera completament local. Dietator no guarda dades a cap servidor i funciona completament sense connexió a internet.
+            </p>
+        </section>
+    </div>
 
     <UAlert
       v-if="!dietPriceSet"
