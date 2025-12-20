@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/jvmonjo/dietator/compare/v1.13.1...v1.13.2) (2025-12-20)
+
+
+### Bug Fixes
+
+* add clear button to search input ([df6791b](https://github.com/jvmonjo/dietator/commit/df6791b55e6554877c8e9329137184eb24caf936))
+
 ## [1.13.1](https://github.com/jvmonjo/dietator/compare/v1.13.0...v1.13.1) (2025-12-20)
 
 
