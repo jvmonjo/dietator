@@ -7,43 +7,49 @@ const settingsStore = useSettingsStore()
 const toast = useToast()
 const { calculateTotals, currentMonthValue, monthOptions, getRecordsForMonth } = useServiceStats()
 
-const monthFormatter = new Intl.DateTimeFormat('ca-ES', { year: 'numeric', month: 'long' })
-const extendedMonthOptions = computed<MonthOption[]>(() => {
-  const options = monthOptions.value.slice()
-  const hasCurrent = options.some(option => option.value === currentMonthValue.value)
-  if (!hasCurrent && currentMonthValue.value) {
-    const [yearStr, monthStr] = currentMonthValue.value.split('-')
-    const year = Number(yearStr)
-    const month = Number(monthStr)
-    if (Number.isFinite(year) && Number.isFinite(month)) {
-      const fallbackDate = new Date(year, month - 1, 1)
-      options.push({
-        value: currentMonthValue.value,
-        label: monthFormatter.format(fallbackDate)
-      })
-    }
-  }
-  return options.sort((a, b) => (a.value < b.value ? 1 : -1))
+
+// Month/Year Selection Logic
+const months = [
+  { value: 0, label: 'Tots' },
+  { value: 1, label: 'Gener' },
+  { value: 2, label: 'Febrer' },
+  { value: 3, label: 'Març' },
+  { value: 4, label: 'Abril' },
+  { value: 5, label: 'Maig' },
+  { value: 6, label: 'Juny' },
+  { value: 7, label: 'Juliol' },
+  { value: 8, label: 'Agost' },
+  { value: 9, label: 'Setembre' },
+  { value: 10, label: 'Octubre' },
+  { value: 11, label: 'Novembre' },
+  { value: 12, label: 'Desembre' }
+]
+
+const currentYear = new Date().getFullYear()
+const selectedYear = ref(currentYear)
+const selectedMonthValue = ref(new Date().getMonth() + 1)
+
+const availableYears = computed(() => {
+  const years = new Set([currentYear])
+  monthOptions.value.forEach(opt => {
+    const [y] = opt.value.split('-')
+    years.add(Number(y))
+  })
+  return Array.from(years).sort((a, b) => b - a)
 })
-
-const selectedMonth = ref<MonthOption | undefined>()
-const showAllMonths = ref(false)
-
-watch(extendedMonthOptions, (options) => {
-  if (!showAllMonths.value && !selectedMonth.value) {
-    selectedMonth.value = options.find(option => option.value === currentMonthValue.value) ?? options[0]
-  }
-}, { immediate: true })
 
 const activeMonth = computed<MonthOption | null>(() => {
-  if (showAllMonths.value) {
-    return null
+  if (selectedMonthValue.value === 0) return null
+  
+  const monthLabel = months.find(m => m.value === selectedMonthValue.value)?.label
+  return {
+    value: `${selectedYear.value}-${String(selectedMonthValue.value).padStart(2, '0')}`,
+    label: `${monthLabel} ${selectedYear.value}`
   }
-  if (!selectedMonth.value) {
-    return extendedMonthOptions.value.find(option => option.value === currentMonthValue.value) ?? null
-  }
-  return selectedMonth.value
 })
+
+const showAllMonths = computed(() => selectedMonthValue.value === 0)
+const selectedMonth = computed(() => activeMonth.value) // Alias for compatibility
 
 const selectedRecords = computed(() => {
     return getRecordsForMonth(activeMonth.value?.value ?? null)
@@ -122,16 +128,6 @@ const dietPriceSet = computed(() => settingsStore.fullDietPrice > 0 || settingsS
 const canExportReport = computed(() => Boolean(activeMonth.value) && selectedRecords.value.length > 0 && hasTemplates.value)
 const serviceListDescription = computed(() => `Dinars: ${selectionTotals.value.lunches} | Sopars: ${selectionTotals.value.dinners}`)
 
-const handleMonthChange = (value: MonthOption | null | undefined) => {
-  if (!value) {
-    showAllMonths.value = true
-    selectedMonth.value = undefined
-  } else {
-    showAllMonths.value = false
-    selectedMonth.value = value
-  }
-}
-
 const exportReport = async () => {
   if (!selectedMonth.value) {
     toast.add({ title: 'Selecciona un mes per exportar', color: 'warning' })
@@ -209,19 +205,24 @@ const exportReport = async () => {
               S'ha de pujar una plantilla mensual o per servei des de Configuració.
             </p>
           </div>
-          <div class="flex items-center gap-3">
-             <UInputMenu
-               :model-value="showAllMonths ? undefined : selectedMonth"
-               :items="extendedMonthOptions"
-               placeholder="Selecciona un mes"
-               clearable
-               class="min-w-[200px]"
-               @update:model-value="handleMonthChange"
+          <div class="grid grid-cols-2 sm:flex sm:items-center gap-3 w-full sm:w-auto">
+             <USelect
+                v-model="selectedMonthValue"
+                :items="months"
+                option-attribute="label"
+                value-attribute="value"
+                class="w-full sm:min-w-[140px]"
+             />
+             <USelect
+                v-model="selectedYear"
+                :items="availableYears"
+                class="w-full sm:w-[100px]"
              />
             <UButton
               icon="i-heroicons-document-arrow-down"
               color="primary"
               :disabled="!canExportReport"
+              class="col-span-2 sm:w-auto flex justify-center"
               @click="exportReport"
             >
               Generar
