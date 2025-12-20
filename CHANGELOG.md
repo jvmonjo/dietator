@@ -1,3 +1,10 @@
+## [1.13.3](https://github.com/jvmonjo/dietator/compare/v1.13.2...v1.13.3) (2025-12-20)
+
+
+### Bug Fixes
+
+* move search input icon to leading slot for better control ([e574e65](https://github.com/jvmonjo/dietator/commit/e574e65c21b47742d71bb396ed1713892bdb8398))
+
 ## [1.13.2](https://github.com/jvmonjo/dietator/compare/v1.13.1...v1.13.2) (2025-12-20)
 
 
