@@ -113,8 +113,12 @@ watch(() => props.initialData, (record) => {
 }, { immediate: true })
 
 async function onSubmit (event: FormSubmitEvent<Schema>) {
-  // Auto-calculate kilometers if API key is configured AND no value is present
-  if (settingsStore.googleMapsApiKey && state.displacements.length >= 2 && !state.kilometers) {
+  // Auto-calculate kilometers if API key is configured AND (no value is present OR number of displacements changed)
+  const initialDisplacementCount = props.initialData?.displacements?.length || 0
+  const currentDisplacementCount = state.displacements.length
+  const hasDisplacementCountChanged = initialDisplacementCount !== currentDisplacementCount
+
+  if (settingsStore.googleMapsApiKey && state.displacements.length >= 2 && (!state.kilometers || hasDisplacementCountChanged)) {
       try {
           // Filter out incomplete displacements
           const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
