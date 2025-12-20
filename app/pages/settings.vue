@@ -42,7 +42,9 @@ const confirmModal = reactive({
   isOpen: false,
   title: '',
   description: '',
-  action: null as (() => Promise<void>) | null
+  action: null as (() => Promise<void>) | null,
+  confirmLabel: 'Confirmar',
+  confirmColor: 'primary' as 'primary' | 'error'
 })
 
 const { monthlyTemplate, serviceTemplate } = storeToRefs(settingsStore)
@@ -333,6 +335,8 @@ const prepareImport = async () => {
     confirmModal.title = title
     confirmModal.description = description
     confirmModal.action = () => processImport(payload)
+    confirmModal.confirmLabel = 'Confirmar i Importar'
+    confirmModal.confirmColor = 'primary'
     confirmModal.isOpen = true
 
   } catch (error) {
@@ -409,12 +413,80 @@ const downloadTemplate = (type: TemplateType) => {
   document.body.removeChild(link)
 }
 
-const formatBytes = (size?: number) => {
-  if (!size || size <= 0) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  const index = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1)
-  const value = size / Math.pow(1024, index)
-  return `${value.toFixed(1)} ${units[index]}`
+const maintenanceState = reactive({
+  selectedYear: undefined as number | undefined,
+  selectedMonth: undefined as number | undefined
+})
+
+const availableYears = computed(() => {
+  const years = new Set<number>()
+  serviceStore.records.forEach(r => {
+    const d = new Date(r.startTime)
+    if (!Number.isNaN(d.getTime())) years.add(d.getFullYear())
+  })
+  return Array.from(years).sort((a, b) => b - a).map(y => ({ label: String(y), value: y }))
+})
+
+const availableMonthsForYear = computed(() => {
+  if (!maintenanceState.selectedYear) return []
+  const months = new Set<number>()
+  serviceStore.records.forEach(r => {
+    const d = new Date(r.startTime)
+    if (!Number.isNaN(d.getTime()) && d.getFullYear() === maintenanceState.selectedYear) {
+      months.add(d.getMonth() + 1)
+    }
+  })
+  return Array.from(months).sort((a, b) => a - b).map(m => {
+    const date = new Date(maintenanceState.selectedYear!, m - 1, 1)
+    const label = monthFormatter.format(date)
+    return { label: label.charAt(0).toUpperCase() + label.slice(1), value: m }
+  })
+})
+
+const deleteButtonLabel = computed(() => {
+  if (!maintenanceState.selectedYear) return 'Selecciona un any per esborrar'
+  if (maintenanceState.selectedMonth) {
+    const monthName = availableMonthsForYear.value.find(m => m.value === maintenanceState.selectedMonth)?.label
+    return `Esborrar dades de ${monthName}`
+  }
+  return `Esborrar tot l'any ${maintenanceState.selectedYear}`
+})
+
+const confirmDelete = () => {
+  if (!maintenanceState.selectedYear) return
+  
+  const year = maintenanceState.selectedYear
+  const month = maintenanceState.selectedMonth
+  
+  const title = 'Confirmar eliminació'
+  const description = month 
+    ? `Estàs segur que vols esborrar tots els serveis del període selecionat? Aquesta acció no es pot desfer.`
+    : `Estàs segur que vols esborrar tots els serveis de l'any ${year}? Aquesta acció no es pot desfer.`
+
+  confirmModal.title = title
+  confirmModal.description = description
+  confirmModal.action = async () => {
+    if (month) {
+      serviceStore.deleteRecordsByMonth(year, month)
+    } else {
+      serviceStore.deleteRecordsByYear(year)
+    }
+    toast.add({ title: 'Dades eliminades correctament', color: 'success' })
+    maintenanceState.selectedYear = undefined
+    maintenanceState.selectedMonth = undefined
+    maintenanceState.selectedMonth = undefined
+  }
+  confirmModal.confirmLabel = 'Confirma l\'eliminació'
+  confirmModal.confirmColor = 'error'
+  confirmModal.isOpen = true
+}
+
+const formatBytes = (bytes: number) => {
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 const formatTimestamp = (value?: string) => {
@@ -432,7 +504,7 @@ const formatTimestamp = (value?: string) => {
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuració</h1>
       </div>
       <div class="flex gap-2">
-         <UButton @click="saveSettings" icon="i-heroicons-check-circle">Desar configuració</UButton>
+         <UButton icon="i-heroicons-check-circle" @click="saveSettings">Desar configuració</UButton>
       </div>
     </div>
 
@@ -797,11 +869,72 @@ const formatTimestamp = (value?: string) => {
       </div>
     </UCard>
 
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+            <UIcon name="i-heroicons-archive-box-x-mark" class="w-6 h-6 text-primary-500" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Manteniment i Neteja</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Allibera espai esborrant dades antigues.</p>
+          </div>
+        </div>
+      </template>
+
+      <div class="space-y-6">
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">Ús aproximat d'emmagatzematge</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dades de serveis locals</p>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{ formatBytes(serviceStore.getStorageUsage()) }}</p>
+              <p class="text-xs text-gray-500">{{ serviceStore.records.length }} serveis totals</p>
+            </div>
+        </div>
+
+        <section class="space-y-4">
+           <h3 class="text-base font-semibold text-gray-900 dark:text-white">Esborrar dades</h3>
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+              <UFormField label="Any" name="deleteYear">
+                <USelect 
+                  v-model="maintenanceState.selectedYear" 
+                  :items="availableYears" 
+                  placeholder="Selecciona un any"
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField label="Mes (Opcional)" name="deleteMonth">
+                 <USelect 
+                  v-model="maintenanceState.selectedMonth" 
+                  :items="availableMonthsForYear" 
+                  :disabled="!maintenanceState.selectedYear"
+                  placeholder="Tot l'any"
+                  class="w-full"
+                />
+              </UFormField>
+           </div>
+           
+           <UButton 
+             block 
+             color="error" 
+             variant="soft" 
+             icon="i-heroicons-trash"
+             :disabled="!maintenanceState.selectedYear"
+             @click="confirmDelete"
+           >
+             {{ deleteButtonLabel }}
+           </UButton>
+        </section>
+      </div>
+    </UCard>
+
     <!-- Confirmation Modal -->
     <UModal v-model:open="confirmModal.isOpen" :title="confirmModal.title" :description="confirmModal.description">
       <template #footer>
         <UButton color="neutral" variant="ghost" @click="confirmModal.isOpen = false">Cancel·lar</UButton>
-        <UButton color="primary" @click="handleConfirm">Confirmar i Importar</UButton>
+        <UButton :color="confirmModal.confirmColor" @click="handleConfirm">{{ confirmModal.confirmLabel }}</UButton>
       </template>
     </UModal>
 
