@@ -7,7 +7,11 @@ const globalVariables = [
   { name: '[full_diet_price]', desc: 'Preu configurat per a dieta completa.' },
   { name: '[full_diet_price_value]', desc: 'Valor numèric del preu de dieta completa.' },
   { name: '[current_month_label]', desc: 'Mes i any actual (ex. març 2024).' },
-  { name: '[current_month_key]', desc: 'Clau tècnica del mes (YYYY-MM).' }
+  { name: '[current_month_label]', desc: 'Mes i any actual (ex. març 2024).' },
+  { name: '[current_month_key]', desc: 'Clau tècnica del mes (YYYY-MM).' },
+  { name: '[user_name]', desc: 'Nom de l\'usuari configurat.' },
+  { name: '[user_surname]', desc: 'Cognoms de l\'usuari configurat.' },
+  { name: '[user_dni]', desc: 'DNI/NIE de l\'usuari configurat.' }
 ]
 
 const monthlyVariables = [

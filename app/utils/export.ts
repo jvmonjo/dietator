@@ -16,6 +16,9 @@ interface TemplateContext {
 interface ExportSettings {
   halfDietPrice: number
   fullDietPrice: number
+  firstName?: string
+  lastName?: string
+  nationalId?: string
 }
 
 interface GenerateWordReportOptions {
@@ -158,7 +161,10 @@ const buildContexts = (options: GenerateWordReportOptions) => {
     previous_month_last_working_day_minus_1: laborDays[1]?.iso ?? '',
     previous_month_last_working_day_minus_1_human: laborDays[1]?.human ?? '',
     previous_month_last_working_day_minus_2: laborDays[2]?.iso ?? '',
-    previous_month_last_working_day_minus_2_human: laborDays[2]?.human ?? ''
+    previous_month_last_working_day_minus_2_human: laborDays[2]?.human ?? '',
+    user_name: settings.firstName || '',
+    user_surname: settings.lastName || '',
+    user_dni: settings.nationalId || ''
   }
 
   let monthDisplacementIndex = 1

@@ -3,6 +3,8 @@ import type { TemplateType } from '~/stores/settings'
 import type { ServiceRecord } from '~/stores/services'
 import { encryptBackup, decryptBackup, isEncryptedBackup, type BackupPayload } from '~/utils/secureBackup'
 
+import { validateSpanishId } from 'spain-id'
+
 const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
 const toast = useToast()
@@ -17,7 +19,10 @@ const templateInputs: Record<TemplateType, Ref<HTMLInputElement | null>> = {
 const formState = reactive({
   halfDietPrice: (settingsStore.halfDietPrice || 0) as number | string,
   fullDietPrice: (settingsStore.fullDietPrice || 0) as number | string,
-  googleMapsApiKey: settingsStore.googleMapsApiKey || ''
+  googleMapsApiKey: settingsStore.googleMapsApiKey || '',
+  firstName: settingsStore.firstName || '',
+  lastName: settingsStore.lastName || '',
+  nationalId: settingsStore.nationalId || ''
 })
 
 const exportState = reactive({
@@ -94,6 +99,11 @@ const parseCurrency = (input: string | number) => {
 }
 
 const saveSettings = () => {
+  if (formState.nationalId && !validateSpanishId(formState.nationalId)) {
+    toast.add({ title: 'DNI/NIE incorrecte', color: 'error' })
+    return
+  }
+
   const normalizedHalfPrice = parseCurrency(formState.halfDietPrice)
   const normalizedFullPrice = parseCurrency(formState.fullDietPrice)
 
@@ -104,6 +114,11 @@ const saveSettings = () => {
   settingsStore.updateDietPrices({
     half: normalizedHalfPrice,
     full: normalizedFullPrice
+  })
+  settingsStore.updatePersonalData({
+    firstName: formState.firstName,
+    lastName: formState.lastName,
+    nationalId: formState.nationalId.toUpperCase()
   })
   settingsStore.$patch({ googleMapsApiKey: formState.googleMapsApiKey })
   toast.add({ title: 'Configuració guardada', color: 'success' })
@@ -138,7 +153,10 @@ const buildSettingsPayload = (includeTemplates: boolean) => ({
   monthlyTemplate: includeTemplates ? settingsStore.monthlyTemplate : null,
   serviceTemplate: includeTemplates ? settingsStore.serviceTemplate : null,
   exportTemplates: includeTemplates,
-  googleMapsApiKey: settingsStore.googleMapsApiKey
+  googleMapsApiKey: settingsStore.googleMapsApiKey,
+  firstName: settingsStore.firstName,
+  lastName: settingsStore.lastName,
+  nationalId: settingsStore.nationalId
 })
 
 
@@ -238,6 +256,9 @@ const processImport = async (payload: BackupPayload) => {
     formState.halfDietPrice = settingsStore.halfDietPrice
     formState.fullDietPrice = settingsStore.fullDietPrice
     formState.googleMapsApiKey = settingsStore.googleMapsApiKey
+    formState.firstName = settingsStore.firstName || ''
+    formState.lastName = settingsStore.lastName || ''
+    formState.nationalId = settingsStore.nationalId || ''
   }
 
   const description = services && settings
@@ -409,9 +430,36 @@ const formatTimestamp = (value?: string) => {
     <div class="flex items-start justify-between gap-4">
       <div class="space-y-2">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuració</h1>
-
+      </div>
+      <div class="flex gap-2">
+         <UButton @click="saveSettings" icon="i-heroicons-check-circle">Desar configuració</UButton>
       </div>
     </div>
+
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+            <UIcon name="i-heroicons-user" class="w-6 h-6 text-primary-500" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Dades Personals</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Informació que apareixerà a les plantilles.</p>
+          </div>
+        </div>
+      </template>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <UFormField label="Nom" name="firstName">
+          <UInput v-model="formState.firstName" placeholder="El teu nom" />
+        </UFormField>
+        <UFormField label="Cognoms" name="lastName">
+          <UInput v-model="formState.lastName" placeholder="Els teus cognoms" />
+        </UFormField>
+        <UFormField label="DNI / NIE" name="nationalId" class="md:col-span-2">
+          <UInput v-model="formState.nationalId" placeholder="12345678Z" />
+        </UFormField>
+      </div>
+    </UCard>
 
     <UCard>
       <template #header>
@@ -454,14 +502,7 @@ const formatTimestamp = (value?: string) => {
           <span>Dinar i sopar: aplica dieta completa</span>
         </div>
 
-        <div class="flex gap-3 pt-2">
-          <UButton type="submit" icon="i-heroicons-check-circle">Desar configuració</UButton>
-          <UButton to="/" variant="ghost" icon="i-heroicons-arrow-left">Tornar a l'inici</UButton>
-        </div>
-
-        <USeparator />
-
-        <div class="space-y-4">
+        <div class="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
           <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <UIcon name="i-heroicons-puzzle-piece" class="w-5 h-5 text-gray-500" />
             Integracions

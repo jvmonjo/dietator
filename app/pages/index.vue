@@ -151,7 +151,10 @@ const exportReport = async () => {
       month: selectedMonth.value,
       settings: {
         halfDietPrice: settingsStore.halfDietPrice,
-        fullDietPrice: settingsStore.fullDietPrice
+        fullDietPrice: settingsStore.fullDietPrice,
+        firstName: settingsStore.firstName,
+        lastName: settingsStore.lastName,
+        nationalId: settingsStore.nationalId
       },
       templates: {
         monthly: settingsStore.monthlyTemplate,

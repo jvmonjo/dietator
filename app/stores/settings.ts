@@ -18,6 +18,9 @@ interface SettingsState {
   serviceTemplate: TemplateFile | null
   exportTemplates: boolean
   googleMapsApiKey: string
+  firstName?: string
+  lastName?: string
+  nationalId?: string
 }
 
 const settingsStorage = piniaPluginPersistedstate.localStorage()
@@ -29,12 +32,20 @@ export const useSettingsStore = defineStore('settings', {
     monthlyTemplate: null,
     serviceTemplate: null,
     exportTemplates: false,
-    googleMapsApiKey: ''
+    googleMapsApiKey: '',
+    firstName: '',
+    lastName: '',
+    nationalId: ''
   }),
   actions: {
     updateDietPrices(prices: { half: number, full: number }) {
       this.halfDietPrice = prices.half
       this.fullDietPrice = prices.full
+    },
+    updatePersonalData(data: { firstName: string, lastName: string, nationalId: string }) {
+      this.firstName = data.firstName
+      this.lastName = data.lastName
+      this.nationalId = data.nationalId
     },
     setTemplate(type: TemplateType, template: TemplateFile | null) {
       if (type === 'monthly') {
@@ -50,6 +61,9 @@ export const useSettingsStore = defineStore('settings', {
       if (settings.serviceTemplate || settings.serviceTemplate === null) this.serviceTemplate = settings.serviceTemplate
       if (typeof settings.exportTemplates === 'boolean') this.exportTemplates = settings.exportTemplates
       this.googleMapsApiKey = settings.googleMapsApiKey || ''
+      this.firstName = settings.firstName || ''
+      this.lastName = settings.lastName || ''
+      this.nationalId = settings.nationalId || ''
     }
   },
   persist: {
