@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/jvmonjo/dietator/compare/v1.12.0...v1.13.0) (2025-12-20)
+
+
+### Features
+
+* reorder service list columns and replace button text with tooltips ([5530afb](https://github.com/jvmonjo/dietator/commit/5530afbc0c14752994e897b6dc323318484c1889))
+
 # [1.12.0](https://github.com/jvmonjo/dietator/compare/v1.11.0...v1.12.0) (2025-12-20)
 
 
