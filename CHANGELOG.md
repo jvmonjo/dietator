@@ -1,3 +1,12 @@
+# [1.10.0](https://github.com/jvmonjo/dietator/compare/v1.9.0...v1.10.0) (2025-12-20)
+
+
+### Features
+
+* Add displacement observations field to UI, data model, help, and export. ([55136cb](https://github.com/jvmonjo/dietator/commit/55136cb9813aa058b9fbc0cf9fd727a7d9109c17))
+* Add distance cache management to settings page with clear functionality and statistics. ([374a00b](https://github.com/jvmonjo/dietator/commit/374a00be888ee7724f3c99d2ae6033e7c280d23c))
+* Implement data maintenance and cleanup features with safe local storage and enhanced confirmation modal. ([1ae141a](https://github.com/jvmonjo/dietator/commit/1ae141a3e2e7aa542a7766c9471057f57410b868))
+
 # [1.9.0](https://github.com/jvmonjo/dietator/compare/v1.8.0...v1.9.0) (2025-12-20)
 
 
