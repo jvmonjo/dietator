@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/jvmonjo/dietator/compare/v1.13.3...v1.14.0) (2025-12-20)
+
+
+### Features
+
+* Add dismissible welcome message with local storage persistence. ([8b8b600](https://github.com/jvmonjo/dietator/commit/8b8b600694b9b5341e33e4c1d52ce793dfc1be61))
+
 ## [1.13.3](https://github.com/jvmonjo/dietator/compare/v1.13.2...v1.13.3) (2025-12-20)
 
 
