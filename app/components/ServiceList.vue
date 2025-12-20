@@ -60,10 +60,10 @@ const selectedRecord = ref<ServiceRecord | null>(null)
 const isDuplicateMode = ref(false)
 
 const columns = [
+  { accessorKey: 'actions', id: 'actions', header: 'Accions' },
   { accessorKey: 'startTime', id: 'startTime', header: 'Inici' },
   { accessorKey: 'endTime', id: 'endTime', header: 'Fi' },
-  { accessorKey: 'displacements', id: 'displacements', header: 'Desplaçaments' },
-  { accessorKey: 'actions', id: 'actions', header: 'Accions' }
+  { accessorKey: 'displacements', id: 'displacements', header: 'Desplaçaments' }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as any[]
 
@@ -198,34 +198,36 @@ const formatMunicipality = (name: string) => {
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2">
-              <UButton
-                v-if="props.enableEdit"
-                icon="i-heroicons-pencil-square"
-                size="xs"
-                variant="soft"
-                @click="openRecord(row.original as ServiceRecord)"
-              >
-                Editar
-              </UButton>
-               <UButton
-                icon="i-heroicons-document-duplicate"
-                size="xs"
-                variant="soft"
-                color="neutral"
-                @click="duplicateRecord(row.original as ServiceRecord)"
-              >
-                Duplicar
-              </UButton>
-              <UButton
-                v-if="props.enableDelete"
-                icon="i-heroicons-trash"
-                size="xs"
-                color="error"
-                variant="ghost"
-                @click="confirmDelete((row.original as ServiceRecord).id)"
-              >
-                Eliminar
-              </UButton>
+              <UTooltip text="Editar">
+                <UButton
+                  v-if="props.enableEdit"
+                  icon="i-heroicons-pencil-square"
+                  size="xs"
+                  variant="soft"
+                  @click="openRecord(row.original as ServiceRecord)"
+                />
+              </UTooltip>
+              
+              <UTooltip text="Duplicar">
+                <UButton
+                  icon="i-heroicons-document-duplicate"
+                  size="xs"
+                  variant="soft"
+                  color="neutral"
+                  @click="duplicateRecord(row.original as ServiceRecord)"
+                />
+              </UTooltip>
+              
+              <UTooltip text="Eliminar">
+                <UButton
+                  v-if="props.enableDelete"
+                  icon="i-heroicons-trash"
+                  size="xs"
+                  color="error"
+                  variant="ghost"
+                  @click="confirmDelete((row.original as ServiceRecord).id)"
+                />
+              </UTooltip>
             </div>
           </template>
         </UTable>
