@@ -177,7 +177,7 @@ const exportReport = async () => {
         Benvingut a <span class="text-primary-500">Dietator</span>
       </h1>
       <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-        Gestiona els teus serveis i dietes de manera eficient. Funciona sense connexió a internet.
+        Gestiona els teus serveis i dietes de manera completament local. Dietator no guarda dades a cap servidor i funciona completament sense connexió a internet.
       </p>
     </section>
 
