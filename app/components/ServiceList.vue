@@ -146,7 +146,19 @@ const formatMunicipality = (name: string) => {
           icon="i-heroicons-magnifying-glass"
           placeholder="Buscar per municipi, notes..."
           class="w-full sm:w-64"
-        />
+          :ui="{ trailing: 'pointer-events-auto' }"
+        >
+          <template #trailing>
+            <UButton
+              v-if="searchQuery"
+              color="neutral"
+              variant="link"
+              icon="i-heroicons-x-mark-20-solid"
+              :padded="false"
+              @click="searchQuery = ''"
+            />
+          </template>
+        </UInput>
         <div class="flex items-center gap-3">
           <UButton
             icon="i-heroicons-plus"
