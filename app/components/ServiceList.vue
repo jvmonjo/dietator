@@ -143,11 +143,13 @@ const formatMunicipality = (name: string) => {
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
         <UInput
           v-model="searchQuery"
-          icon="i-heroicons-magnifying-glass"
           placeholder="Buscar per municipi, notes..."
           class="w-full sm:w-64"
           :ui="{ trailing: 'pointer-events-auto' }"
         >
+          <template #leading>
+            <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 text-gray-400" />
+          </template>
           <template #trailing>
             <UButton
               v-if="searchQuery"
