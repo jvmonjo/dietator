@@ -1,11 +1,9 @@
 import { defineStore } from 'pinia'
-import { piniaPluginPersistedstate } from '#imports'
+import { createSafeStorage } from '~/utils/storage'
 
 interface DistancesState {
     cache: Record<string, number>
 }
-
-const distancesStorage = piniaPluginPersistedstate.localStorage()
 
 // Helper to normalize keys consistently (e.g., lowercase, sorted or directional)
 // Since A->B distance might differ slightly from B->A in real roads, we keep direction.
@@ -13,6 +11,8 @@ const distancesStorage = piniaPluginPersistedstate.localStorage()
 const normalizeKey = (origin: string, destination: string) => {
     return `${origin.trim().toLowerCase()}|${destination.trim().toLowerCase()}`
 }
+
+
 
 export const useDistancesStore = defineStore('distances', {
     state: (): DistancesState => ({
@@ -26,9 +26,18 @@ export const useDistancesStore = defineStore('distances', {
         setDistance(origin: string, destination: string, kilometers: number) {
             const key = normalizeKey(origin, destination)
             this.cache[key] = kilometers
+        },
+        clearCache() {
+            this.cache = {}
+        },
+        getCacheStats() {
+            const items = Object.keys(this.cache).length
+            const json = JSON.stringify(this.cache)
+            const size = new Blob([json]).size
+            return { items, size }
         }
     },
     persist: {
-        storage: distancesStorage
+        storage: createSafeStorage()
     }
 })

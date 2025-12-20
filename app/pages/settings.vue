@@ -7,6 +7,7 @@ import { validateSpanishId } from 'spain-id'
 
 const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
+const distancesStore = useDistancesStore()
 const toast = useToast()
 const importFileInput = ref<HTMLInputElement | null>(null)
 const monthlyTemplateInput = ref<HTMLInputElement | null>(null)
@@ -481,6 +482,18 @@ const confirmDelete = () => {
   confirmModal.isOpen = true
 }
 
+const confirmClearCache = () => {
+  confirmModal.title = 'Netejar caché de distàncies'
+  confirmModal.description = 'Estàs segur que vols esborrar totes les distàncies guardades? S\'hauran de tornar a calcular (i gastar quota de Google Maps) la propera vegada.'
+  confirmModal.action = async () => {
+    distancesStore.clearCache()
+    toast.add({ title: 'Caché netejada correctament', color: 'success' })
+  }
+  confirmModal.confirmLabel = 'Netejar Caché'
+  confirmModal.confirmColor = 'error'
+  confirmModal.isOpen = true
+}
+
 const formatBytes = (bytes: number) => {
   if (bytes === 0) return '0 B'
   const k = 1024
@@ -891,6 +904,28 @@ const formatTimestamp = (value?: string) => {
             <div class="text-right">
               <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{ formatBytes(serviceStore.getStorageUsage()) }}</p>
               <p class="text-xs text-gray-500">{{ serviceStore.records.length }} serveis totals</p>
+            </div>
+        </div>
+        
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">Caché de kilòmetres</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Distàncies guardades per estalviar peticions</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{ formatBytes(distancesStore.getCacheStats().size) }}</p>
+                <p class="text-xs text-gray-500">{{ distancesStore.getCacheStats().items }} rutes</p>
+              </div>
+               <UButton 
+                 color="error" 
+                 variant="ghost" 
+                 icon="i-heroicons-trash"
+                 size="xs"
+                 @click="confirmClearCache"
+               >
+                 Netejar
+               </UButton>
             </div>
         </div>
 
