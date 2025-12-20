@@ -1,3 +1,11 @@
+# [1.12.0](https://github.com/jvmonjo/dietator/compare/v1.11.0...v1.12.0) (2025-12-20)
+
+
+### Features
+
+* enable drag-and-drop reordering for service displacements using Sortable.js and VueUse integrations. ([42dc8c0](https://github.com/jvmonjo/dietator/commit/42dc8c072ad16f02058570fb972ea01ac5978c58))
+* trigger kilometer auto-calculation when displacement count changes or no value is present ([28e2467](https://github.com/jvmonjo/dietator/commit/28e2467cd65c8f4967a8ef4ef469c6dba4824fd7))
+
 # [1.11.0](https://github.com/jvmonjo/dietator/compare/v1.10.0...v1.11.0) (2025-12-20)
 
 
