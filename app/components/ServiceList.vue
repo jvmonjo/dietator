@@ -137,7 +137,7 @@ const formatMunicipality = (name: string) => {
   <section class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }}</h2>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }} <UBadge color="primary" variant="soft">{{ recordCount }} registres</UBadge></h2>
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ props.description }}</p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
@@ -156,7 +156,6 @@ const formatMunicipality = (name: string) => {
           >
             Afegir servei
           </UButton>
-          <UBadge color="primary" variant="soft">{{ recordCount }} registres</UBadge>
         </div>
       </div>
     </div>

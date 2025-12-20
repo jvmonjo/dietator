@@ -5,6 +5,7 @@ import type { FormSubmitEvent } from '#ui/types'
 import type { Displacement, ServiceRecord } from '~/stores/services'
 import { useSettingsStore } from '~/stores/settings'
 import { useDistanceCalculator } from '~/composables/useDistanceCalculator'
+import { useSortable } from '@vueuse/integrations/useSortable'
 
 // Replaced uuid import with local function to avoid potential crash
 const uuidv4 = () => {
@@ -50,8 +51,6 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 type FormDisplacement = Displacement & { id: string }
-
-import { useSortable } from '@vueuse/integrations/useSortable'
 
 const createEmptyDisplacement = (): FormDisplacement => ({
   id: uuidv4(),
