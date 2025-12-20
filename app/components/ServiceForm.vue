@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { z } from 'zod'
+import { toRef } from 'vue'
 import type { FormSubmitEvent } from '#ui/types'
 import type { Displacement, ServiceRecord } from '~/stores/services'
 import { useSettingsStore } from '~/stores/settings'
@@ -50,6 +51,8 @@ type Schema = z.output<typeof schema>
 
 type FormDisplacement = Displacement & { id: string }
 
+import { useSortable } from '@vueuse/integrations/useSortable'
+
 const createEmptyDisplacement = (): FormDisplacement => ({
   id: uuidv4(),
   province: '',
@@ -65,6 +68,13 @@ const state = reactive({
   displacements: [createEmptyDisplacement()],
   kilometers: undefined as number | undefined,
   notes: ''
+})
+
+const displacementListRef = ref<HTMLElement | null>(null)
+
+useSortable(displacementListRef, toRef(state, 'displacements'), {
+  handle: '.drag-handle',
+  animation: 150
 })
 
 
@@ -232,13 +242,14 @@ const serviceWarnings = computed(() => {
     <USeparator label="Desplaçaments" />
 
     <!-- Displacements List -->
-    <div class="space-y-4">
+    <div ref="displacementListRef" class="space-y-4">
       <div
         v-for="(displacement, index) in state.displacements"
-        :key="index"
+        :key="displacement.id"
         class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 relative group transition-all hover:border-primary-200 dark:hover:border-primary-800"
       >
-        <div class="absolute top-4 right-4">
+        <div class="absolute top-4 right-4 flex items-center gap-2">
+           <UIcon name="i-heroicons-bars-3" class="w-5 h-5 text-gray-400 cursor-move drag-handle hover:text-gray-600 dark:hover:text-gray-300" />
           <UButton
             v-if="state.displacements.length > 1"
             icon="i-heroicons-trash"
