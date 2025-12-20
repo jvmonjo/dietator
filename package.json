@@ -30,6 +30,8 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@iconify-json/heroicons": "^1.2.3",
+    "@iconify-json/simple-icons": "^1.2.63",
     "@nuxt/eslint": "^1.11.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",

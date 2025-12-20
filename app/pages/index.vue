@@ -224,7 +224,7 @@ const exportReport = async () => {
               :disabled="!canExportReport"
               @click="exportReport"
             >
-              Generar informe
+              Generar
             </UButton>
           </div>
         </div>
