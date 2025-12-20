@@ -295,7 +295,8 @@ const buildDisplacementVariables = (
     displacement_has_lunch: hasLunch,
     displacement_has_dinner: hasDinner,
     displacement_meals: describeMeals(hasLunch, hasDinner),
-    displacement_date: serviceVariables.service_start_date
+    displacement_date: serviceVariables.service_start_date,
+    displacement_observations: displacement.observations || ''
   }
 }
 

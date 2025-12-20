@@ -7,6 +7,7 @@ export interface Displacement {
     municipality: string
     hasLunch: boolean
     hasDinner: boolean
+    observations?: string
 }
 
 export interface ServiceRecord {

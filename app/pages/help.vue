@@ -66,7 +66,8 @@ const displacementVariables = [
   { name: '[displacement_has_lunch]', desc: 'Té dinar (Sí/No).' },
   { name: '[displacement_has_dinner]', desc: 'Té sopar (Sí/No).' },
   { name: '[displacement_meals]', desc: 'Descripció àpats (Dinar, Sopar, Dinar i sopar, —).' },
-  { name: '[displacement_date]', desc: 'Data del desplaçament (igual a l\'inici del servei).' }
+  { name: '[displacement_date]', desc: 'Data del desplaçament (igual a l\'inici del servei).' },
+  { name: '[displacement_observations]', desc: 'Observacions específiques del desplaçament.' }
 ]
 
 const loops = [

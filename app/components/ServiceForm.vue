@@ -55,7 +55,8 @@ const createEmptyDisplacement = (): FormDisplacement => ({
   province: '',
   municipality: '',
   hasLunch: false,
-  hasDinner: false
+  hasDinner: false,
+  observations: ''
 })
 
 const state = reactive({
@@ -277,6 +278,15 @@ const serviceWarnings = computed(() => {
               :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
             />
           </div>
+
+          <UFormField label="Observacions" :name="`displacements.${index}.observations`">
+            <UTextarea
+              v-model="displacement.observations" 
+              placeholder="Detalls addicionals d'aquest desplaçament..."
+              icon="i-heroicons-pencil-square"
+              class="w-full"
+            />
+          </UFormField>
         </div>
       </div>
 
