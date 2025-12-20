@@ -18,10 +18,41 @@ const props = withDefaults(defineProps<{
 const serviceStore = useServiceStore()
 const toast = useToast()
 
-const recordCount = computed(() => props.records.length)
+const page = ref(1)
+const itemsPerPage = 10
+const searchQuery = ref('')
+
+const filteredRecords = computed(() => {
+  if (!searchQuery.value) return props.records
+  const query = searchQuery.value.toLowerCase()
+  return props.records.filter(record => {
+    // Check notes
+    if (record.notes?.toLowerCase().includes(query)) return true
+    
+    // Check displacements (municipality or observations)
+    return record.displacements.some(d => 
+      d.municipality.toLowerCase().includes(query) || 
+      d.observations?.toLowerCase().includes(query)
+    )
+  })
+})
+
+const recordCount = computed(() => filteredRecords.value.length)
 const hasRecords = computed(() => recordCount.value > 0)
+const totalPages = computed(() => Math.ceil(recordCount.value / itemsPerPage))
+
 const tableData = computed(() => {
-  return props.records.slice().sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+  return filteredRecords.value.slice().sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+})
+
+
+
+
+
+const paginatedData = computed(() => {
+  const start = (page.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return tableData.value.slice(start, end)
 })
 
 const isModalOpen = ref(false)
@@ -109,16 +140,24 @@ const formatMunicipality = (name: string) => {
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }}</h2>
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ props.description }}</p>
       </div>
-      <div class="flex items-center gap-3">
-        <UButton
-          icon="i-heroicons-plus"
-          color="primary"
-          variant="soft"
-          @click="openNewService"
-        >
-          Afegir servei
-        </UButton>
-        <UBadge color="primary" variant="soft">{{ recordCount }} registres</UBadge>
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+        <UInput
+          v-model="searchQuery"
+          icon="i-heroicons-magnifying-glass"
+          placeholder="Buscar per municipi, notes..."
+          class="w-full sm:w-64"
+        />
+        <div class="flex items-center gap-3">
+          <UButton
+            icon="i-heroicons-plus"
+            color="primary"
+            variant="soft"
+            @click="openNewService"
+          >
+            Afegir servei
+          </UButton>
+          <UBadge color="primary" variant="soft">{{ recordCount }} registres</UBadge>
+        </div>
       </div>
     </div>
 
@@ -126,68 +165,79 @@ const formatMunicipality = (name: string) => {
       <div v-if="!hasRecords" class="py-10 text-center text-gray-500 dark:text-gray-400">
         Encara no hi ha serveis registrats.
       </div>
-      <UTable
-        v-else
-        :data="tableData"
-        :columns="columns"
-      >
-        <template #startTime-cell="{ row }">
-          <div class="flex items-center gap-2">
-            <UTooltip
-              v-if="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).length > 0"
-              :text="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).map(w => w.message).join('\n')"
-            >
-              <UIcon name="i-heroicons-exclamation-triangle" class="text-amber-500 w-5 h-5 flex-shrink-0" />
-            </UTooltip>
-            <span>{{ formatDate((row.original as ServiceRecord).startTime) }}</span>
-          </div>
-        </template>
-        <template #endTime-cell="{ row }">
-          {{ formatDate((row.original as ServiceRecord).endTime) }}
-        </template>
-        <template #displacements-cell="{ row }">
-          <div class="text-sm text-gray-700 dark:text-gray-300">
-            <span v-for="(displacement, index) in (row.original as ServiceRecord).displacements" :key="displacement.id">
-              {{ formatMunicipality(displacement.municipality) }}
-              <span v-if="displacement.hasLunch || displacement.hasDinner" class="text-xs text-gray-500 dark:text-gray-400">
-                ({{ displacement.hasLunch ? 'D' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? '+' : '' }}{{ displacement.hasDinner ? 'S' : '' }})
-              </span><span v-if="index < (row.original as ServiceRecord).displacements.length - 1">, </span>
-            </span>
-          </div>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex gap-2">
-            <UButton
-              v-if="props.enableEdit"
-              icon="i-heroicons-pencil-square"
-              size="xs"
-              variant="soft"
-              @click="openRecord(row.original as ServiceRecord)"
-            >
-              Editar
-            </UButton>
-             <UButton
-              icon="i-heroicons-document-duplicate"
-              size="xs"
-              variant="soft"
-              color="neutral"
-              @click="duplicateRecord(row.original as ServiceRecord)"
-            >
-              Duplicar
-            </UButton>
-            <UButton
-              v-if="props.enableDelete"
-              icon="i-heroicons-trash"
-              size="xs"
-              color="error"
-              variant="ghost"
-              @click="confirmDelete((row.original as ServiceRecord).id)"
-            >
-              Eliminar
-            </UButton>
-          </div>
-        </template>
-      </UTable>
+      <div v-else class="space-y-4">
+
+        <UTable
+          :key="page"
+          :data="paginatedData"
+          :columns="columns"
+        >
+          <template #startTime-cell="{ row }">
+            <div class="flex items-center gap-2">
+              <UTooltip
+                v-if="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).length > 0"
+                :text="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).map(w => w.message).join('\n')"
+              >
+                <UIcon name="i-heroicons-exclamation-triangle" class="text-amber-500 w-5 h-5 flex-shrink-0" />
+              </UTooltip>
+              <span>{{ formatDate((row.original as ServiceRecord).startTime) }}</span>
+            </div>
+          </template>
+          <template #endTime-cell="{ row }">
+            {{ formatDate((row.original as ServiceRecord).endTime) }}
+          </template>
+          <template #displacements-cell="{ row }">
+            <div class="text-sm text-gray-700 dark:text-gray-300">
+              <span v-for="(displacement, index) in (row.original as ServiceRecord).displacements" :key="displacement.id">
+                {{ formatMunicipality(displacement.municipality) }}
+                <span v-if="displacement.hasLunch || displacement.hasDinner" class="text-xs text-gray-500 dark:text-gray-400">
+                  ({{ displacement.hasLunch ? 'D' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? '+' : '' }}{{ displacement.hasDinner ? 'S' : '' }})
+                </span><span v-if="index < (row.original as ServiceRecord).displacements.length - 1">, </span>
+              </span>
+            </div>
+          </template>
+          <template #actions-cell="{ row }">
+            <div class="flex gap-2">
+              <UButton
+                v-if="props.enableEdit"
+                icon="i-heroicons-pencil-square"
+                size="xs"
+                variant="soft"
+                @click="openRecord(row.original as ServiceRecord)"
+              >
+                Editar
+              </UButton>
+               <UButton
+                icon="i-heroicons-document-duplicate"
+                size="xs"
+                variant="soft"
+                color="neutral"
+                @click="duplicateRecord(row.original as ServiceRecord)"
+              >
+                Duplicar
+              </UButton>
+              <UButton
+                v-if="props.enableDelete"
+                icon="i-heroicons-trash"
+                size="xs"
+                color="error"
+                variant="ghost"
+                @click="confirmDelete((row.original as ServiceRecord).id)"
+              >
+                Eliminar
+              </UButton>
+            </div>
+          </template>
+        </UTable>
+
+        <div v-if="totalPages > 1" class="flex justify-center border-t border-gray-200 dark:border-gray-800 pt-4">
+          <UPagination
+            v-model:page="page"
+            :page-count="itemsPerPage"
+            :total="recordCount"
+          />
+        </div>
+      </div>
     </UCard>
 
     <!-- Custom Modal Overlay -->
