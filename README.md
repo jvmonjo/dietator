@@ -21,7 +21,7 @@
 
 ## Tecnologies
 
-- **Framework**: [Nuxt 3](https://nuxt.com/) (Vue 4)
+- **Framework**: [Nuxt 4](https://nuxt.com/) (Vue 4)
 - **UI/Styling**: [Nuxt UI](https://ui.nuxt.com/) / Tailwind CSS
 - **Estat**: Pinia amb persistència local.
 - **Mapes**: Google Maps Distance Matrix API.
@@ -31,7 +31,7 @@
 
 ### Requisits Previs
 
-- Node.js (v18 o superior)
+- Node.js (v20 o superior)
 - npm o pnpm
 
 ### Instal·lació
@@ -72,8 +72,6 @@ npm run typecheck
 # Executar linter
 npm run lint
 ```
-
-## Llicència
 
 ## Llicència
 

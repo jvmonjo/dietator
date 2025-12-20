@@ -550,7 +550,7 @@ const formatTimestamp = (value?: string) => {
       <template #header>
         <div class="flex items-center gap-3">
           <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
-            <UIcon name="i-heroicons-cog-6-tooth" class="w-6 h-6 text-primary-500" />
+            <UIcon name="i-heroicons-currency-euro" class="w-6 h-6 text-primary-500" />
           </div>
           <div>
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Preus de les dietes</h2>
@@ -561,7 +561,7 @@ const formatTimestamp = (value?: string) => {
 
       <UForm :state="formState" class="space-y-6" @submit="saveSettings">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UFormField label="Preu mitja dieta" name="halfDietPrice" hint="Dinar o sopar." >
+          <UFormField label="Preu mitja dieta" name="halfDietPrice" >
             <UInput
               v-model="formState.halfDietPrice"
               type="text"
@@ -571,7 +571,7 @@ const formatTimestamp = (value?: string) => {
             />
           </UFormField>
 
-          <UFormField label="Preu dieta completa" name="fullDietPrice" hint="Dinar i sopar.">
+          <UFormField label="Preu dieta completa" name="fullDietPrice">
             <UInput
               v-model="formState.fullDietPrice"
               type="text"
@@ -581,22 +581,23 @@ const formatTimestamp = (value?: string) => {
             />
           </UFormField>
         </div>
+      </UForm>
+    </UCard>
 
-        <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-          <span>Dinar o sopar: aplica mitja dieta</span>
-          <span>Dinar i sopar: aplica dieta completa</span>
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+            <UIcon name="i-heroicons-puzzle-piece" class="w-6 h-6 text-primary-500" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Integracions</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Configureu serveis externs per automatitzar tasques.</p>
+          </div>
         </div>
-
-        <div class="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-puzzle-piece" class="w-5 h-5 text-gray-500" />
-            Integracions
-          </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            Configureu serveis externs per automatitzar tasques.
-          </p>
-
-          <UFormField label="Google Maps API Key" name="googleMapsApiKey" help="Necessari per al càlcul automàtic de quilòmetres.">
+      </template>
+      <UForm :state="formState" class="space-y-6" @submit="saveSettings">
+        <UFormField label="Google Maps API Key" name="googleMapsApiKey" help="Necessari per al càlcul automàtic de quilòmetres.">
             <UInput
               v-model="formState.googleMapsApiKey"
               type="password"
@@ -604,7 +605,6 @@ const formatTimestamp = (value?: string) => {
               placeholder="AIza..."
             />
           </UFormField>
-        </div>
       </UForm>
     </UCard>
 
