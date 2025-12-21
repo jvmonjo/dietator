@@ -182,3 +182,252 @@ function drawCard(doc: jsPDF, x: number, y: number, w: number, h: number, title:
     doc.setFont('helvetica', 'bold')
     doc.text(value, x + (w / 2), y + 22, { align: 'center' })
 }
+
+export interface WrappedStats {
+    year: number
+    totalServices: number
+    totalHours: number
+    totalKm: number
+    totalIncome: number
+    totalDaysNonStop: number
+    avgHoursPerService: number
+    avgKmPerService: number
+    weeklyAverageHours: number
+    weeklyAverageServices: number
+    months: { hours: number; services: number; income: number; km: number }[]
+    mostActiveDay: { date: string; hours: number }
+    mostKmDay: { date: string; km: number }
+    comparisons: { label: string; distance: number; emoji: string; percentage: number; completed: boolean; timesCompleted: number }[]
+}
+
+export const generateWrappedPdf = async (stats: WrappedStats): Promise<Blob> => {
+    const { year, totalServices, totalHours, totalKm, totalIncome, weeklyAverageHours, weeklyAverageServices, months, mostActiveDay, mostKmDay, totalDaysNonStop, avgHoursPerService, avgKmPerService } = stats
+    const doc = new jsPDF()
+
+    // Background
+    doc.setFillColor('#0F172A') // Slate 900
+    doc.rect(0, 0, 210, 297, 'F')
+
+    // Fonts (Standard)
+    doc.setFont('helvetica')
+
+    // -- HEADER --
+    doc.setFontSize(40)
+    doc.setTextColor('#FACC15') // Yellow
+    doc.text(`${year}`, 105, 30, { align: 'center' })
+
+    doc.setFontSize(14)
+    doc.setTextColor('#94A3B8')
+    doc.text('EL TEU ANY A DIETATOR', 105, 40, { align: 'center' })
+
+    let y = 60
+
+    // -- SUMMARY GRID --
+    const drawStatCard = (label: string, value: string, sub: string, x: number, color: string) => {
+        doc.setFillColor('#1E293B')
+        doc.roundedRect(x, y, 40, 30, 3, 3, 'F')
+
+        doc.setFontSize(8)
+        doc.setTextColor('#94A3B8')
+        doc.text(label.toUpperCase(), x + 20, y + 8, { align: 'center' })
+
+        doc.setFontSize(14)
+        doc.setTextColor(color)
+        doc.text(value, x + 20, y + 18, { align: 'center' })
+
+        if (sub) {
+            doc.setFontSize(7)
+            doc.setTextColor('#64748B')
+            doc.text(sub, x + 20, y + 25, { align: 'center' })
+        }
+    }
+
+    const formatCurrency = new Intl.NumberFormat('ca-ES', { style: 'currency', currency: 'EUR' }).format
+    const formatNumber = new Intl.NumberFormat('ca-ES', { maximumFractionDigits: 1 }).format
+
+    drawStatCard('Ingressos', formatCurrency(totalIncome), '', 20, '#34D399') // Emerald
+    drawStatCard('Hores', formatNumber(totalHours), `~${formatNumber(weeklyAverageHours)} h/setm | ${formatNumber(avgHoursPerService)} h/serv`, 65, '#FACC15') // Yellow
+    drawStatCard('Serveis', totalServices.toString(), `~${formatNumber(weeklyAverageServices)} s/setm`, 110, '#A78BFA') // Purple
+    drawStatCard('Kilòmetres', formatNumber(totalKm), `~${formatNumber(avgKmPerService)} km/serv`, 155, '#60A5FA') // Blue
+
+    y += 45
+
+    // -- COMBINED CHART --
+    doc.setFontSize(16)
+    doc.setTextColor('#FFFFFF')
+    doc.text('Evolució Anual', 20, y)
+
+    // Legend
+    doc.setFontSize(8)
+    doc.setFillColor('#FACC15'); doc.circle(130, y - 1, 1.5, 'F'); doc.setTextColor('#CBD5E1'); doc.text('Hores', 133, y)
+    doc.setFillColor('#34D399'); doc.circle(150, y - 1, 1.5, 'F'); doc.text('Ingressos', 153, y)
+    doc.setFillColor('#60A5FA'); doc.circle(175, y - 1, 1.5, 'F'); doc.text('Km', 178, y)
+
+    y += 10
+
+    const chartH = 60
+    const chartW = 170
+    const chartX = 20
+
+    // Axis
+    doc.setDrawColor('#334155')
+    doc.line(chartX, y + chartH, chartX + chartW, y + chartH)
+
+    // Data prep
+    const maxHours = Math.max(...months.map(m => m.hours), 1)
+    const maxIncome = Math.max(...months.map(m => m.income), 1)
+    const maxKm = Math.max(...months.map(m => m.km), 1)
+
+    const barGroupW = (chartW / 12)
+    const barW = barGroupW / 4 // 3 bars + spacing
+
+    interface Point { x: number; y: number }
+
+    // Points for lines
+    const pointsHours: Point[] = []
+    const pointsIncome: Point[] = []
+    const pointsKm: Point[] = []
+
+    months.forEach((m, i) => {
+        const baseX = chartX + (i * barGroupW) + 2
+
+        // Helper to Draw Bar and collect Point
+        const drawMetric = (val: number, max: number, color: string, offsetX: number, points: Point[]) => {
+            const h = (val / max) * chartH
+            const x = baseX + offsetX
+            const barY = y + chartH - h
+
+            if (h > 0) {
+                doc.setFillColor(color)
+                doc.rect(x, barY, barW, h, 'F')
+            }
+            // Center of bar top for line
+            points.push({ x: x + barW / 2, y: barY })
+        }
+
+        drawMetric(m.hours, maxHours, '#FACC15', 0, pointsHours)
+        drawMetric(m.income, maxIncome, '#34D399', barW, pointsIncome)
+        drawMetric(m.km, maxKm, '#60A5FA', barW * 2, pointsKm)
+
+        // Month Label
+        doc.setFontSize(7)
+        doc.setTextColor('#64748B')
+        const monthName = new Date(2000, i, 1).toLocaleString('ca-ES', { month: 'narrow' }).toUpperCase()
+        doc.text(monthName, baseX + barGroupW / 2, y + chartH + 5, { align: 'center' })
+    })
+
+
+
+    // Draw Combined Trend Line (Average Activity)
+    const pointsTrend: Point[] = []
+
+    months.forEach((m, i) => {
+        const baseX = chartX + (i * barGroupW) + 2
+
+        // Calculate normalized heights (0 to chartH)
+        const hHours = (m.hours / maxHours) * chartH
+        const hIncome = (m.income / maxIncome) * chartH
+        const hKm = (m.km / maxKm) * chartH
+
+        // Average height
+        const avgH = (hHours + hIncome + hKm) / 3
+
+        // Center of the month group
+        const x = baseX + (barGroupW / 2)
+        const pointY = y + chartH - avgH
+
+        pointsTrend.push({ x, y: pointY })
+    })
+
+    doc.setDrawColor('#FFFFFF')
+    doc.setLineWidth(1)
+
+    // Draw smooth-ish line
+    for (let i = 0; i < pointsTrend.length - 1; i++) {
+        const p1 = pointsTrend[i]!
+        const p2 = pointsTrend[i + 1]!
+        doc.line(p1.x, p1.y, p2.x, p2.y)
+    }
+
+    // Draw dots
+    doc.setFillColor('#FFFFFF')
+    pointsTrend.forEach(p => doc.circle(p.x, p.y, 1, 'F'))
+
+    // Legend for Trend
+    doc.setFontSize(8)
+    doc.setTextColor('#FFFFFF')
+    doc.text('Tendència General', chartX + chartW - 25, y - 5)
+
+    y += chartH + 20
+
+    // -- HIGHLIGHTS & CURIOSITIES --
+
+    // Cards Row
+    const cardY = y
+
+    // Most Active Day
+    if (mostActiveDay.date) {
+        doc.setDrawColor('#BE185D') // Pink border
+        doc.setFillColor('#831843') // Dark Pink bg
+        doc.roundedRect(20, cardY, 80, 25, 3, 3, 'FD')
+
+        doc.setFontSize(10)
+        doc.setTextColor('#FBCFE8')
+        doc.text('Dia més actiu', 25, cardY + 8)
+
+        doc.setFontSize(14)
+        doc.setTextColor('#FFFFFF')
+        const dateStr = new Date(mostActiveDay.date).toLocaleDateString('ca-ES', { day: 'numeric', month: 'long' })
+        doc.text(dateStr, 25, cardY + 18)
+
+        doc.setFontSize(10)
+        doc.setTextColor('#FBCFE8')
+        doc.text(`${formatNumber(mostActiveDay.hours)} hores`, 95, cardY + 18, { align: 'right' })
+    }
+
+    // Most Km Day
+    if (mostKmDay.date) {
+        doc.setDrawColor('#1D4ED8') // Blue border
+        doc.setFillColor('#1E3A8A') // Dark Blue bg
+        doc.roundedRect(110, cardY, 80, 25, 3, 3, 'FD')
+
+        doc.setFontSize(10)
+        doc.setTextColor('#BFDBFE')
+        doc.text('Dia més viatger', 115, cardY + 8)
+
+        doc.setFontSize(14)
+        doc.setTextColor('#FFFFFF')
+        const dateKmStr = new Date(mostKmDay.date).toLocaleDateString('ca-ES', { day: 'numeric', month: 'long' })
+        doc.text(dateKmStr, 115, cardY + 18)
+
+        doc.setFontSize(10)
+        doc.setTextColor('#BFDBFE')
+        doc.text(`${formatNumber(mostKmDay.km)} km`, 185, cardY + 18, { align: 'right' })
+    }
+
+    y += 35
+
+    // Non-stop Days (New Card)
+    doc.setDrawColor('#B45309') // Orange border
+    doc.setFillColor('#78350F') // Dark Orange bg
+    doc.roundedRect(65, y, 80, 20, 3, 3, 'FD') // Centered
+
+    doc.setFontSize(10)
+    doc.setTextColor('#FDE68A') // Light Yellow
+    doc.text('Marató Laboral', 105, y + 7, { align: 'center' })
+
+    doc.setFontSize(12)
+    doc.setTextColor('#FFFFFF')
+    doc.text(`Equival a ${formatNumber(totalDaysNonStop)} dies seguits!`, 105, y + 16, { align: 'center' })
+
+    y += 30
+
+
+
+    // -- FOOTER --
+    doc.setFontSize(8)
+    doc.setTextColor('#4B5563') // gray-600
+    doc.text(`Generat per Dietator - ${new Date().toLocaleDateString('ca-ES')}`, 105, 285, { align: 'center' })
+
+    return doc.output('blob')
+}

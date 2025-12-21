@@ -335,6 +335,29 @@ onMounted(() => {
           </p>
         </div>
       </UCard>
+      
+      <!-- Year in Review Card -->
+      <UCard 
+        v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
+        class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all group relative overflow-hidden"
+        @click="navigateTo('/wrapped')"
+      >
+        <!-- Background Decoration -->
+        <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+        
+        <div class="text-center space-y-2 relative z-10">
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center justify-center gap-1">
+             <UIcon name="i-heroicons-sparkles" class="text-yellow-500 w-4 h-4" />
+             Resum Anual
+          </div>
+          <div class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors">
+            El teu {{ new Date().getFullYear() }}
+          </div>
+          <p class="text-xs text-gray-400">
+             Descobreix les teves estadístiques
+          </p>
+        </div>
+      </UCard>
     </section>
 
   </div>
