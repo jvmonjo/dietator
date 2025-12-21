@@ -1,3 +1,12 @@
+## [1.16.2](https://github.com/jvmonjo/dietator/compare/v1.16.1...v1.16.2) (2025-12-21)
+
+
+### Bug Fixes
+
+* add distances cache to secure backup and restore, and improve backup parsing type safety. ([122d631](https://github.com/jvmonjo/dietator/commit/122d631b911359d693572a7411c903dd6519710a))
+* Add dynamic items per page selection and update pagination logic to reset page on filter or page size change. ([a6ccc7b](https://github.com/jvmonjo/dietator/commit/a6ccc7b9da273713ada9da6a1d6683d4bdebd8da))
+* Update default reminder day to the 1st of the month ([4b9d454](https://github.com/jvmonjo/dietator/commit/4b9d454be0bca5f121f63ab30a0d113e04544a95))
+
 ## [1.16.1](https://github.com/jvmonjo/dietator/compare/v1.16.0...v1.16.1) (2025-12-21)
 
 
