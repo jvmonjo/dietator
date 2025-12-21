@@ -19,8 +19,17 @@ const serviceStore = useServiceStore()
 const toast = useToast()
 
 const page = ref(1)
-const itemsPerPage = 10
+const itemsPerPage = ref(10)
 const searchQuery = ref('')
+
+const pageOptions = [
+  { label: '5 per pàgina', value: 5 },
+  { label: '10 per pàgina', value: 10 },
+  { label: '20 per pàgina', value: 20 },
+  { label: '50 per pàgina', value: 50 },
+  { label: '100 per pàgina', value: 100 },
+  { label: 'Tots', value: 1000000 }
+]
 
 const filteredRecords = computed(() => {
   if (!searchQuery.value) return props.records
@@ -39,19 +48,20 @@ const filteredRecords = computed(() => {
 
 const recordCount = computed(() => filteredRecords.value.length)
 const hasRecords = computed(() => recordCount.value > 0)
-const totalPages = computed(() => Math.ceil(recordCount.value / itemsPerPage))
+const totalPages = computed(() => Math.ceil(recordCount.value / itemsPerPage.value))
 
 const tableData = computed(() => {
   return filteredRecords.value.slice().sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
 })
 
-
-
-
+// Reset page when search or items per page changes
+watch([searchQuery, itemsPerPage], () => {
+  page.value = 1
+})
 
 const paginatedData = computed(() => {
-  const start = (page.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
+  const start = (page.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
   return tableData.value.slice(start, end)
 })
 
@@ -245,8 +255,21 @@ const formatMunicipality = (name: string) => {
           </template>
         </UTable>
 
-        <div v-if="totalPages > 1" class="flex justify-center border-t border-gray-200 dark:border-gray-800 pt-4">
+        <div v-if="recordCount > 5" class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-200 dark:border-gray-800 pt-4">
+          <div class="text-sm text-gray-500 dark:text-gray-400">
+             <USelect
+              v-model="itemsPerPage"
+              :items="pageOptions"
+              option-attribute="label"
+              value-attribute="value"
+              size="xs"
+              color="neutral"
+              variant="outline"
+             />
+          </div>
+
           <UPagination
+            v-if="totalPages > 1"
             v-model:page="page"
             :page-count="itemsPerPage"
             :total="recordCount"
