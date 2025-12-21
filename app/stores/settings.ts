@@ -11,6 +11,12 @@ export interface TemplateFile {
   updatedAt: string
 }
 
+export interface CalendarConfig {
+  day: number
+  time: string
+  isRecurring: boolean
+}
+
 interface SettingsState {
   halfDietPrice: number
   fullDietPrice: number
@@ -21,6 +27,7 @@ interface SettingsState {
   firstName?: string
   lastName?: string
   nationalId?: string
+  reminder: CalendarConfig
 }
 
 const settingsStorage = piniaPluginPersistedstate.localStorage()
@@ -35,7 +42,12 @@ export const useSettingsStore = defineStore('settings', {
     googleMapsApiKey: '',
     firstName: '',
     lastName: '',
-    nationalId: ''
+    nationalId: '',
+    reminder: {
+      day: 25,
+      time: '09:00',
+      isRecurring: true
+    }
   }),
   actions: {
     updateDietPrices(prices: { half: number, full: number }) {
@@ -64,6 +76,9 @@ export const useSettingsStore = defineStore('settings', {
       this.firstName = settings.firstName || ''
       this.lastName = settings.lastName || ''
       this.nationalId = settings.nationalId || ''
+      if (settings.reminder) {
+        this.reminder = settings.reminder
+      }
     }
   },
   persist: {

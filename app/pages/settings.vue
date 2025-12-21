@@ -4,6 +4,8 @@ import type { ServiceRecord } from '~/stores/services'
 import { encryptBackup, decryptBackup, isEncryptedBackup, type BackupPayload } from '~/utils/secureBackup'
 
 import { validateSpanishId } from 'spain-id'
+import { generateGoogleCalendarUrl, generateIcsFile } from '~/utils/calendarGenerator'
+import { saveAs } from 'file-saver'
 
 const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
@@ -23,7 +25,10 @@ const formState = reactive({
   googleMapsApiKey: settingsStore.googleMapsApiKey || '',
   firstName: settingsStore.firstName || '',
   lastName: settingsStore.lastName || '',
-  nationalId: settingsStore.nationalId || ''
+  nationalId: settingsStore.nationalId || '',
+  reminderDay: settingsStore.reminder?.day || 1,
+  reminderTime: settingsStore.reminder?.time || '09:00',
+  reminderRecurring: settingsStore.reminder?.isRecurring ?? true
 })
 
 const exportState = reactive({
@@ -123,7 +128,15 @@ const saveSettings = () => {
     lastName: formState.lastName,
     nationalId: formState.nationalId.toUpperCase()
   })
-  settingsStore.$patch({ googleMapsApiKey: formState.googleMapsApiKey })
+
+  settingsStore.$patch({ 
+    googleMapsApiKey: formState.googleMapsApiKey,
+    reminder: {
+      day: formState.reminderDay,
+      time: formState.reminderTime,
+      isRecurring: formState.reminderRecurring
+    }
+  })
   toast.add({ title: 'Configuració guardada', color: 'success' })
 }
 
@@ -502,6 +515,24 @@ const formatBytes = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
+const dayOptions = Array.from({ length: 31 }, (_, i) => ({ label: String(i + 1), value: i + 1 }))
+
+const exportCalendar = (type: 'google' | 'ics') => {
+  const config = {
+    day: formState.reminderDay,
+    time: formState.reminderTime,
+    isRecurring: formState.reminderRecurring
+  }
+
+  if (type === 'google') {
+    const url = generateGoogleCalendarUrl(config)
+    window.open(url, '_blank')
+  } else {
+    const blob = generateIcsFile(config)
+    saveAs(blob, 'recordatori-dietator.ics')
+  }
+}
+
 const formatTimestamp = (value?: string) => {
   if (!value) return '—'
   const date = new Date(value)
@@ -725,6 +756,59 @@ const formatTimestamp = (value?: string) => {
             Encara no hi ha cap plantilla individual guardada.
           </div>
         </section>
+      </div>
+    </UCard>
+
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+            <UIcon name="i-heroicons-calendar" class="w-6 h-6 text-primary-500" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recordatoris</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Configura un esdeveniment al calendari per recordar generar els documents.</p>
+          </div>
+        </div>
+      </template>
+
+      <div class="space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <UFormField label="Dia del mes" name="reminderDay">
+             <USelect v-model="formState.reminderDay" :items="dayOptions" />
+          </UFormField>
+          
+          <UFormField label="Hora" name="reminderTime">
+            <UInput v-model="formState.reminderTime" type="time" />
+          </UFormField>
+
+          <div class="sm:col-span-2">
+            <UCheckbox
+              v-model="formState.reminderRecurring"
+              label="Repetir cada mes"
+              help="L'esdeveniment es crearà amb una regla de repetició mensual."
+            />
+          </div>
+        </div>
+        
+        <USeparator />
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <UButton
+            icon="i-simple-icons-googlecalendar"
+            variant="soft"
+            @click="exportCalendar('google')"
+          >
+            Afegir a Google Calendar
+          </UButton>
+          <UButton
+            icon="i-heroicons-calendar-days"
+            variant="outline"
+            @click="exportCalendar('ics')"
+          >
+            Descarregar ICS (Apple/Outlook)
+          </UButton>
+        </div>
       </div>
     </UCard>
 
