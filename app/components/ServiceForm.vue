@@ -142,9 +142,26 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
                   })
               }
             }
-      } catch (e) {
+      } catch (e: any) {
           console.error('Error calculating distance', e)
-          toast.add({ title: 'Error calculant distància', color: 'warning' })
+          
+          let title = 'Error calculant distància'
+          let description = ''
+
+          const msg = e.message || e.toString()
+
+          if (msg.includes('REQUEST_DENIED') || msg.includes('ApiNotActivatedMapError')) {
+              title = 'API Key incorrecta'
+              description = 'Comprova la configuració i que l\'API Distance Matrix estigui activada.'
+          } else if (msg.includes('OVER_QUERY_LIMIT')) {
+              title = 'Quota superada'
+              description = 'S\'ha superat el límit de peticions de Google Maps.'
+          } else if (msg.includes('ZERO_RESULTS') || msg.includes('NOT_FOUND')) {
+              title = 'Ruta no trobada'
+              description = 'No s\'ha trobat una ruta per carretera entre els punts indicats.'
+          }
+
+          toast.add({ title, description, color: 'warning' })
       }
   }
 

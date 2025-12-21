@@ -97,14 +97,20 @@ export const useDistanceCalculator = () => {
             })
 
             const element = result.rows[0]?.elements[0]
-            if (element && element.status === 'OK') {
-                // value is in meters
-                const km = Math.round((element.distance.value / 1000) * 100) / 100
-                distancesStore.setDistance(origin, destination, km)
-                return { distance: km, source: 'api' }
+            if (element) {
+                if (element.status === 'OK') {
+                    // value is in meters
+                    const km = Math.round((element.distance.value / 1000) * 100) / 100
+                    distancesStore.setDistance(origin, destination, km)
+                    return { distance: km, source: 'api' }
+                } else {
+                    // Element level error (e.g. ZERO_RESULTS for this specific pair)
+                    throw new Error(element.status)
+                }
             }
         } catch (error) {
             console.error('Error fetching distance:', error)
+            throw error // Re-throw to be handled by the caller
         }
 
         return null
