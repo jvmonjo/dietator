@@ -44,7 +44,7 @@ export const useSettingsStore = defineStore('settings', {
     lastName: '',
     nationalId: '',
     reminder: {
-      day: 25,
+      day: 1,
       time: '09:00',
       isRecurring: true
     }
