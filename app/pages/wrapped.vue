@@ -83,7 +83,17 @@ const handleBackup = async () => {
         // Filter records for that year
         const records = serviceStore.records.filter(r => new Date(r.startTime).getFullYear() === year)
         
-        const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' })
+        // Create a standard BackupPayload
+        const payload = {
+            services: records,
+            meta: {
+                type: 'data',
+                month: 'all', // Treating yearly export as "all" for simplicity or could specific 'year' if supported
+                year: year.toString() // Custom metadata
+            }
+        }
+        
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
         saveAs(blob, `dietator-backup-${year}.json`)
         
         toast.add({ title: 'Còpia de seguretat descarregada', color: 'success' })

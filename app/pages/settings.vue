@@ -314,6 +314,12 @@ const prepareImport = async () => {
     let payload: BackupPayload
     if (isEncryptedBackup(parsed)) {
       payload = await decryptBackup(importState.password, parsed)
+    } else if (Array.isArray(parsed)) {
+      // Legacy backup support (raw array from old Wrapped export)
+      payload = {
+        services: parsed as any[], // Type cast for legacy array
+        meta: { type: 'data', month: 'all' }
+      }
     } else {
       payload = parsed as BackupPayload
     }
