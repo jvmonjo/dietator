@@ -1,3 +1,11 @@
+## [1.16.1](https://github.com/jvmonjo/dietator/compare/v1.16.0...v1.16.1) (2025-12-21)
+
+
+### Bug Fixes
+
+* display total income with explicit euro symbol and `formatNumber` instead of `formatCurrency` ([42e9c1d](https://github.com/jvmonjo/dietator/commit/42e9c1d80285a602ec849f2d62a24ec70723df53))
+* standardize wrapped data export to BackupPayload and support legacy array imports. ([051a399](https://github.com/jvmonjo/dietator/commit/051a3998cd6b317c3a393a9b5e250e3df5aeedcd))
+
 # [1.16.0](https://github.com/jvmonjo/dietator/compare/v1.15.0...v1.16.0) (2025-12-21)
 
 
