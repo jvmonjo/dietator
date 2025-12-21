@@ -1,3 +1,12 @@
+# [1.15.0](https://github.com/jvmonjo/dietator/compare/v1.14.0...v1.15.0) (2025-12-21)
+
+
+### Features
+
+* implement annual wrapped statistics with new page, calculation composable, PDF export, and homepage card. ([6ff1184](https://github.com/jvmonjo/dietator/commit/6ff1184d8cef2a6a22d0d64d1e9a4576a7f21b60))
+* Implement calendar reminder configuration and export to Google Calendar or ICS. ([97d4ffd](https://github.com/jvmonjo/dietator/commit/97d4ffd7060004b6c05053cc8c57edd03430921d))
+* Introduce structured help section with dedicated pages for Google Maps API and Word templates, replacing the old help page. ([57fb435](https://github.com/jvmonjo/dietator/commit/57fb43585af25785e8f9dc465a21b965fbf99dd6))
+
 # [1.14.0](https://github.com/jvmonjo/dietator/compare/v1.13.3...v1.14.0) (2025-12-20)
 
 
