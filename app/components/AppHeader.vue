@@ -20,6 +20,10 @@ const links = [
   {
     label: 'Configuració',
     to: '/settings'
+  },
+  {
+    label: 'Ajuda',
+    to: '/help'
   }
 ]
 </script>

@@ -597,14 +597,20 @@ const formatTimestamp = (value?: string) => {
         </div>
       </template>
       <UForm :state="formState" class="space-y-6" @submit="saveSettings">
-        <UFormField label="Google Maps API Key" name="googleMapsApiKey" help="Necessari per al càlcul automàtic de quilòmetres.">
-            <UInput
-              v-model="formState.googleMapsApiKey"
-              type="password"
-              icon="i-heroicons-key"
-              placeholder="AIza..."
-            />
-          </UFormField>
+        <UFormField label="Google Maps API Key" name="googleMapsApiKey">
+          <UInput
+            v-model="formState.googleMapsApiKey"
+            type="password"
+            icon="i-heroicons-key"
+            placeholder="AIza..."
+          />
+          <template #help>
+            Necessari per al càlcul automàtic de quilòmetres.
+            <NuxtLink to="/help/maps" class="text-primary-500 hover:underline ml-1">
+              Com obtenir-la?
+            </NuxtLink>
+          </template>
+        </UFormField>
       </UForm>
     </UCard>
 
@@ -617,7 +623,7 @@ const formatTimestamp = (value?: string) => {
           <div>
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Plantilles Word</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">Puja la plantilla `.docx` per generar els documents des d'aquesta aplicació.</p>
-            <NuxtLink to="/help" class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
+            <NuxtLink to="/help/templates" class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
               <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" />
               Veure ajudes i variables disponibles
             </NuxtLink>
