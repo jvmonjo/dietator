@@ -172,7 +172,8 @@ const buildSettingsPayload = (includeTemplates: boolean) => ({
   googleMapsApiKey: settingsStore.googleMapsApiKey,
   firstName: settingsStore.firstName,
   lastName: settingsStore.lastName,
-  nationalId: settingsStore.nationalId
+  nationalId: settingsStore.nationalId,
+  distancesCache: distancesStore.cache
 })
 
 
@@ -275,6 +276,11 @@ const processImport = async (payload: BackupPayload) => {
     formState.firstName = settingsStore.firstName || ''
     formState.lastName = settingsStore.lastName || ''
     formState.nationalId = settingsStore.nationalId || ''
+    formState.nationalId = settingsStore.nationalId || ''
+  }
+
+  if (payload.distancesCache) {
+      distancesStore.$patch({ cache: payload.distancesCache })
   }
 
   const description = services && settings
@@ -317,7 +323,7 @@ const prepareImport = async () => {
     } else if (Array.isArray(parsed)) {
       // Legacy backup support (raw array from old Wrapped export)
       payload = {
-        services: parsed as any[], // Type cast for legacy array
+        services: parsed as ServiceRecord[], // Use proper type instead of any
         meta: { type: 'data', month: 'all' }
       }
     } else {

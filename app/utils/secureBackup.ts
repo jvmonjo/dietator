@@ -12,6 +12,7 @@ interface SettingsSnapshot {
 export interface BackupPayload {
   services?: ServiceRecord[]
   settings?: SettingsSnapshot
+  distancesCache?: Record<string, number>
   meta?: {
     month?: string
     type?: 'config' | 'data' | 'full'
