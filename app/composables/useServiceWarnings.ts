@@ -66,6 +66,20 @@ export const useServiceWarnings = () => {
             }
         }
 
+        const startHour = start.getHours()
+        const startMinutes = start.getMinutes()
+        const startTotalMinutes = startHour * 60 + startMinutes
+
+        // 4. Start > 16:00 && hasLunch
+        // 16:00 = 16 * 60 = 960 minutes
+        const hasLunch = displacements.some(d => d.hasLunch)
+        if (startTotalMinutes > 960 && hasLunch) {
+            warnings.push({
+                message: "Inici del servei posterior a les 16:00. Comprova si realment et correspon dieta de dinar.",
+                type: 'warning'
+            })
+        }
+
         return warnings
     }
 
