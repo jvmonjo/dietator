@@ -155,7 +155,10 @@ const handlePdf = async () => {
             <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="col-span-2 sm:col-span-1 bg-gray-800/40 p-6 rounded-3xl border border-gray-700/50 backdrop-blur-md hover:scale-105 transition-transform duration-300">
                     <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Total Ingressos</div>
-                    <div class="text-2xl lg:text-4xl font-black text-emerald-400 break-words">{{ formatCurrency(stats.totalIncome) }}</div>
+                    <div class="flex items-baseline gap-1 flex-wrap">
+                        <span class="text-2xl lg:text-4xl font-black text-emerald-400">{{ formatNumber(stats.totalIncome) }}</span>
+                        <span class="text-lg lg:text-xl text-emerald-500 font-bold">€</span>
+                    </div>
                 </div>
                 <div class="bg-gray-800/40 p-6 rounded-3xl border border-gray-700/50 backdrop-blur-md hover:scale-105 transition-transform duration-300 delay-75">
                     <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Hores</div>
