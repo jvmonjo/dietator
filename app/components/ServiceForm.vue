@@ -142,13 +142,13 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
                   })
               }
             }
-      } catch (e: any) {
+      } catch (e: unknown) {
           console.error('Error calculating distance', e)
           
           let title = 'Error calculant distància'
           let description = ''
 
-          const msg = e.message || e.toString()
+          const msg = e instanceof Error ? e.message : String(e)
 
           if (msg.includes('REQUEST_DENIED') || msg.includes('ApiNotActivatedMapError')) {
               title = 'API Key incorrecta'

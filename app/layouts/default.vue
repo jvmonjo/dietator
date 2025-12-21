@@ -30,24 +30,28 @@ const refreshApp = () => {
 const dismissUpdateBanner = () => {
   swNeedsRefresh.value = false
 }
+
+const openChangelog = () => {
+  window.open('https://github.com/jvmonjo/dietator/releases', '_blank')
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
-    <div v-if="swNeedsRefresh" class="bg-yellow-50/80 dark:bg-yellow-900/40 border-b border-yellow-300 dark:border-yellow-700">
-      <div class="container mx-auto px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p class="text-sm font-semibold text-yellow-800 dark:text-white">Nova versió disponible</p>
-          <p class="text-xs text-yellow-700 dark:text-yellow-200">
-            Hi ha actualitzacions a Dietator. Torna a carregar la pàgina per veure els canvis.
-          </p>
-        </div>
-        <div class="flex gap-2 justify-end">
-          <UButton size="sm" color="primary" @click="refreshApp">Actualitza</UButton>
-          <UButton size="sm" variant="ghost" color="neutral" @click="dismissUpdateBanner">Tancar</UButton>
-        </div>
-      </div>
-    </div>
+    <UAlert
+      v-if="swNeedsRefresh"
+      icon="i-heroicons-arrow-path"
+      color="primary"
+      variant="soft"
+      title="Nova versió disponible"
+      description="Hi ha actualitzacions a Dietator. Fes click a actualitza per tindre la darrera versió."
+      :actions="[
+        { label: 'Actualitza', onClick: refreshApp, color: 'primary', variant: 'solid' },
+        { label: 'Veure canvis', onClick: openChangelog, variant: 'link' },
+        { label: 'Tancar', onClick: dismissUpdateBanner, variant: 'ghost', color: 'neutral' }
+      ]"
+      class="rounded-none border-t-0 border-x-0 border-b"
+    />
 
     <!-- Header -->
     <AppHeader />
