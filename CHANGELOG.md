@@ -1,3 +1,16 @@
+# [1.16.0](https://github.com/jvmonjo/dietator/compare/v1.15.0...v1.16.0) (2025-12-21)
+
+
+### Bug Fixes
+
+* Add warning for lunch diet on services starting after 4 PM. ([d4a03a3](https://github.com/jvmonjo/dietator/commit/d4a03a382fd0964e0108b788fa9861ad1b8c0600))
+* propagate specific distance calculation errors and display tailored user messages ([33c81e0](https://github.com/jvmonjo/dietator/commit/33c81e06b13b945c31fbd1306111c0479dc8d823))
+
+
+### Features
+
+* Rework PWA update notification to a UAlert banner with changelog link and improve error handling type safety. ([c671f6f](https://github.com/jvmonjo/dietator/commit/c671f6fb06dbcdf1de4e44ef0ca9abc32281d66b))
+
 # [1.15.0](https://github.com/jvmonjo/dietator/compare/v1.14.0...v1.15.0) (2025-12-21)
 
 
