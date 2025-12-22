@@ -1,5 +1,5 @@
 import JSZip from 'jszip'
-import * as FileSaver from 'file-saver'
+
 import type { MonthOption, ServiceTotals } from '~/composables/useServiceStats'
 import type { ServiceRecord } from '~/stores/services'
 import type { TemplateFile } from '~/stores/settings'
@@ -127,7 +127,8 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
     archive.file(file.filename, file.blob)
   })
   const zipBlob = await archive.generateAsync({ type: 'blob' })
-  FileSaver.saveAs(zipBlob, `${options.month.value}-documents-dietator.zip`)
+  const zipFilename = `${options.month.value}-documents-dietator.zip`
+  return { blob: zipBlob, filename: zipFilename }
 }
 
 const buildContexts = (options: GenerateWordReportOptions) => {

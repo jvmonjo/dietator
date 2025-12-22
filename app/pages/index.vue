@@ -40,7 +40,7 @@ const availableYears = computed(() => {
 
 const activeMonth = computed<MonthOption | null>(() => {
   if (selectedMonthValue.value === 0) return null
-  
+
   const monthLabel = months.find(m => m.value === selectedMonthValue.value)?.label
   return {
     value: `${selectedYear.value}-${String(selectedMonthValue.value).padStart(2, '0')}`,
@@ -52,7 +52,7 @@ const showAllMonths = computed(() => selectedMonthValue.value === 0)
 const selectedMonth = computed(() => activeMonth.value) // Alias for compatibility
 
 const selectedRecords = computed(() => {
-    return getRecordsForMonth(activeMonth.value?.value ?? null)
+  return getRecordsForMonth(activeMonth.value?.value ?? null)
 })
 
 const selectionTotals = computed(() => calculateTotals(selectedRecords.value))
@@ -120,8 +120,8 @@ const formatHours = (value: number) => `${hoursFormatter.format(value || 0)} h`
 const formatWeeks = (value: number) => weeksFormatter.format(value || 0)
 
 const selectedMonthLabel = computed(() => {
-    if (showAllMonths.value) return 'Tots els mesos'
-    return activeMonth.value?.label ?? 'Mes actual'
+  if (showAllMonths.value) return 'Tots els mesos'
+  return activeMonth.value?.label ?? 'Mes actual'
 })
 const hasTemplates = computed(() => Boolean(settingsStore.monthlyTemplate || settingsStore.serviceTemplate))
 const dietPriceSet = computed(() => settingsStore.fullDietPrice > 0 || settingsStore.halfDietPrice > 0)
@@ -145,7 +145,7 @@ const exportReport = async () => {
   }
 
   try {
-    await generateWordReport({
+    const result = await generateWordReport({
       records: selectedRecords.value,
       totals: selectionTotals.value,
       month: selectedMonth.value,
@@ -161,7 +161,43 @@ const exportReport = async () => {
         service: settingsStore.serviceTemplate
       }
     })
-    toast.add({ title: 'Documents generats correctament', color: 'success' })
+
+    if (!result) return
+
+    const { blob, filename } = result
+    const file = new File([blob], filename, { type: blob.type })
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'Documents Dietator',
+          text: `Documents del mes ${selectedMonth.value.label}`
+        })
+        toast.add({ title: 'Documents compartits correctament', color: 'success' })
+        return
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          // Continue to fallback
+          if ((err as Error).name === 'NotAllowedError') {
+            toast.add({ title: 'Compartició no permesa, descarregant...', color: 'info' })
+          }
+        } else {
+          // User cancelled share
+          return
+        }
+      }
+    }
+
+    // Fallback download
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    link.click()
+    URL.revokeObjectURL(url)
+    toast.add({ title: 'Documents exportats correctament', color: 'success' })
+
   } catch (error) {
     console.error(error)
     toast.add({ title: 'No s\'han pogut generar els documents', color: 'error' })
@@ -170,54 +206,49 @@ const exportReport = async () => {
 const showWelcome = ref(true)
 
 const dismissWelcome = () => {
-    showWelcome.value = false
-    try {
-        localStorage.setItem('dietator_welcome_dismissed', 'true')
-    } catch {
-        // Ignore storage errors
-    }
+  showWelcome.value = false
+  try {
+    localStorage.setItem('dietator_welcome_dismissed', 'true')
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 onMounted(() => {
-    try {
-        if (localStorage.getItem('dietator_welcome_dismissed') === 'true') {
-            showWelcome.value = false
-        }
-    } catch {
-        // Ignore storage errors
+  try {
+    if (localStorage.getItem('dietator_welcome_dismissed') === 'true') {
+      showWelcome.value = false
     }
+  } catch {
+    // Ignore storage errors
+  }
 })
 </script>
 
 <template>
   <div class="space-y-8">
     <!-- Hero Section -->
-    <div v-if="showWelcome" class="relative bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 sm:p-12">
-        <UButton
-            icon="i-heroicons-x-mark"
-            color="neutral"
-            variant="ghost"
-            class="absolute top-4 right-4"
-            @click="dismissWelcome"
-        />
-        <section class="text-center space-y-4">
-            <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                Benvingut a <span class="text-primary-500">Dietator</span>
-            </h1>
-            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                Gestiona els teus serveis i dietes de manera completament local. Dietator no guarda dades a cap servidor i funciona completament sense connexió a internet.
-            </p>
-        </section>
+    <div
+v-if="showWelcome"
+      class="relative bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 sm:p-12">
+      <UButton
+icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
+        @click="dismissWelcome" />
+      <section class="text-center space-y-4">
+        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+          Benvingut a <span class="text-primary-500">Dietator</span>
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          Gestiona els teus serveis i dietes de manera completament local. Dietator no guarda dades a cap servidor i
+          funciona completament sense connexió a internet.
+        </p>
+      </section>
     </div>
 
     <UAlert
-      v-if="!dietPriceSet"
-      color="warning"
-      icon="i-heroicons-exclamation-triangle"
-      variant="subtle"
+v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
       title="Afegeix el preu de la dieta"
-      description="Configura el preu per poder calcular correctament els totals i generar documents."
-    />
+      description="Configura el preu per poder calcular correctament els totals i generar documents." />
 
     <section>
       <UCard>
@@ -238,26 +269,14 @@ onMounted(() => {
             </p>
           </div>
           <div class="grid grid-cols-2 sm:flex sm:items-center gap-3 w-full sm:w-auto">
-             <USelect
-                v-model="selectedMonthValue"
-                :items="months"
-                option-attribute="label"
-                value-attribute="value"
-                class="w-full sm:min-w-[140px]"
-             />
-             <USelect
-                v-model="selectedYear"
-                :items="availableYears"
-                class="w-full sm:w-[100px]"
-             />
+            <USelect
+v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
+              class="w-full sm:min-w-[140px]" />
+            <USelect v-model="selectedYear" :items="availableYears" class="w-full sm:w-[100px]" />
             <UButton
-              icon="i-heroicons-document-arrow-down"
-              color="primary"
-              :disabled="!canExportReport"
-              class="col-span-2 sm:w-auto flex justify-center"
-              @click="exportReport"
-            >
-              Generar
+icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
+              class="col-span-2 sm:w-auto flex justify-center" @click="exportReport">
+              Exportar
             </UButton>
           </div>
         </div>
@@ -266,11 +285,7 @@ onMounted(() => {
 
     <!-- Registered Services -->
     <section>
-      <ServiceList
-        title="Serveis registrats"
-        :description="serviceListDescription"
-        :records="selectedRecords"
-      />
+      <ServiceList title="Serveis registrats" :description="serviceListDescription" :records="selectedRecords" />
     </section>
 
     <!-- Worked Hours -->
@@ -315,46 +330,52 @@ onMounted(() => {
       </UCard>
       <UCard>
         <div class="text-center">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Import {{ selectedMonthLabel.toLowerCase() }}</div>
-          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(selectionTotals.allowance || 0) }}</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Import {{
+            selectedMonthLabel.toLowerCase() }}</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(selectionTotals.allowance || 0) }}
+          </div>
         </div>
       </UCard>
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Preus configurats</div>
-          <p class="text-base text-gray-800 dark:text-gray-200">Completa: {{ formatCurrency(settingsStore.fullDietPrice || 0) }}</p>
-          <p class="text-base text-gray-800 dark:text-gray-200">Mitja: {{ formatCurrency(settingsStore.halfDietPrice || 0) }}</p>
+          <p class="text-base text-gray-800 dark:text-gray-200">Completa: {{ formatCurrency(settingsStore.fullDietPrice
+            || 0) }}</p>
+          <p class="text-base text-gray-800 dark:text-gray-200">Mitja: {{ formatCurrency(settingsStore.halfDietPrice ||
+            0) }}</p>
         </div>
       </UCard>
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Kilòmetres</div>
-          <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.kilometers?.toLocaleString('ca-ES') ?? 0 }} <span class="text-sm font-normal text-gray-500">km</span></div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.kilometers?.toLocaleString('ca-ES')
+            ?? 0 }} <span class="text-sm font-normal text-gray-500">km</span></div>
           <p class="text-xs text-gray-400">
-             Mitjana: {{ averageKmPerService.toLocaleString('ca-ES', { maximumFractionDigits: 1 }) }} km/servei
+            Mitjana: {{ averageKmPerService.toLocaleString('ca-ES', { maximumFractionDigits: 1 }) }} km/servei
           </p>
         </div>
       </UCard>
-      
+
       <!-- Year in Review Card -->
-      <UCard 
-        v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
+      <UCard
+v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
         class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all group relative overflow-hidden"
-        @click="navigateTo('/wrapped')"
-      >
+        @click="navigateTo('/wrapped')">
         <!-- Background Decoration -->
-        <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-        
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+
         <div class="text-center space-y-2 relative z-10">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center justify-center gap-1">
-             <UIcon name="i-heroicons-sparkles" class="text-yellow-500 w-4 h-4" />
-             Resum Anual
+          <div
+            class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center justify-center gap-1">
+            <UIcon name="i-heroicons-sparkles" class="text-yellow-500 w-4 h-4" />
+            Resum Anual
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors">
             El teu {{ new Date().getFullYear() }}
           </div>
           <p class="text-xs text-gray-400">
-             Descobreix les teues estadístiques
+            Descobreix les teues estadístiques
           </p>
         </div>
       </UCard>
