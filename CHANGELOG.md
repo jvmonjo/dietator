@@ -1,3 +1,21 @@
+# [1.17.0](https://github.com/jvmonjo/dietator/compare/v1.16.2...v1.17.0) (2025-12-22)
+
+
+### Bug Fixes
+
+* add icon client bundle configuration ([541c9ee](https://github.com/jvmonjo/dietator/commit/541c9ee25dd3f0605df85421a4fdc063c6cdc219))
+* Add yearly data export functionality to settings page and remove it from the wrapped page. ([04093a5](https://github.com/jvmonjo/dietator/commit/04093a59e127d92f220d8ac5474fd2fe15223223))
+* calculate weekly averages based on active weeks derived from records instead of active months ([a70204d](https://github.com/jvmonjo/dietator/commit/a70204dce458f318e48c4807314d10a3f88a390a))
+* display route for most km day in wrapped stats, enhance settings page UI, and scope heading styles ([a944362](https://github.com/jvmonjo/dietator/commit/a9443623e80328eaaeab9ede8e4b94778ee186e6))
+
+
+### Features
+
+* Add and integrate a PWA installation banner component into the default layout. ([bf55118](https://github.com/jvmonjo/dietator/commit/bf551186f3cb2ce3a39e397d5c42723a45a78817))
+* add dedicated help pages for 'About Dietator' and 'PWA Installation' while refactoring the main help index. ([8181bb0](https://github.com/jvmonjo/dietator/commit/8181bb0501bab52c47465a3dd2c6914ed5a24b9e))
+* Add file sharing functionality for backup exports and update UI buttons to use share icon and method. ([fdca524](https://github.com/jvmonjo/dietator/commit/fdca524e1d261a7e95e0c25b547ed8245db17cd1))
+* Include application URL in generated Google Calendar and ICS event descriptions. ([6f8a5a3](https://github.com/jvmonjo/dietator/commit/6f8a5a3d9005bb28f906f547d7b07ee4f1595c02))
+
 ## [1.16.2](https://github.com/jvmonjo/dietator/compare/v1.16.1...v1.16.2) (2025-12-21)
 
 
