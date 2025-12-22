@@ -566,14 +566,11 @@ const exportCalendar = (type: 'google' | 'ics') => {
     isRecurring: formState.reminderRecurring
   }
 
-  const runtimeConfig = useRuntimeConfig()
-  const baseUrl = `${window.location.origin}${runtimeConfig.app.baseURL}`
-
   if (type === 'google') {
-    const url = generateGoogleCalendarUrl(config, baseUrl)
+    const url = generateGoogleCalendarUrl(config)
     window.open(url, '_blank')
   } else {
-    const blob = generateIcsFile(config, baseUrl)
+    const blob = generateIcsFile(config)
     saveAs(blob, 'recordatori-dietator.ics')
   }
 }

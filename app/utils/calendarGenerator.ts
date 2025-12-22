@@ -25,15 +25,12 @@ function formatDateToGoogle(date: Date): string {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
 }
 
-export function generateGoogleCalendarUrl(config: CalendarConfig, appUrl?: string): string {
+export function generateGoogleCalendarUrl(config: CalendarConfig): string {
     const startDate = getNextDate(config.day, config.time)
     // End date is 30 mins later
     const endDate = new Date(startDate.getTime() + 30 * 60000)
 
-    let description = EVENT_DESCRIPTION
-    if (appUrl) {
-        description += `\n\nAccedir a l'aplicació: ${appUrl}`
-    }
+    const description = 'Accedeix a Dietator per generar i enviar els documents de dietes i desplaçaments del mes.'
 
     const params = new URLSearchParams({
         action: 'TEMPLATE',
@@ -49,15 +46,12 @@ export function generateGoogleCalendarUrl(config: CalendarConfig, appUrl?: strin
     return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
 
-export function generateIcsFile(config: CalendarConfig, appUrl?: string): Blob {
+export function generateIcsFile(config: CalendarConfig): Blob {
     const startDate = getNextDate(config.day, config.time)
     const endDate = new Date(startDate.getTime() + 30 * 60000)
     const now = new Date()
 
-    let description = EVENT_DESCRIPTION
-    if (appUrl) {
-        description += `\\n\\nAccedir a l'aplicació: ${appUrl}`
-    }
+    const description = 'Accedeix a Dietator per generar i enviar els documents de dietes i desplaçaments del mes.'
 
     const lines = [
         'BEGIN:VCALENDAR',
