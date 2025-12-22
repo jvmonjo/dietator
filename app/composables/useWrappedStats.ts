@@ -117,12 +117,37 @@ export const useWrappedStats = () => {
         }
 
 
-        // Weekly Average based on ACTIVE months only
-        const activeMonthsCount = months.filter(m => m.hours > 0).length
-        const totalWeeks = activeMonthsCount * 4.345 // Average weeks per month
-        const weeklyAverageHours = activeMonthsCount > 0 ? totalHours / totalWeeks : 0
-        const weeklyAverageServices = activeMonthsCount > 0 ? totalServices / totalWeeks : 0
-        const weeklyAverageKm = activeMonthsCount > 0 ? totalKm / totalWeeks : 0
+        const activeWeeksSet = new Set<string>()
+
+        // Helper to get ISO week key (YYYY-Www)
+        const getWeekKey = (date: Date) => {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+            const dayNum = d.getUTCDay() || 7
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+            const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+            return `${d.getUTCFullYear()}-W${weekNo}`
+        }
+
+        records.forEach(r => {
+            const d = new Date(r.startTime)
+            if (!Number.isNaN(d.getTime())) {
+                activeWeeksSet.add(getWeekKey(d))
+            }
+        })
+
+        // Weekly Average based on ACTIVE WEEKS only
+        // Fallback to activeMonths estimation only if weeks calculation fails strangely (shouldn't happen with records > 0)
+        // But if records > 0, activeWeeksSet.size should be > 0.
+
+        const totalWeeks = activeWeeksSet.size > 0 ? activeWeeksSet.size : 1
+
+        // If there are no records, averages are 0.
+        const hasRecords = records.length > 0
+
+        const weeklyAverageHours = hasRecords ? totalHours / totalWeeks : 0
+        const weeklyAverageServices = hasRecords ? totalServices / totalWeeks : 0
+        const weeklyAverageKm = hasRecords ? totalKm / totalWeeks : 0
         const totalDaysNonStop = totalHours / 24
         const avgHoursPerService = totalServices > 0 ? totalHours / totalServices : 0
         const avgKmPerService = totalServices > 0 ? totalKm / totalServices : 0
