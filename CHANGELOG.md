@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/jvmonjo/dietator/compare/v1.17.0...v1.18.0) (2025-12-22)
+
+
+### Features
+
+* Enhance document export with Web Share API integration, including a download fallback and UI updates. ([fe69489](https://github.com/jvmonjo/dietator/commit/fe69489bc0c8acdaa5ddc958976e11970b4fd1af))
+
 # [1.17.0](https://github.com/jvmonjo/dietator/compare/v1.16.2...v1.17.0) (2025-12-22)
 
 
