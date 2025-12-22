@@ -537,10 +537,10 @@ const exportCalendar = (type: 'google' | 'ics') => {
   }
 
   if (type === 'google') {
-    const url = generateGoogleCalendarUrl(config)
+    const url = generateGoogleCalendarUrl(config, window.location.origin)
     window.open(url, '_blank')
   } else {
-    const blob = generateIcsFile(config)
+    const blob = generateIcsFile(config, window.location.origin)
     saveAs(blob, 'recordatori-dietator.ics')
   }
 }

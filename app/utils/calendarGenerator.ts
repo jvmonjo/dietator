@@ -25,15 +25,20 @@ function formatDateToGoogle(date: Date): string {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
 }
 
-export function generateGoogleCalendarUrl(config: CalendarConfig): string {
+export function generateGoogleCalendarUrl(config: CalendarConfig, appUrl?: string): string {
     const startDate = getNextDate(config.day, config.time)
     // End date is 30 mins later
     const endDate = new Date(startDate.getTime() + 30 * 60000)
 
+    let description = EVENT_DESCRIPTION
+    if (appUrl) {
+        description += `\n\nAccedir a l'aplicació: ${appUrl}`
+    }
+
     const params = new URLSearchParams({
         action: 'TEMPLATE',
         text: EVENT_TITLE,
-        details: EVENT_DESCRIPTION,
+        details: description,
         dates: `${formatDateToGoogle(startDate)}/${formatDateToGoogle(endDate)}`
     })
 
@@ -44,10 +49,15 @@ export function generateGoogleCalendarUrl(config: CalendarConfig): string {
     return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
 
-export function generateIcsFile(config: CalendarConfig): Blob {
+export function generateIcsFile(config: CalendarConfig, appUrl?: string): Blob {
     const startDate = getNextDate(config.day, config.time)
     const endDate = new Date(startDate.getTime() + 30 * 60000)
     const now = new Date()
+
+    let description = EVENT_DESCRIPTION
+    if (appUrl) {
+        description += `\\n\\nAccedir a l'aplicació: ${appUrl}`
+    }
 
     const lines = [
         'BEGIN:VCALENDAR',
@@ -60,7 +70,7 @@ export function generateIcsFile(config: CalendarConfig): Blob {
         `DTSTART:${formatDateToICS(startDate)}`,
         `DTEND:${formatDateToICS(endDate)}`,
         `SUMMARY:${EVENT_TITLE}`,
-        `DESCRIPTION:${EVENT_DESCRIPTION}`
+        `DESCRIPTION:${description}`
     ]
 
     if (config.isRecurring) {
