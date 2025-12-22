@@ -52,6 +52,7 @@ const openChangelog = () => {
       ]"
       class="rounded-none border-t-0 border-x-0 border-b"
     />
+    <PwaInstallBanner />
 
     <!-- Header -->
     <AppHeader />
