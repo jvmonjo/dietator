@@ -312,6 +312,9 @@ const handlePdf = async () => {
                         <div class="text-blue-200/80">
                             Vas recórrer <span class="font-bold text-white">{{ formatNumber(stats.mostKmDay.km) }} km</span>.
                         </div>
+                        <div v-if="stats.mostKmDay.route && stats.mostKmDay.route.length > 0" class="mt-3 pt-3 border-t border-blue-500/30 text-xs text-blue-100 font-mono leading-relaxed">
+                            <span class="opacity-70">Ruta:</span> {{ stats.mostKmDay.route.join(' → ') }}
+                        </div>
                     </div>
 
                      <div class="bg-gray-800/30 p-8 rounded-3xl border border-gray-700/50 flex flex-col justify-center items-center text-center space-y-4">

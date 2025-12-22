@@ -129,7 +129,7 @@ const saveSettings = () => {
     nationalId: formState.nationalId.toUpperCase()
   })
 
-  settingsStore.$patch({ 
+  settingsStore.$patch({
     googleMapsApiKey: formState.googleMapsApiKey,
     reminder: {
       day: formState.reminderDay,
@@ -148,7 +148,7 @@ const onFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0] ?? null
   importState.file = file
-  
+
   if (file) {
     try {
       const content = await file.text()
@@ -184,12 +184,12 @@ const buildBackupFilename = (type: 'config' | 'data', timestamp: string) => {
   if (type === 'config') {
     return `config-${timestamp}-dietator.json`
   }
-  
+
   // Data export
   if (exportState.selectedMonth !== 'all') {
     return `${exportState.selectedMonth}-dades-mensuals-dietator-${timestamp}.json`
   }
-  
+
   return `dades-dietator-${timestamp}.json`
 }
 
@@ -207,17 +207,17 @@ const exportBackup = async (type: 'config' | 'data') => {
 
   try {
     const payload: BackupPayload = {}
-    
+
     if (type === 'config') {
       payload.settings = buildSettingsPayload(exportState.includeTemplates)
       payload.meta = { type: 'config' }
     } else {
       payload.services = JSON.parse(JSON.stringify(filteredServices.value)) as ServiceRecord[]
-      payload.meta = { 
+      payload.meta = {
         type: 'data',
         month: exportState.selectedMonth
       }
-      
+
       if (!payload.services || payload.services.length === 0) {
         toast.add({ title: 'No hi ha dades per exportar', color: 'warning' })
         return
@@ -227,7 +227,7 @@ const exportBackup = async (type: 'config' | 'data') => {
 
 
     let resultBlob: Blob
-    
+
     if (exportState.encrypt) {
       const backup = await encryptBackup(exportState.password, payload)
       resultBlob = new Blob([JSON.stringify(backup)], { type: 'application/json' })
@@ -256,7 +256,7 @@ const exportBackup = async (type: 'config' | 'data') => {
 const processImport = async (payload: BackupPayload) => {
   const services = Array.isArray(payload?.services) ? payload.services : undefined
   const settings = payload?.settings
-  
+
   if (services) {
     const importMonth = payload.meta?.month ?? 'all'
     if (importMonth !== 'all') {
@@ -280,17 +280,17 @@ const processImport = async (payload: BackupPayload) => {
   }
 
   if (payload.distancesCache) {
-      distancesStore.$patch({ cache: payload.distancesCache })
+    distancesStore.$patch({ cache: payload.distancesCache })
   }
 
   const description = services && settings
     ? 'S\'han actualitzat les dades i la configuració'
     : services
-        ? 'S\'han actualitzat les dades'
-        : 'S\'ha actualitzat la configuració'
-  
+      ? 'S\'han actualitzat les dades'
+      : 'S\'ha actualitzat la configuració'
+
   toast.add({ title: 'Backup importat', description, color: 'success' })
-  
+
   // Cleanup
   importState.file = null
   if (importFileInput.value) {
@@ -316,7 +316,7 @@ const prepareImport = async () => {
   try {
     const content = await importState.file.text()
     const parsed = JSON.parse(content)
-    
+
     let payload: BackupPayload
     if (isEncryptedBackup(parsed)) {
       payload = await decryptBackup(importState.password, parsed)
@@ -329,11 +329,11 @@ const prepareImport = async () => {
     } else {
       payload = parsed as BackupPayload
     }
-    
+
     // Validate content
     const services = Array.isArray(payload?.services) ? payload.services : undefined
     const settings = payload?.settings
-    
+
     if (!services && !settings) {
       throw new Error('Backup malformat o buit')
     }
@@ -480,12 +480,12 @@ const deleteButtonLabel = computed(() => {
 
 const confirmDelete = () => {
   if (!maintenanceState.selectedYear) return
-  
+
   const year = maintenanceState.selectedYear
   const month = maintenanceState.selectedMonth
-  
+
   const title = 'Confirmar eliminació'
-  const description = month 
+  const description = month
     ? `Estàs segur que vols esborrar tots els serveis del període selecionat? Aquesta acció no es pot desfer.`
     : `Estàs segur que vols esborrar tots els serveis de l'any ${year}? Aquesta acció no es pot desfer.`
 
@@ -557,23 +557,28 @@ const formatTimestamp = (value?: string) => {
   <div class="max-w-2xl mx-auto space-y-6">
     <div class="flex items-start justify-between gap-4">
       <div class="border-b border-gray-200 dark:border-gray-800 pb-6">
-      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Configuració</h1>
-      <p class="text-gray-500 dark:text-gray-400 mt-2">
-        Gestiona les teves dades personals i preferències de l'aplicació.
-      </p>
-    </div>
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Configuració</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-2">
+          Gestiona les teves dades personals i preferències de l'aplicació.
+        </p>
+      </div>
       <div class="flex gap-2">
-         <UButton icon="i-heroicons-check-circle" @click="saveSettings">Desar configuració</UButton>
+        <UButton icon="i-heroicons-check-circle" @click="saveSettings">Desar configuració</UButton>
       </div>
     </div>
 
     <UCard>
       <template #header>
-          <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-user" class="w-5 h-5" />
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Dades Personals</h2>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+            <UIcon name="i-heroicons-user" class="w-6 h-6 text-primary-500" />
           </div>
-        </template>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Dades Personals</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Informació bàsica per als documents.</p>
+          </div>
+        </div>
+      </template>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <UFormField label="Nom" name="firstName">
           <UInput v-model="formState.firstName" placeholder="El teu nom" />
@@ -589,32 +594,27 @@ const formatTimestamp = (value?: string) => {
 
     <UCard>
       <template #header>
-          <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-currency-euro" class="w-5 h-5" />
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Preus de les dietes</h2>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+            <UIcon name="i-heroicons-currency-euro" class="w-6 h-6 text-primary-500" />
           </div>
-        </template>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Preus de les dietes</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Defineix els imports per als càlculs automàtics.</p>
+          </div>
+        </div>
+      </template>
 
       <UForm :state="formState" class="space-y-6" @submit="saveSettings">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UFormField label="Preu mitja dieta" name="halfDietPrice" >
-            <UInput
-              v-model="formState.halfDietPrice"
-              type="text"
-              icon="i-heroicons-currency-euro"
-              inputmode="decimal"
-              placeholder="0.00"
-            />
+          <UFormField label="Preu mitja dieta" name="halfDietPrice">
+            <UInput v-model="formState.halfDietPrice" type="text" icon="i-heroicons-currency-euro" inputmode="decimal"
+              placeholder="0.00" />
           </UFormField>
 
           <UFormField label="Preu dieta completa" name="fullDietPrice">
-            <UInput
-              v-model="formState.fullDietPrice"
-              type="text"
-              icon="i-heroicons-currency-euro"
-              inputmode="decimal"
-              placeholder="0.00"
-            />
+            <UInput v-model="formState.fullDietPrice" type="text" icon="i-heroicons-currency-euro" inputmode="decimal"
+              placeholder="0.00" />
           </UFormField>
         </div>
       </UForm>
@@ -634,16 +634,12 @@ const formatTimestamp = (value?: string) => {
       </template>
       <UForm :state="formState" class="space-y-6" @submit="saveSettings">
         <UFormField label="Google Maps API Key" name="googleMapsApiKey">
-          <UInput
-            v-model="formState.googleMapsApiKey"
-            type="password"
-            icon="i-heroicons-key"
-            placeholder="AIza..."
-          />
+          <UInput v-model="formState.googleMapsApiKey" type="password" icon="i-heroicons-key" placeholder="AIza..." />
           <template #help>
             Necessari per al càlcul automàtic de quilòmetres.
-            <NuxtLink to="/help/maps" class="text-primary-500 hover:underline ml-1">
-              Com obtenir-la?
+            <NuxtLink to="/help/maps"
+              class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
+              <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" /> Com obtenir-la?
             </NuxtLink>
           </template>
         </UFormField>
@@ -658,8 +654,10 @@ const formatTimestamp = (value?: string) => {
           </div>
           <div>
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Plantilles Word</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Puja la plantilla `.docx` per generar els documents des d'aquesta aplicació.</p>
-            <NuxtLink to="/help/templates" class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Puja la plantilla `.docx` per generar els documents des
+              d'aquesta aplicació.</p>
+            <NuxtLink to="/help/templates"
+              class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
               <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" />
               Veure ajudes i variables disponibles
             </NuxtLink>
@@ -672,42 +670,32 @@ const formatTimestamp = (value?: string) => {
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h3 class="text-base font-semibold text-gray-900 dark:text-white">Plantilla mensual</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">S'utilitza per generar tots els desplaçaments del mes.</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">S'utilitza per generar tots els desplaçaments del mes.
+              </p>
             </div>
             <div class="flex gap-2">
               <UButton icon="i-heroicons-folder-arrow-down" variant="soft" @click="triggerTemplateSelect('monthly')">
                 Selecciona fitxer
               </UButton>
-              <UButton
-                v-if="monthlyTemplate"
-                icon="i-heroicons-arrow-down-tray"
-                variant="ghost"
-                @click="downloadTemplate('monthly')"
-              >
+              <UButton v-if="monthlyTemplate" icon="i-heroicons-arrow-down-tray" variant="ghost"
+                @click="downloadTemplate('monthly')">
                 Descarrega
               </UButton>
-              <UButton
-                v-if="monthlyTemplate"
-                icon="i-heroicons-trash"
-                color="error"
-                variant="ghost"
-                @click="clearTemplate('monthly')"
-              >
+              <UButton v-if="monthlyTemplate" icon="i-heroicons-trash" color="error" variant="ghost"
+                @click="clearTemplate('monthly')">
                 Elimina
               </UButton>
             </div>
           </div>
-          <input
-            ref="monthlyTemplateInput"
-            type="file"
-            class="hidden"
+          <input ref="monthlyTemplateInput" type="file" class="hidden"
             accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            @change="event => onTemplateUpload('monthly', event)"
-          >
-          <div v-if="monthlyTemplate" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 space-y-1 text-sm">
+            @change="event => onTemplateUpload('monthly', event)">
+          <div v-if="monthlyTemplate"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 space-y-1 text-sm">
             <p class="font-medium text-gray-900 dark:text-white">{{ monthlyTemplate.name }}</p>
             <p class="text-gray-600 dark:text-gray-300">Tamany: {{ formatBytes(monthlyTemplate.size) }}</p>
-            <p class="text-gray-600 dark:text-gray-300">Actualitzada: {{ formatTimestamp(monthlyTemplate.updatedAt) }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Actualitzada: {{ formatTimestamp(monthlyTemplate.updatedAt) }}
+            </p>
           </div>
           <div v-else class="text-sm text-gray-500 dark:text-gray-400">
             Encara no hi ha cap plantilla mensual guardada.
@@ -726,36 +714,25 @@ const formatTimestamp = (value?: string) => {
               <UButton icon="i-heroicons-folder-arrow-down" variant="soft" @click="triggerTemplateSelect('service')">
                 Selecciona fitxer
               </UButton>
-              <UButton
-                v-if="serviceTemplate"
-                icon="i-heroicons-arrow-down-tray"
-                variant="ghost"
-                @click="downloadTemplate('service')"
-              >
+              <UButton v-if="serviceTemplate" icon="i-heroicons-arrow-down-tray" variant="ghost"
+                @click="downloadTemplate('service')">
                 Descarrega
               </UButton>
-              <UButton
-                v-if="serviceTemplate"
-                icon="i-heroicons-trash"
-                color="error"
-                variant="ghost"
-                @click="clearTemplate('service')"
-              >
+              <UButton v-if="serviceTemplate" icon="i-heroicons-trash" color="error" variant="ghost"
+                @click="clearTemplate('service')">
                 Elimina
               </UButton>
             </div>
           </div>
-          <input
-            ref="serviceTemplateInput"
-            type="file"
-            class="hidden"
+          <input ref="serviceTemplateInput" type="file" class="hidden"
             accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            @change="event => onTemplateUpload('service', event)"
-          >
-          <div v-if="serviceTemplate" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 space-y-1 text-sm">
+            @change="event => onTemplateUpload('service', event)">
+          <div v-if="serviceTemplate"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 space-y-1 text-sm">
             <p class="font-medium text-gray-900 dark:text-white">{{ serviceTemplate.name }}</p>
             <p class="text-gray-600 dark:text-gray-300">Tamany: {{ formatBytes(serviceTemplate.size) }}</p>
-            <p class="text-gray-600 dark:text-gray-300">Actualitzada: {{ formatTimestamp(serviceTemplate.updatedAt) }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Actualitzada: {{ formatTimestamp(serviceTemplate.updatedAt) }}
+            </p>
           </div>
           <div v-else class="text-sm text-gray-500 dark:text-gray-400">
             Encara no hi ha cap plantilla individual guardada.
@@ -766,46 +743,40 @@ const formatTimestamp = (value?: string) => {
 
     <UCard>
       <template #header>
-          <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-bell" class="w-5 h-5" />
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Recordatoris</h2>
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+            <UIcon name="i-heroicons-bell" class="w-6 h-6 text-primary-500" />
           </div>
-        </template>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Recordatoris</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Configura avisos per imputar les dietes.</p>
+          </div>
+        </div>
+      </template>
 
       <div class="space-y-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <UFormField label="Dia del mes" name="reminderDay">
-             <USelect v-model="formState.reminderDay" :items="dayOptions" />
+            <USelect v-model="formState.reminderDay" :items="dayOptions" />
           </UFormField>
-          
+
           <UFormField label="Hora" name="reminderTime">
             <UInput v-model="formState.reminderTime" type="time" />
           </UFormField>
 
           <div class="sm:col-span-2">
-            <UCheckbox
-              v-model="formState.reminderRecurring"
-              label="Repetir cada mes"
-              help="L'esdeveniment es crearà amb una regla de repetició mensual."
-            />
+            <UCheckbox v-model="formState.reminderRecurring" label="Repetir cada mes"
+              help="L'esdeveniment es crearà amb una regla de repetició mensual." />
           </div>
         </div>
-        
+
         <USeparator />
 
         <div class="flex flex-col sm:flex-row gap-3">
-          <UButton
-            icon="i-simple-icons-googlecalendar"
-            variant="soft"
-            @click="exportCalendar('google')"
-          >
+          <UButton icon="i-simple-icons-googlecalendar" variant="soft" @click="exportCalendar('google')">
             Afegir a Google Calendar
           </UButton>
-          <UButton
-            icon="i-heroicons-calendar-days"
-            variant="outline"
-            @click="exportCalendar('ics')"
-          >
+          <UButton icon="i-heroicons-calendar-days" variant="outline" @click="exportCalendar('ics')">
             Descarregar ICS (Apple/Outlook)
           </UButton>
         </div>
@@ -826,32 +797,23 @@ const formatTimestamp = (value?: string) => {
       </template>
 
       <div class="space-y-8">
-        
-        <!-- Common Password Field -->
-        <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-800 space-y-4">
-           <UCheckbox
-             v-model="exportState.encrypt"
-             label="Encriptar còpia de seguretat"
-             help="Protegeix el fitxer amb una contrasenya."
-           />
 
-           <transition
-             enter-active-class="transition duration-200 ease-out"
-             enter-from-class="transform -translate-y-2 opacity-0"
-             enter-to-class="transform translate-y-0 opacity-100"
-             leave-active-class="transition duration-150 ease-in"
-             leave-from-class="transform translate-y-0 opacity-100"
-             leave-to-class="transform -translate-y-2 opacity-0"
-           >
-             <UFormField v-if="exportState.encrypt" label="Contrasenya d'encriptació" name="exportPassword" help="S'utilitza per protegir el fitxer exportat.">
-              <UInput
-                v-model="exportState.password"
-                type="password"
-                placeholder="Introdueix una contrasenya segura"
-                icon="i-heroicons-lock-closed"
-              />
-            </UFormField> 
-           </transition>
+        <!-- Common Password Field -->
+        <div
+          class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-800 space-y-4">
+          <UCheckbox v-model="exportState.encrypt" label="Encriptar còpia de seguretat"
+            help="Protegeix el fitxer amb una contrasenya." />
+
+          <transition enter-active-class="transition duration-200 ease-out"
+            enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100"
+            leave-active-class="transition duration-150 ease-in" leave-from-class="transform translate-y-0 opacity-100"
+            leave-to-class="transform -translate-y-2 opacity-0">
+            <UFormField v-if="exportState.encrypt" label="Contrasenya d'encriptació" name="exportPassword"
+              help="S'utilitza per protegir el fitxer exportat.">
+              <UInput v-model="exportState.password" type="password" placeholder="Introdueix una contrasenya segura"
+                icon="i-heroicons-lock-closed" />
+            </UFormField>
+          </transition>
         </div>
 
         <div class="grid md:grid-cols-2 gap-8">
@@ -864,20 +826,12 @@ const formatTimestamp = (value?: string) => {
             <p class="text-sm text-gray-500 dark:text-gray-400">
               Guarda els preus, les plantilles Word i les opcions de l'aplicació.
             </p>
-            
+
             <div class="space-y-4 pt-2">
-              <UCheckbox
-                v-model="exportState.includeTemplates"
-                label="Incloure plantilles Word" 
-                help="El fitxer serà més gran."
-              />
-              <UButton 
-                :loading="isExportingConfig" 
-                block 
-                variant="soft" 
-                icon="i-heroicons-arrow-down-on-square" 
-                @click="exportBackup('config')"
-              >
+              <UCheckbox v-model="exportState.includeTemplates" label="Incloure plantilles Word"
+                help="El fitxer serà més gran." />
+              <UButton :loading="isExportingConfig" block variant="soft" icon="i-heroicons-arrow-down-on-square"
+                @click="exportBackup('config')">
                 Exportar Config
               </UButton>
             </div>
@@ -889,25 +843,15 @@ const formatTimestamp = (value?: string) => {
               <UIcon name="i-heroicons-table-cells" class="w-5 h-5 text-gray-500" />
               Exportar Dades
             </h3>
-             <p class="text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
               Guarda els registres dels serveis realitzats.
             </p>
 
             <div class="space-y-4 pt-2">
-              <USelect
-                v-model="exportState.selectedMonth"
-                :items="monthOptions"
-                :disabled="monthOptions.length <= 1"
-                placeholder="Tots els mesos"
-                class="w-full"
-              />
-               <UButton 
-                :loading="isExportingData" 
-                block 
-                variant="soft"
-                icon="i-heroicons-arrow-down-on-square-stack" 
-                @click="exportBackup('data')"
-              >
+              <USelect v-model="exportState.selectedMonth" :items="monthOptions" :disabled="monthOptions.length <= 1"
+                placeholder="Tots els mesos" class="w-full" />
+              <UButton :loading="isExportingData" block variant="soft" icon="i-heroicons-arrow-down-on-square-stack"
+                @click="exportBackup('data')">
                 Exportar Dades
               </UButton>
             </div>
@@ -922,26 +866,17 @@ const formatTimestamp = (value?: string) => {
           <p class="text-sm text-gray-500 dark:text-gray-400">
             Restaura una configuració o dades des d'un fitxer `.json` anterior.
           </p>
-          
+
           <div class="grid md:grid-cols-2 gap-4 items-end">
             <UFormField v-if="importState.isEncryptedFile" label="Contrasenya del fitxer" name="importPassword">
-              <UInput
-                v-model="importState.password"
-                type="password"
-                placeholder="Contrasenya..."
-                icon="i-heroicons-key"
-              />
+              <UInput v-model="importState.password" type="password" placeholder="Contrasenya..."
+                icon="i-heroicons-key" />
             </UFormField>
 
             <UFormField label="Selecciona fitxer" name="importFile">
               <div class="flex gap-2">
-                 <UButton 
-                  color="neutral" 
-                  variant="outline"
-                  icon="i-heroicons-folder-open" 
-                  class="flex-1"
-                  @click="handleFileSelect"
-                >
+                <UButton color="neutral" variant="outline" icon="i-heroicons-folder-open" class="flex-1"
+                  @click="handleFileSelect">
                   {{ importState.file ? 'Canviar fitxer' : 'Buscar fitxer...' }}
                 </UButton>
               </div>
@@ -950,106 +885,85 @@ const formatTimestamp = (value?: string) => {
               </p>
             </UFormField>
           </div>
-            <input
-              ref="importFileInput"
-              type="file"
-              class="hidden"
-              accept="application/json"
-              @change="onFileChange"
-            >
+          <input ref="importFileInput" type="file" class="hidden" accept="application/json" @change="onFileChange">
 
-          <UButton 
-            :loading="isImporting" 
-            block 
-            color="primary" 
-            icon="i-heroicons-arrow-up-on-square" 
+          <UButton :loading="isImporting" block color="primary" icon="i-heroicons-arrow-up-on-square"
             :disabled="!importState.file || (importState.isEncryptedFile && !importState.password)"
-            @click="prepareImport"
-          >
+            @click="prepareImport">
             Processar Importació
           </UButton>
         </section>
       </div>
     </UCard>
 
-    <UCard>
-      <template #header>
-          <div class="flex items-center gap-2 text-red-500">
-            <UIcon name="i-heroicons-trash" class="w-5 h-5" />
-            <h2 class="text-xl font-semibold text-red-500">Manteniment i Neteja</h2>
+    <!-- DELETE DATA -->
+    <section class="space-y-4">
+      <UCard>
+        <template #header>
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-red-50 dark:bg-red-900/40 rounded-lg">
+              <UIcon name="i-heroicons-trash" class="w-6 h-6 text-red-500" />
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-red-500">Manteniment i Neteja</h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Zona perillosa! Aneu amb compte!</p>
+            </div>
           </div>
         </template>
 
-      <div class="space-y-6">
-        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">
+        <div class="space-y-6">
+          <div
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-900 dark:text-white">Ús aproximat d'emmagatzematge</p>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dades de serveis locals</p>
             </div>
             <div class="text-right">
-              <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{ formatBytes(serviceStore.getStorageUsage()) }}</p>
+              <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{
+                formatBytes(serviceStore.getStorageUsage()) }}</p>
               <p class="text-xs text-gray-500">{{ serviceStore.records.length }} serveis totals</p>
             </div>
-        </div>
-        
-        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">
+          </div>
+
+          <div
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-900 dark:text-white">Caché de kilòmetres</p>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Distàncies guardades per estalviar peticions</p>
             </div>
             <div class="flex items-center gap-4">
               <div class="text-right">
-                <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{ formatBytes(distancesStore.getCacheStats().size) }}</p>
+                <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{
+                  formatBytes(distancesStore.getCacheStats().size) }}</p>
                 <p class="text-xs text-gray-500">{{ distancesStore.getCacheStats().items }} rutes</p>
               </div>
-               <UButton 
-                 color="error" 
-                 variant="ghost" 
-                 icon="i-heroicons-trash"
-                 size="xs"
-                 @click="confirmClearCache"
-               >
-                 Netejar
-               </UButton>
+              <UButton color="error" variant="ghost" icon="i-heroicons-trash" size="xs" @click="confirmClearCache">
+                Netejar
+              </UButton>
             </div>
-        </div>
+          </div>
 
-        <section class="space-y-4">
-           <h3 class="text-base font-semibold text-gray-900 dark:text-white">Esborrar dades</h3>
-           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+          <section class="space-y-4">
+            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Esborrar dades</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               <UFormField label="Any" name="deleteYear">
-                <USelect 
-                  v-model="maintenanceState.selectedYear" 
-                  :items="availableYears" 
-                  placeholder="Selecciona un any"
-                  class="w-full"
-                />
+                <USelect v-model="maintenanceState.selectedYear" :items="availableYears" placeholder="Selecciona un any"
+                  class="w-full" />
               </UFormField>
               <UFormField label="Mes (Opcional)" name="deleteMonth">
-                 <USelect 
-                  v-model="maintenanceState.selectedMonth" 
-                  :items="availableMonthsForYear" 
-                  :disabled="!maintenanceState.selectedYear"
-                  placeholder="Tot l'any"
-                  class="w-full"
-                />
+                <USelect v-model="maintenanceState.selectedMonth" :items="availableMonthsForYear"
+                  :disabled="!maintenanceState.selectedYear" placeholder="Tot l'any" class="w-full" />
               </UFormField>
-           </div>
-           
-           <UButton 
-             block 
-             color="error" 
-             variant="soft" 
-             icon="i-heroicons-trash"
-             :disabled="!maintenanceState.selectedYear"
-             @click="confirmDelete"
-           >
-             {{ deleteButtonLabel }}
-           </UButton>
-        </section>
-      </div>
-    </UCard>
+            </div>
 
+            <UButton block color="error" variant="soft" icon="i-heroicons-trash"
+              :disabled="!maintenanceState.selectedYear" @click="confirmDelete">
+              {{ deleteButtonLabel }}
+            </UButton>
+          </section>
+        </div>
+      </UCard>
+    </section>
     <!-- Confirmation Modal -->
     <UModal v-model:open="confirmModal.isOpen" :title="confirmModal.title" :description="confirmModal.description">
       <template #footer>

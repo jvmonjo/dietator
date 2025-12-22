@@ -35,10 +35,10 @@
     }
 }
 
-h1 {
+.prose h1 {
     margin-bottom: 1em;
 }
 
-h2 {
+.prose h2 {
     margin-bottom: 0.6em;
 }

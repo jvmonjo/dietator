@@ -196,7 +196,7 @@ export interface WrappedStats {
     weeklyAverageServices: number
     months: { hours: number; services: number; income: number; km: number }[]
     mostActiveDay: { date: string; hours: number }
-    mostKmDay: { date: string; km: number }
+    mostKmDay: { date: string; km: number; route?: string[] }
     comparisons: { label: string; distance: number; emoji: string; percentage: number; completed: boolean; timesCompleted: number }[]
 }
 
@@ -316,8 +316,6 @@ export const generateWrappedPdf = async (stats: WrappedStats): Promise<Blob> => 
         doc.text(monthName, baseX + barGroupW / 2, y + chartH + 5, { align: 'center' })
     })
 
-
-
     // Draw Combined Trend Line (Average Activity)
     const pointsTrend: Point[] = []
 
@@ -403,6 +401,16 @@ export const generateWrappedPdf = async (stats: WrappedStats): Promise<Blob> => 
         doc.setFontSize(10)
         doc.setTextColor('#BFDBFE')
         doc.text(`${formatNumber(mostKmDay.km)} km`, 185, cardY + 18, { align: 'right' })
+
+        // Add Route if present
+        if (mostKmDay.route && mostKmDay.route.length > 0) {
+            const routeText = `Ruta: ${mostKmDay.route.join(' -> ')}`
+            doc.setFontSize(7)
+            doc.setTextColor('#93C5FD') // Light blue
+            // Use splitTextToSize to wrap line
+            const splitText = doc.splitTextToSize(routeText, 75)
+            doc.text(splitText, 115, cardY + 28)
+        }
     }
 
     y += 35

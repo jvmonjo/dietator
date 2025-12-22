@@ -83,21 +83,37 @@ export const useWrappedStats = () => {
 
         // Most active day (Hours) & Most km day
         let mostActiveDay = { date: '', hours: 0 }
-        let mostKmDay = { date: '', km: 0 }
+        let mostKmDay = { date: '', km: 0, route: [] as string[] }
 
-        const kmMap = new Map<string, number>()
+        const kmMap = new Map<string, { km: number, route: string[] }>()
 
         records.forEach(r => {
             const date = r.startTime.split('T')[0]
-            if (date) kmMap.set(date, (kmMap.get(date) || 0) + (r.kilometers || 0))
+            if (date) {
+                const current = kmMap.get(date) || { km: 0, route: [] }
+                // Extract unique municipalities for the day (preserving order roughly)
+                const newMunicipalities = r.displacements.map(d => d.municipality).filter(Boolean)
+
+                // Merge routes intelligently (avoiding adjacent duplicates if possible, or just concat)
+                // Simple concat for now, will dedup later if needed
+
+                kmMap.set(date, {
+                    km: current.km + (r.kilometers || 0),
+                    route: [...current.route, ...newMunicipalities]
+                })
+            }
         })
 
         for (const [date, hours] of daysMap.entries()) {
             if (hours > mostActiveDay.hours) mostActiveDay = { date, hours }
         }
 
-        for (const [date, km] of kmMap.entries()) {
-            if (km > mostKmDay.km) mostKmDay = { date, km }
+        for (const [date, data] of kmMap.entries()) {
+            if (data.km > mostKmDay.km) {
+                // Dedup adjacent cities in route
+                const uniqueRoute = data.route.filter((city, index, arr) => city !== arr[index - 1])
+                mostKmDay = { date, km: data.km, route: uniqueRoute }
+            }
         }
 
 
