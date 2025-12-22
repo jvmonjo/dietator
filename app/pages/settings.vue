@@ -193,7 +193,7 @@ const buildBackupFilename = (type: 'config' | 'data', timestamp: string) => {
   return `dades-dietator-${timestamp}.json`
 }
 
-const exportBackup = async (type: 'config' | 'data') => {
+const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share' = 'download') => {
   if (exportState.encrypt && !exportState.password) {
     toast.add({ title: 'Indica una contrasenya', color: 'warning' })
     return
@@ -224,8 +224,6 @@ const exportBackup = async (type: 'config' | 'data') => {
       }
     }
 
-
-
     let resultBlob: Blob
 
     if (exportState.encrypt) {
@@ -235,15 +233,47 @@ const exportBackup = async (type: 'config' | 'data') => {
       resultBlob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
     }
 
-    const url = URL.createObjectURL(resultBlob)
-    const link = document.createElement('a')
     const timestamp = new Date().toISOString().split('T')[0] ?? new Date().toISOString()
     const filename = buildBackupFilename(type, timestamp)
-    link.href = url
-    link.download = filename
-    link.click()
-    URL.revokeObjectURL(url)
-    toast.add({ title: 'Backup exportat correctament', color: 'success' })
+
+    const downloadFile = () => {
+      const url = URL.createObjectURL(resultBlob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      link.click()
+      URL.revokeObjectURL(url)
+      toast.add({ title: 'Backup descarregat correctament', color: 'success' })
+    }
+
+    if (method === 'share') {
+      const file = new File([resultBlob], filename, { type: 'application/json' })
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Còpia de seguretat Dietator',
+            text: `Aquí tens la còpia de seguretat ${type === 'config' ? 'de la configuració' : 'de les dades'}.`
+          })
+        } catch (err: unknown) {
+          const errorName = (err as Error).name
+          if (errorName === 'NotAllowedError') {
+            toast.add({ title: 'Compartició no permesa, descarregant...', color: 'warning' })
+            downloadFile()
+          } else if (errorName === 'AbortError') {
+            // User cancelled
+          } else {
+            throw err
+          }
+        }
+      } else {
+        toast.add({ title: 'El teu dispositiu no suporta compartir aquest fitxer, descarregant...', color: 'warning' })
+        downloadFile()
+      }
+    } else {
+      downloadFile()
+    }
+
   } catch (error) {
     console.error(error)
     toast.add({ title: 'No s\'ha pogut exportar', color: 'error' })
@@ -830,8 +860,8 @@ const formatTimestamp = (value?: string) => {
             <div class="space-y-4 pt-2">
               <UCheckbox v-model="exportState.includeTemplates" label="Incloure plantilles Word"
                 help="El fitxer serà més gran." />
-              <UButton :loading="isExportingConfig" block variant="soft" icon="i-heroicons-arrow-down-on-square"
-                @click="exportBackup('config')">
+              <UButton :loading="isExportingConfig" block variant="soft" icon="i-heroicons-share"
+                @click="exportBackup('config', 'share')">
                 Exportar Config
               </UButton>
             </div>
@@ -850,8 +880,8 @@ const formatTimestamp = (value?: string) => {
             <div class="space-y-4 pt-2">
               <USelect v-model="exportState.selectedMonth" :items="monthOptions" :disabled="monthOptions.length <= 1"
                 placeholder="Tots els mesos" class="w-full" />
-              <UButton :loading="isExportingData" block variant="soft" icon="i-heroicons-arrow-down-on-square-stack"
-                @click="exportBackup('data')">
+              <UButton :loading="isExportingData" block variant="soft" icon="i-heroicons-share"
+                @click="exportBackup('data', 'share')">
                 Exportar Dades
               </UButton>
             </div>
