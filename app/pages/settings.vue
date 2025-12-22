@@ -556,9 +556,12 @@ const formatTimestamp = (value?: string) => {
 <template>
   <div class="max-w-2xl mx-auto space-y-6">
     <div class="flex items-start justify-between gap-4">
-      <div class="space-y-2">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuració</h1>
-      </div>
+      <div class="border-b border-gray-200 dark:border-gray-800 pb-6">
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Configuració</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">
+        Gestiona les teves dades personals i preferències de l'aplicació.
+      </p>
+    </div>
       <div class="flex gap-2">
          <UButton icon="i-heroicons-check-circle" @click="saveSettings">Desar configuració</UButton>
       </div>
@@ -566,16 +569,11 @@ const formatTimestamp = (value?: string) => {
 
     <UCard>
       <template #header>
-        <div class="flex items-center gap-3">
-          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
-            <UIcon name="i-heroicons-user" class="w-6 h-6 text-primary-500" />
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-user" class="w-5 h-5" />
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Dades Personals</h2>
           </div>
-          <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Dades Personals</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Informació que apareixerà a les plantilles.</p>
-          </div>
-        </div>
-      </template>
+        </template>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <UFormField label="Nom" name="firstName">
           <UInput v-model="formState.firstName" placeholder="El teu nom" />
@@ -591,16 +589,11 @@ const formatTimestamp = (value?: string) => {
 
     <UCard>
       <template #header>
-        <div class="flex items-center gap-3">
-          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
-            <UIcon name="i-heroicons-currency-euro" class="w-6 h-6 text-primary-500" />
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-currency-euro" class="w-5 h-5" />
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Preus de les dietes</h2>
           </div>
-          <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Preus de les dietes</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Introdueix imports separats per la mitja dieta i la completa.</p>
-          </div>
-        </div>
-      </template>
+        </template>
 
       <UForm :state="formState" class="space-y-6" @submit="saveSettings">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -634,7 +627,7 @@ const formatTimestamp = (value?: string) => {
             <UIcon name="i-heroicons-puzzle-piece" class="w-6 h-6 text-primary-500" />
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Integracions</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Integracions</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">Configureu serveis externs per automatitzar tasques.</p>
           </div>
         </div>
@@ -664,7 +657,7 @@ const formatTimestamp = (value?: string) => {
             <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-primary-500" />
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Plantilles Word</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Plantilles Word</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">Puja la plantilla `.docx` per generar els documents des d'aquesta aplicació.</p>
             <NuxtLink to="/help/templates" class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
               <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" />
@@ -773,16 +766,11 @@ const formatTimestamp = (value?: string) => {
 
     <UCard>
       <template #header>
-        <div class="flex items-center gap-3">
-          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
-            <UIcon name="i-heroicons-calendar" class="w-6 h-6 text-primary-500" />
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-bell" class="w-5 h-5" />
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Recordatoris</h2>
           </div>
-          <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recordatoris</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Configura un esdeveniment al calendari per recordar generar els documents.</p>
-          </div>
-        </div>
-      </template>
+        </template>
 
       <div class="space-y-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -831,7 +819,7 @@ const formatTimestamp = (value?: string) => {
             <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 text-primary-500" />
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Exportar / Importar</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Exportar / Importar</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">Gestió de backups i transferència de dades.</p>
           </div>
         </div>
@@ -986,16 +974,11 @@ const formatTimestamp = (value?: string) => {
 
     <UCard>
       <template #header>
-        <div class="flex items-center gap-3">
-          <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
-            <UIcon name="i-heroicons-archive-box-x-mark" class="w-6 h-6 text-primary-500" />
+          <div class="flex items-center gap-2 text-red-500">
+            <UIcon name="i-heroicons-trash" class="w-5 h-5" />
+            <h2 class="text-xl font-semibold text-red-500">Manteniment i Neteja</h2>
           </div>
-          <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Manteniment i Neteja</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Allibera espai esborrant dades antigues.</p>
-          </div>
-        </div>
-      </template>
+        </template>
 
       <div class="space-y-6">
         <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">

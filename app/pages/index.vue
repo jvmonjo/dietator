@@ -354,7 +354,7 @@ onMounted(() => {
             El teu {{ new Date().getFullYear() }}
           </div>
           <p class="text-xs text-gray-400">
-             Descobreix les teves estadístiques
+             Descobreix les teues estadístiques
           </p>
         </div>
       </UCard>

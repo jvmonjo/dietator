@@ -27,8 +27,11 @@ const columns = [
         { label: 'Plantilles de Word' }
       ]"
     />
-    <div class="flex items-center gap-4">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Plantilles de Word</h1>
+    <div class="border-b border-gray-200 dark:border-gray-800 pb-6">
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Plantilles de Word</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">
+        Personalitza els teus informes amb variables dinàmiques.
+      </p>
     </div>
 
     <section class="space-y-6">

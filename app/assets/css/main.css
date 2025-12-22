@@ -34,3 +34,11 @@
         --site-logo-foreground: var(--ui-color-neutral-50);
     }
 }
+
+h1 {
+    margin-bottom: 1em;
+}
+
+h2 {
+    margin-bottom: 0.6em;
+}

@@ -14,8 +14,11 @@ definePageMeta({
         { label: 'API Google Maps' }
       ]"
     />
-    <div class="flex items-center gap-4">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">API de Google Maps</h1>
+    <div class="border-b border-gray-200 dark:border-gray-800 pb-6">
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">API de Google Maps</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">
+        Configura la teva clau d'API per al càlcul automàtic de distàncies.
+      </p>
     </div>
 
     <!-- Google Maps API Section -->
