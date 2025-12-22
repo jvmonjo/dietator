@@ -96,7 +96,8 @@ const handlePdf = async () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-900 text-white -mx-4 -my-6 p-6 sm:p-8 font-sans transition-colors duration-500">
+    <div
+        class="min-h-screen bg-gray-900 text-white -mx-4 -my-6 p-6 sm:p-8 font-sans transition-colors duration-500 overflow-x-hidden">
         <!-- Background Gradients -->
         <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
             <div
@@ -109,16 +110,16 @@ const handlePdf = async () => {
 
             <!-- Header -->
             <header class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="text-center sm:text-left">
+                <div class="text-center sm:text-left max-w-full">
                     <h1
-                        class="text-5xl md:text-7xl font-black bg-gradient-to-r from-yellow-400 to-purple-400 bg-clip-text text-transparent">
+                        class="text-5xl md:text-7xl font-black bg-gradient-to-r from-yellow-400 to-purple-400 bg-clip-text text-transparent break-words">
                         El teu {{ selectedYear }}
                     </h1>
                     <p class="text-xl text-gray-400 mt-2">Resum de l'any a Dietator</p>
                 </div>
 
                 <div
-                    class="flex items-center gap-3 bg-gray-800/50 p-2 rounded-xl backdrop-blur-sm border border-gray-700/50">
+                    class="flex items-center gap-3 bg-gray-800/50 p-2 rounded-xl backdrop-blur-sm border border-gray-700/50 shrink-0">
                     <USelect v-model="selectedYear" :items="years" class="w-32 text-white" variant="none" />
                 </div>
             </header>
@@ -306,7 +307,7 @@ const handlePdf = async () => {
                                 km</span>.
                         </div>
                         <div v-if="stats.mostKmDay.route && stats.mostKmDay.route.length > 0"
-                            class="mt-3 pt-3 border-t border-blue-500/30 text-xs text-blue-100 font-mono leading-relaxed">
+                            class="mt-3 pt-3 border-t border-blue-500/30 text-xs text-blue-100 font-mono leading-relaxed break-words">
                             <span class="opacity-70">Ruta:</span> {{ stats.mostKmDay.route.join(' → ') }}
                         </div>
                     </div>
