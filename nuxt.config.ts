@@ -46,6 +46,14 @@ export default defineNuxtConfig({
     debug: process.env.NUXT_DEBUG === '1'
   },
 
+  icon: {
+    clientBundle: {
+      scan: true,
+      includeCustomCollections: true,
+      sizeLimitKb: 256,
+    },
+  },
+
   pwa: {
     registerType: 'prompt',
     manifest: {
