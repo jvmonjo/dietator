@@ -8,15 +8,25 @@ declare global {
     }
 }
 
+export interface GoogleEvent {
+    id: string
+    summary: string
+    start: Date
+    end: Date
+    location?: string
+    description?: string
+    isAllDay: boolean
+}
+
 export const useExternalCalendarStore = defineStore('externalCalendar', {
     state: () => ({
-        events: {} as Record<string, string[]>, // key: YYYY-MM-DD -> list of event titles
+        events: {} as Record<string, GoogleEvent[]>, // key: YYYY-MM-DD -> list of event objects
         calendars: [] as { id: string, summary: string }[],
         lastSync: null as number | null,
         isLoading: false
     }),
     actions: {
-        // ... (loadGoogleScript and others remain same)
+        // ... (loadGoogleScript and syncEvents remain same)
         async loadGoogleScript(): Promise<void> {
             return new Promise((resolve, reject) => {
                 if (window.google?.accounts?.oauth2) {
@@ -108,10 +118,6 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
         },
 
         async fetchGoogleEvents(accessToken: string) {
-            // Note: In Pinia actions, this context is preserved, but we should ensure these are available.
-            // When improperly called, they might warning. However, these are standard Nuxt composables.
-            // The warning usually comes if the store action is called from a context where injection isn't possible *originally*.
-            // But let's keep them here. If persistent, we might need to pass them in.
             const settings = useSettingsStore()
             const toast = useToast()
             try {
@@ -123,7 +129,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                 const calendarId = settings.googleCalendarId || 'primary'
 
                 const response = await fetch(
-                    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`,
+                    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&maxResults=2500`,
                     {
                         headers: {
                             'Authorization': `Bearer ${accessToken}`
@@ -137,20 +143,33 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                 }
 
                 const data = await response.json()
-                const newEvents: Record<string, string[]> = {}
+                const newEvents: Record<string, GoogleEvent[]> = {}
 
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 data.items.forEach((event: any) => {
                     // Only care about start date
-                    const start = event.start.dateTime || event.start.date
-                    if (start) {
-                        const date = new Date(start)
-                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+                    const startRaw = event.start.dateTime || event.start.date
+                    const endRaw = event.end.dateTime || event.end.date
+
+                    if (startRaw) {
+                        const start = new Date(startRaw)
+                        const end = endRaw ? new Date(endRaw) : start
+                        // Key for storage (YYYY-MM-DD)
+                        const dateStr = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
 
                         if (!newEvents[dateStr]) {
                             newEvents[dateStr] = []
                         }
-                        newEvents[dateStr].push(event.summary || '(Sense títol)')
+
+                        newEvents[dateStr].push({
+                            id: event.id,
+                            summary: event.summary || '(Sense títol)',
+                            start,
+                            end,
+                            location: event.location,
+                            description: event.description,
+                            isAllDay: !!event.start.date
+                        })
                     }
                 })
 
@@ -172,11 +191,22 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             return !!this.events[dateStr] && this.events[dateStr].length > 0
         },
 
-        getEventsForDate(dateStr: string): string[] {
+        getEventsForDate(dateStr: string): GoogleEvent[] {
             return this.events[dateStr] || []
+        },
+
+        disconnect() {
+            const settings = useSettingsStore()
+            this.events = {}
+            this.calendars = []
+            this.lastSync = null
+            // Reset selected calendar preference
+            settings.googleCalendarId = ''
+            useToast().add({ title: 'Desconnectat de Google Calendar', color: 'info' })
         }
     },
     persist: {
+        key: 'external-calendar-v2',
         storage: piniaPluginPersistedstate.localStorage()
     }
 })

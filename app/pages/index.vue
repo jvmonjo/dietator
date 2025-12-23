@@ -225,15 +225,74 @@ const handleRecordSelected = (record: ServiceRecord) => {
 
 const handleDateSelected = (date: Date) => {
   const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  const events = externalCalendar.getEventsForDate(dateStr)
-  let notes = ''
+  const events = externalCalendar.getEventsForDate(dateStr) // Now returns GoogleEvent objects
 
-  if (events.length > 0) {
-    notes = '📅 Esdeveniments Google Calendar:\n' + events.map(e => `- ${e}`).join('\n')
+  if (!events || events.length === 0) {
+    if (serviceListRef.value) {
+      serviceListRef.value.openNewService(date)
+    }
+    return
   }
 
+
+  // Explicitly format to local time string for datetime-local input (YYYY-MM-DDTHH:mm)
+  const formatLocalTime = (d: Date) => {
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    const hh = String(d.getHours()).padStart(2, '0')
+    const min = String(d.getMinutes()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+  }
+
+  // Calculate Start/End times
+  // We assume events are sorted by start time, but let's be safe
+  const sortedEvents = [...events].sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+
+  // Filter out all-day events for time calculation to avoid skewing start/end times
+  const timedEvents = sortedEvents.filter(e => !e.isAllDay)
+
+  let startTime = ''
+  let endTime = ''
+
+  if (timedEvents.length > 0) {
+    const firstEvent = timedEvents[0]!
+    const lastEvent = timedEvents.reduce((latest, current) => {
+      // Ensure 'latest' is defined (it is initiated with firstEvent)
+      return new Date(current.end) > new Date(latest.end) ? current : latest
+    }, firstEvent)
+
+    startTime = formatLocalTime(new Date(firstEvent.start))
+    endTime = formatLocalTime(new Date(lastEvent.end))
+  }
+
+  // Create a simple list of all events for the notes field
+  const notesLines: string[] = []
+
+  sortedEvents.forEach(e => {
+    let timeStr = ''
+    if (e.isAllDay) {
+      timeStr = 'Tot el dia'
+    } else {
+      const parts = formatLocalTime(new Date(e.start)).split('T')
+      timeStr = parts[1] || ''
+    }
+
+    if (e.location) {
+      notesLines.push(`- [${timeStr}] ${e.summary} (📍 ${e.location})`)
+    } else {
+      notesLines.push(`- [${timeStr}] ${e.summary}`)
+    }
+  })
+
+  // Join all lines
+  const notes = notesLines.length > 0
+    ? '📅 Esdeveniments del dia:\n' + notesLines.join('\n')
+    : ''
+
+  // Open the service form with pre-filled notes and empty displacements
   if (serviceListRef.value) {
-    serviceListRef.value.openNewService(date, notes)
+    serviceListRef.value.openNewService(date, notes, startTime, endTime, [])
   }
 }
 
@@ -251,11 +310,9 @@ onMounted(() => {
 <template>
   <div class="space-y-8">
     <!-- Hero Section -->
-    <div
-v-if="showWelcome"
+    <div v-if="showWelcome"
       class="relative bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 sm:p-12">
-      <UButton
-icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
+      <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
         @click="dismissWelcome" />
       <section class="text-center space-y-4">
         <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
@@ -268,8 +325,7 @@ icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 
       </section>
     </div>
 
-    <UAlert
-v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
+    <UAlert v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
       title="Afegeix el preu de la dieta"
       description="Configura el preu per poder calcular correctament els totals i generar documents." />
 
@@ -292,12 +348,10 @@ v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" var
             </p>
           </div>
           <div class="grid grid-cols-2 sm:flex sm:items-center gap-3 w-full sm:w-auto">
-            <USelect
-v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
+            <USelect v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
               class="w-full sm:min-w-[140px]" />
             <USelect v-model="selectedYear" :items="availableYears" class="w-full sm:w-[100px]" />
-            <UButton
-icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
+            <UButton icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
               class="col-span-2 sm:w-auto flex justify-center" @click="exportReport">
               Exportar
             </UButton>
@@ -308,16 +362,14 @@ icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
 
     <!-- Calendar View -->
     <section>
-      <CalendarWidget
-:records="selectedRecords" :year="selectedYear" :month="selectedMonthValue"
+      <CalendarWidget :records="selectedRecords" :year="selectedYear" :month="selectedMonthValue"
         @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event"
         @record-selected="handleRecordSelected" @date-selected="handleDateSelected" />
     </section>
 
     <!-- Registered Services -->
     <section>
-      <ServiceList
-ref="serviceListRef" title="Serveis registrats" :description="serviceListDescription"
+      <ServiceList ref="serviceListRef" title="Serveis registrats" :description="serviceListDescription"
         :records="selectedRecords" />
     </section>
 
@@ -390,8 +442,7 @@ ref="serviceListRef" title="Serveis registrats" :description="serviceListDescrip
       </UCard>
 
       <!-- Year in Review Card -->
-      <UCard
-v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
+      <UCard v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
         class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all group relative overflow-hidden"
         @click="navigateTo('/wrapped')">
         <!-- Background Decoration -->

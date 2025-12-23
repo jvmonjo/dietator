@@ -19,11 +19,17 @@ const props = withDefaults(defineProps<{
   initialData?: ServiceRecord | null
   initialDate?: Date | null
   initialNotes?: string
+  initialStartTime?: string
+  initialEndTime?: string
+  initialDisplacements?: Partial<Displacement>[]
   isDuplicate?: boolean
 }>(), {
   initialData: null,
   initialDate: null,
   initialNotes: '',
+  initialStartTime: '',
+  initialEndTime: '',
+  initialDisplacements: () => [],
   isDuplicate: false
 })
 
@@ -96,19 +102,28 @@ const removeDisplacement = (index: number) => {
 
 const resetState = () => {
   if (props.initialDate) {
-    // ... (date logic)
     const baseDate = new Date(props.initialDate)
     const yyyy = baseDate.getFullYear()
     const mm = String(baseDate.getMonth() + 1).padStart(2, '0')
     const dd = String(baseDate.getDate()).padStart(2, '0')
 
-    state.startTime = `${yyyy}-${mm}-${dd}T09:00`
-    state.endTime = `${yyyy}-${mm}-${dd}T18:00`
+    state.startTime = props.initialStartTime || `${yyyy}-${mm}-${dd}T09:00`
+    state.endTime = props.initialEndTime || `${yyyy}-${mm}-${dd}T18:00`
   } else {
-    state.startTime = ''
-    state.endTime = ''
+    state.startTime = props.initialStartTime || ''
+    state.endTime = props.initialEndTime || ''
   }
-  state.displacements = [createEmptyDisplacement()]
+
+  if (props.initialDisplacements && props.initialDisplacements.length > 0) {
+    state.displacements = props.initialDisplacements.map(d => ({
+      ...createEmptyDisplacement(),
+      ...d,
+      id: uuidv4() // Always generate new ID
+    }))
+  } else {
+    state.displacements = [createEmptyDisplacement()]
+  }
+
   state.kilometers = undefined
   state.notes = props.initialNotes || ''
 }
@@ -129,7 +144,7 @@ const loadRecord = (record: ServiceRecord) => {
 
 // ... (loadRecord)
 
-watch(() => [props.initialData, props.initialDate, props.initialNotes], () => {
+watch(() => [props.initialData, props.initialDate, props.initialNotes, props.initialStartTime, props.initialDisplacements], () => {
   if (props.initialData) {
     loadRecord(props.initialData)
   } else {

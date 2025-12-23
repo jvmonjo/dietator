@@ -713,23 +713,21 @@ to="/help/maps"
             <div class="flex flex-col gap-3">
               <div class="flex items-center gap-3">
                 <UButton
-                  :loading="externalCalendarStore.isLoading"
-                  :disabled="!useRuntimeConfig().public.googleClientId"
-                  icon="i-logos-google-icon"
-                  color="neutral"
-                  variant="soft"
-                  @click="externalCalendarStore.syncEvents('events')"
-                >
+:loading="externalCalendarStore.isLoading"
+                  :disabled="!useRuntimeConfig().public.googleClientId" icon="i-logos-google-icon" color="neutral"
+                  variant="soft" @click="externalCalendarStore.syncEvents('events')">
                   {{ googleButtonLabel }}
                 </UButton>
                 <UBadge v-if="Object.keys(externalCalendarStore.events).length" color="success" variant="subtle">
                   Connectat
                 </UBadge>
+                <UButton
+v-if="Object.keys(externalCalendarStore.events).length" icon="i-heroicons-trash" color="error"
+                  variant="ghost" size="xs" @click="externalCalendarStore.disconnect()">
+                  Desconnectar
+                </UButton>
               </div>
-              <p
-v-if="!useRuntimeConfig().public.googleClientId"
-                class="text-xs text-red-500 dark:text-red-400"
-              >
+              <p v-if="!useRuntimeConfig().public.googleClientId" class="text-xs text-red-500 dark:text-red-400">
                 Falta configurar la variable d'entorn <code>NUXT_PUBLIC_GOOGLE_CLIENT_ID</code>.
               </p>
 
