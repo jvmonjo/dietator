@@ -28,6 +28,7 @@ interface SettingsState {
   lastName?: string
   nationalId?: string
   reminder: CalendarConfig
+  icalUrl: string
 }
 
 const settingsStorage = piniaPluginPersistedstate.localStorage()
@@ -47,7 +48,8 @@ export const useSettingsStore = defineStore('settings', {
       day: 1,
       time: '09:00',
       isRecurring: true
-    }
+    },
+    icalUrl: ''
   }),
   actions: {
     updateDietPrices(prices: { half: number, full: number }) {
@@ -79,6 +81,7 @@ export const useSettingsStore = defineStore('settings', {
       if (settings.reminder) {
         this.reminder = settings.reminder
       }
+      this.icalUrl = settings.icalUrl || ''
     }
   },
   persist: {

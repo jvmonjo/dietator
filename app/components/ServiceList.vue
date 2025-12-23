@@ -67,7 +67,20 @@ const paginatedData = computed(() => {
 
 const isModalOpen = ref(false)
 const selectedRecord = ref<ServiceRecord | null>(null)
+const selectedDate = ref<Date | null>(null)
 const isDuplicateMode = ref(false)
+
+const modalTitle = computed(() => {
+  if (isDuplicateMode.value) return 'Duplicar servei'
+  if (selectedRecord.value) return 'Editar servei'
+  return 'Nou servei'
+})
+
+const modalDescription = computed(() => {
+  if (isDuplicateMode.value) return 'Crea un nou servei a partir de les dades existents'
+  if (selectedRecord.value) return 'Actualitza les dades del servei seleccionat'
+  return 'Ompli les dades del servei'
+})
 
 const columns = [
   { accessorKey: 'actions', id: 'actions', header: 'Accions' },
@@ -77,20 +90,23 @@ const columns = [
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as any[]
 
-const openNewService = () => {
+const openNewService = (date?: Date) => {
   selectedRecord.value = null
+  selectedDate.value = date || null
   isDuplicateMode.value = false
   isModalOpen.value = true
 }
 
 const openRecord = (record: ServiceRecord) => {
   selectedRecord.value = record
+  selectedDate.value = null
   isDuplicateMode.value = false
   isModalOpen.value = true
 }
 
 const duplicateRecord = (record: ServiceRecord) => {
   selectedRecord.value = record
+  selectedDate.value = null
   isDuplicateMode.value = true
   isModalOpen.value = true
 }
@@ -98,6 +114,7 @@ const duplicateRecord = (record: ServiceRecord) => {
 const closeModal = () => {
   isModalOpen.value = false
   selectedRecord.value = null
+  selectedDate.value = null
   isDuplicateMode.value = false
 }
 
@@ -143,7 +160,8 @@ const formatMunicipality = (name: string) => {
 }
 
 defineExpose({
-  openRecord
+  openRecord,
+  openNewService
 })
 </script>
 
@@ -171,7 +189,7 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
           </template>
         </UInput>
         <div class="flex items-center gap-3">
-          <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="openNewService">
+          <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="() => openNewService()">
             Afegir servei
           </UButton>
         </div>
@@ -262,10 +280,10 @@ v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attri
         <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
           <div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ isDuplicateMode ? 'Duplicar servei' : (selectedRecord ? 'Editar servei' : 'Nou servei') }}
+              {{ modalTitle }}
             </h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ isDuplicateMode ? 'Crea un nou servei a partir de les dades existents' : (selectedRecord ? 'Actualitza les dades del servei seleccionat' : 'Ompli les dades del servei') }}
+              {{ modalDescription }}
             </p>
           </div>
           <UButton icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" @click="closeModal" />
@@ -275,7 +293,7 @@ v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attri
         <div class="p-6">
           <ServiceForm
 v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
-            :is-duplicate="isDuplicateMode" @saved="handleSaved" />
+            :initial-date="selectedDate" :is-duplicate="isDuplicateMode" @saved="handleSaved" />
         </div>
       </div>
     </div>

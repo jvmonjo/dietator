@@ -10,10 +10,13 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: Date): void
+    (e: 'update:modelValue' | 'date-selected', value: Date): void
     (e: 'record-selected', record: ServiceRecord): void
     (e: 'update:year' | 'update:month', value: number): void
 }>()
+
+const settingsStore = useSettingsStore()
+const externalCalendar = useExternalCalendarStore()
 
 // Placeholder for the current view (month/year)
 const placeholder = ref(new CalendarDate(props.year, props.month === 0 ? new Date().getMonth() + 1 : props.month, 1)) as Ref<DateValue>
@@ -57,6 +60,9 @@ const date = computed({
 
         if (record) {
             emit('record-selected', record)
+        } else {
+            // New feature: Open new service form for this date
+            emit('date-selected', d)
         }
     }
 })
@@ -71,20 +77,20 @@ const hasRecord = (d: DateValue) => {
     })
 }
 
-// View switching logic (Month vs Week) - UCalendar handles month view by default.
-// Weekly view is not standard in simple UCalendar but we can simulate/limit it or just stick to Month view as primary.
-// The user asked for "choose betweeen weekly view and month view".
-// UCalendar doesn't inherently support a "Week View" mode that collapses rows, but it's a date picker.
-// We can use a custom wrapper or just render the calendar. 
-// Given the constraints of UCalendar (which is often just a month grid), truly switching to a "Week Row" might require 
-// simply filtering or different component. However, let's start with standard UCalendar and customized cells.
+const hasExternalEvent = (d: DateValue) => {
+    const dateStr = `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
+    return externalCalendar.hasEvent(dateStr)
+}
 
-// We will use attributes or cell slots if available in v4/v-calendar underlying.
-// Check if we can use a "dot" indicator or background class.
-// Note: Nuxt UI v4 UCalendar is built on top of Radix Vue Calendar or similar.
-// Actually, in Nuxt UI v3 (and likely v4, as it's the "Next" version), UCalendar is quite flexible.
+const handleSync = async () => {
+    await externalCalendar.syncEvents()
+}
 
-// Let's implement a simple view first.
+onMounted(() => {
+    if (settingsStore.icalUrl && !Object.keys(externalCalendar.events).length) {
+        externalCalendar.syncEvents()
+    }
+})
 </script>
 
 <template>
@@ -93,6 +99,11 @@ const hasRecord = (d: DateValue) => {
             <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
                 Calendari
             </h3>
+            <UTooltip v-if="settingsStore.icalUrl" text="Sincronitzar calendari extern">
+                <UButton
+:loading="externalCalendar.isLoading" icon="i-heroicons-arrow-path" variant="ghost"
+                    color="neutral" size="xs" @click="handleSync" />
+            </UTooltip>
         </div>
 
         <div class="flex justify-center">
@@ -100,10 +111,14 @@ const hasRecord = (d: DateValue) => {
                 <template #day="{ day }">
                     <div
 class="w-full h-full flex items-center justify-center rounded-full relative" :class="[
-                        hasRecord(day) ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-bold' : ''
+                        hasRecord(day) ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-bold' : '',
+                        !hasRecord(day) && hasExternalEvent(day) ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-bold cursor-pointer' : ''
                     ]">
                         {{ day.day }}
                         <div v-if="hasRecord(day)" class="absolute bottom-1 w-1 h-1 bg-green-500 rounded-full" />
+                        <div
+v-else-if="hasExternalEvent(day)"
+                            class="absolute bottom-1 w-1 h-1 bg-orange-500 rounded-full" />
                     </div>
                 </template>
             </UCalendar>

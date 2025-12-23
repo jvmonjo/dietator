@@ -9,17 +9,19 @@ import { useSortable } from '@vueuse/integrations/useSortable'
 
 // Replaced uuid import with local function to avoid potential crash
 const uuidv4 = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 
 const props = withDefaults(defineProps<{
   initialData?: ServiceRecord | null
+  initialDate?: Date | null
   isDuplicate?: boolean
 }>(), {
   initialData: null,
+  initialDate: null,
   isDuplicate: false
 })
 
@@ -76,8 +78,6 @@ useSortable(displacementListRef, toRef(state, 'displacements'), {
   animation: 150
 })
 
-
-
 const isEditing = computed(() => Boolean(props.initialData) && !props.isDuplicate)
 
 // Load locations
@@ -92,8 +92,20 @@ const removeDisplacement = (index: number) => {
 }
 
 const resetState = () => {
-  state.startTime = ''
-  state.endTime = ''
+  if (props.initialDate) {
+    // Set to passed date with default hours (e.g., 09:00 - 18:00)
+    // Ensure we format as local datetime string YYYY-MM-DDTHH:mm
+    const baseDate = new Date(props.initialDate)
+    const yyyy = baseDate.getFullYear()
+    const mm = String(baseDate.getMonth() + 1).padStart(2, '0')
+    const dd = String(baseDate.getDate()).padStart(2, '0')
+
+    state.startTime = `${yyyy}-${mm}-${dd}T09:00`
+    state.endTime = `${yyyy}-${mm}-${dd}T18:00`
+  } else {
+    state.startTime = ''
+    state.endTime = ''
+  }
   state.displacements = [createEmptyDisplacement()]
   state.kilometers = undefined
   state.notes = ''
@@ -108,68 +120,68 @@ const loadRecord = (record: ServiceRecord) => {
   }))
   // Preserve kilometers if editing or duplicating (can be manually changed later)
   if (record.kilometers !== undefined) {
-      state.kilometers = record.kilometers
+    state.kilometers = record.kilometers
   }
   state.notes = record.notes || ''
 }
 
-watch(() => props.initialData, (record) => {
-  if (record) {
-    loadRecord(record)
+watch(() => [props.initialData, props.initialDate], () => {
+  if (props.initialData) {
+    loadRecord(props.initialData)
   } else {
     resetState()
   }
 }, { immediate: true })
 
-async function onSubmit (event: FormSubmitEvent<Schema>) {
+async function onSubmit(event: FormSubmitEvent<Schema>) {
   // Auto-calculate kilometers if API key is configured AND (no value is present OR number of displacements changed)
   const initialDisplacementCount = props.initialData?.displacements?.length || 0
   const currentDisplacementCount = state.displacements.length
   const hasDisplacementCountChanged = initialDisplacementCount !== currentDisplacementCount
 
   if (settingsStore.googleMapsApiKey && state.displacements.length >= 2 && (!state.kilometers || hasDisplacementCountChanged)) {
-      try {
-          // Filter out incomplete displacements
-          const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
-            if (validDisplacements.length >= 2) {
-              const { distance, path } = await calculateRouteDistance(validDisplacements)
-              if (distance > 0) {
-                  state.kilometers = distance
-                  toast.add({ 
-                    title: `Kilòmetres calculats: ${distance}`,
-                    description: `Ruta: ${path.join(' ➜ ')}`,
-                    color: 'info' 
-                  })
-              }
-            }
-      } catch (e: unknown) {
-          console.error('Error calculating distance', e)
-          
-          let title = 'Error calculant distància'
-          let description = ''
-
-          const msg = e instanceof Error ? e.message : String(e)
-
-          if (msg.includes('REQUEST_DENIED') || msg.includes('ApiNotActivatedMapError')) {
-              title = 'API Key incorrecta'
-              description = 'Comprova la configuració i que l\'API Distance Matrix estigui activada.'
-          } else if (msg.includes('OVER_QUERY_LIMIT')) {
-              title = 'Quota superada'
-              description = 'S\'ha superat el límit de peticions de Google Maps.'
-          } else if (msg.includes('ZERO_RESULTS') || msg.includes('NOT_FOUND')) {
-              title = 'Ruta no trobada'
-              description = 'No s\'ha trobat una ruta per carretera entre els punts indicats.'
-          }
-
-          toast.add({ title, description, color: 'warning' })
+    try {
+      // Filter out incomplete displacements
+      const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
+      if (validDisplacements.length >= 2) {
+        const { distance, path } = await calculateRouteDistance(validDisplacements)
+        if (distance > 0) {
+          state.kilometers = distance
+          toast.add({
+            title: `Kilòmetres calculats: ${distance}`,
+            description: `Ruta: ${path.join(' ➜ ')}`,
+            color: 'info'
+          })
+        }
       }
+    } catch (e: unknown) {
+      console.error('Error calculating distance', e)
+
+      let title = 'Error calculant distància'
+      let description = ''
+
+      const msg = e instanceof Error ? e.message : String(e)
+
+      if (msg.includes('REQUEST_DENIED') || msg.includes('ApiNotActivatedMapError')) {
+        title = 'API Key incorrecta'
+        description = 'Comprova la configuració i que l\'API Distance Matrix estigui activada.'
+      } else if (msg.includes('OVER_QUERY_LIMIT')) {
+        title = 'Quota superada'
+        description = 'S\'ha superat el límit de peticions de Google Maps.'
+      } else if (msg.includes('ZERO_RESULTS') || msg.includes('NOT_FOUND')) {
+        title = 'Ruta no trobada'
+        description = 'No s\'ha trobat una ruta per carretera entre els punts indicats.'
+      }
+
+      toast.add({ title, description, color: 'warning' })
+    }
   }
 
   // Check for duplicate start date (ignoring time)
   const targetDate = event.data.startTime.split('T')[0]
   const isDuplicateDate = serviceStore.records.some(record => {
     const recordDate = record.startTime ? record.startTime.split('T')[0] : ''
-    return recordDate === targetDate && 
+    return recordDate === targetDate &&
       (!props.initialData || props.isDuplicate || record.id !== props.initialData.id)
   })
 
@@ -227,32 +239,24 @@ const serviceWarnings = computed(() => {
       </UFormField>
     </div>
     <div v-if="serviceWarnings.length > 0" class="flex flex-col gap-1 mt-1">
-      <p
-        v-for="(warning, index) in serviceWarnings"
-        :key="index"
-        class="text-xs text-amber-600 dark:text-amber-400"
-      >
+      <p v-for="(warning, index) in serviceWarnings" :key="index" class="text-xs text-amber-600 dark:text-amber-400">
         📌 {{ warning.message }}
       </p>
     </div>
 
     <!-- Km Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-         <UFormField label="Kilòmetres (Opcional)" name="kilometers">
-            <UInput v-model="state.kilometers" type="number" step="0.01" icon="i-heroicons-truck" placeholder="0.00" />
-         </UFormField>
-         
+      <UFormField label="Kilòmetres (Opcional)" name="kilometers">
+        <UInput v-model="state.kilometers" type="number" step="0.01" icon="i-heroicons-truck" placeholder="0.00" />
+      </UFormField>
+
 
     </div>
 
     <UFormField label="Notes (Opcional)" name="notes">
-      <UTextarea 
-        v-model="state.notes" 
-        placeholder="Afegeix comentaris o observacions..." 
-        :rows="3" 
-        autoresize
-        class="w-full"
-      />
+      <UTextarea
+v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="3" autoresize
+        class="w-full" />
     </UFormField>
 
     <USeparator label="Desplaçaments" />
@@ -260,74 +264,53 @@ const serviceWarnings = computed(() => {
     <!-- Displacements List -->
     <div ref="displacementListRef" class="space-y-4">
       <div
-        v-for="(displacement, index) in state.displacements"
-        :key="displacement.id"
-        class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 relative group transition-all hover:border-primary-200 dark:hover:border-primary-800"
-      >
+v-for="(displacement, index) in state.displacements" :key="displacement.id"
+        class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 relative group transition-all hover:border-primary-200 dark:hover:border-primary-800">
         <div class="absolute top-4 right-4 flex items-center gap-2">
-           <UIcon name="i-heroicons-bars-3" class="w-5 h-5 text-gray-400 cursor-move drag-handle hover:text-gray-600 dark:hover:text-gray-300" />
+          <UIcon
+name="i-heroicons-bars-3"
+            class="w-5 h-5 text-gray-400 cursor-move drag-handle hover:text-gray-600 dark:hover:text-gray-300" />
           <UButton
-            v-if="state.displacements.length > 1"
-            icon="i-heroicons-trash"
-            color="error"
-            variant="ghost"
-            size="xs"
-            @click="removeDisplacement(index)"
-          />
+v-if="state.displacements.length > 1" icon="i-heroicons-trash" color="error" variant="ghost"
+            size="xs" @click="removeDisplacement(index)" />
         </div>
 
         <div class="grid grid-cols-1 gap-4 pr-8">
           <UFormField label="Província" :name="`displacements.${index}.province`" required>
             <ProvinceSelect
-              v-model="displacement.province"
-              :items="provinces"
-              placeholder="Selecciona província"
-              @update:model-value="displacement.municipality = ''"
-            />
+v-model="displacement.province" :items="provinces" placeholder="Selecciona província"
+              @update:model-value="displacement.municipality = ''" />
           </UFormField>
 
           <UFormField label="Municipi" :name="`displacements.${index}.municipality`" required>
             <MunicipalitySelect
-              v-model="displacement.municipality"
-              :items="getMunicipalities(displacement.province)"
-              :disabled="!displacement.province"
-              placeholder="Selecciona municipi"
-            />
+v-model="displacement.municipality" :items="getMunicipalities(displacement.province)"
+              :disabled="!displacement.province" placeholder="Selecciona municipi" />
           </UFormField>
 
           <div class="flex flex-wrap gap-4">
             <UCheckbox
-              v-model="displacement.hasLunch"
-              label="Dinar inclòs"
+v-model="displacement.hasLunch" label="Dinar inclòs"
               :disabled="state.displacements.some((d, idx) => idx !== index && d.hasLunch)"
-              :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
-            />
+              :ui="{ base: 'w-5 h-5', container: 'flex items-center' }" />
             <UCheckbox
-              v-model="displacement.hasDinner"
-              label="Sopar inclòs"
+v-model="displacement.hasDinner" label="Sopar inclòs"
               :disabled="state.displacements.some((d, idx) => idx !== index && d.hasDinner)"
-              :ui="{ base: 'w-5 h-5', container: 'flex items-center' }"
-            />
+              :ui="{ base: 'w-5 h-5', container: 'flex items-center' }" />
           </div>
 
           <UFormField label="Observacions" :name="`displacements.${index}.observations`">
             <UTextarea
-              v-model="displacement.observations" 
-              placeholder="Detalls addicionals d'aquest desplaçament..."
-              icon="i-heroicons-pencil-square"
-              class="w-full"
-            />
+v-model="displacement.observations" placeholder="Detalls addicionals d'aquest desplaçament..."
+              icon="i-heroicons-pencil-square" class="w-full" />
           </UFormField>
         </div>
       </div>
 
       <UButton
-        icon="i-heroicons-plus-circle"
-        variant="soft"
-        block
+icon="i-heroicons-plus-circle" variant="soft" block
         class="border-dashed border-2 border-gray-300 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500"
-        @click="addDisplacement"
-      >
+        @click="addDisplacement">
         Afegir un altre desplaçament
       </UButton>
     </div>

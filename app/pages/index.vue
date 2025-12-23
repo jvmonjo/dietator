@@ -222,6 +222,12 @@ const handleRecordSelected = (record: ServiceRecord) => {
   }
 }
 
+const handleDateSelected = (date: Date) => {
+  if (serviceListRef.value) {
+    serviceListRef.value.openNewService(date)
+  }
+}
+
 onMounted(() => {
   try {
     if (localStorage.getItem('dietator_welcome_dismissed') === 'true') {
@@ -296,7 +302,7 @@ icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
       <CalendarWidget
 :records="selectedRecords" :year="selectedYear" :month="selectedMonthValue"
         @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event"
-        @record-selected="handleRecordSelected" />
+        @record-selected="handleRecordSelected" @date-selected="handleDateSelected" />
     </section>
 
     <!-- Registered Services -->

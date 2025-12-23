@@ -28,8 +28,11 @@ const formState = reactive({
   nationalId: settingsStore.nationalId || '',
   reminderDay: settingsStore.reminder?.day || 1,
   reminderTime: settingsStore.reminder?.time || '09:00',
-  reminderRecurring: settingsStore.reminder?.isRecurring ?? true
+  reminderRecurring: settingsStore.reminder?.isRecurring ?? true,
+  icalUrl: settingsStore.icalUrl || ''
 })
+
+const isIcalVisible = ref(false)
 
 const exportState = reactive({
   password: '',
@@ -135,7 +138,8 @@ const saveSettings = () => {
       day: formState.reminderDay,
       time: formState.reminderTime,
       isRecurring: formState.reminderRecurring
-    }
+    },
+    icalUrl: formState.icalUrl
   })
   toast.add({ title: 'Configuració guardada', color: 'success' })
 }
@@ -674,6 +678,22 @@ to="/help/maps"
               class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
               <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" /> Com obtenir-la?
             </NuxtLink>
+          </template>
+        </UFormField>
+
+        <UFormField label="Calendari Extern (iCal URL)" name="icalUrl">
+          <UInput
+v-model="formState.icalUrl" :type="isIcalVisible ? 'text' : 'password'" icon="i-heroicons-calendar"
+            placeholder="https://calendar.google.com/..." :ui="{ trailing: 'pointer-events-auto' }">
+            <template #trailing>
+              <UButton
+color="neutral" variant="link"
+                :icon="isIcalVisible ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" :padded="false"
+                @click="isIcalVisible = !isIcalVisible" />
+            </template>
+          </UInput>
+          <template #help>
+            URL pública o privada (si és accessible) del teu calendari de feina en format iCal (.ics).
           </template>
         </UFormField>
       </UForm>
