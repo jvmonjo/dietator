@@ -694,6 +694,11 @@ color="neutral" variant="link"
           </UInput>
           <template #help>
             URL pública o privada (si és accessible) del teu calendari de feina en format iCal (.ics).
+            <NuxtLink
+to="/help/ical"
+              class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
+              <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" /> Com obtenir-la?
+            </NuxtLink>
           </template>
         </UFormField>
       </UForm>

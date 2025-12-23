@@ -23,5 +23,11 @@ export const helpTopics = [
         description: 'Guia de variables i condicionals per personalitzar informes.',
         icon: 'i-heroicons-document-text',
         to: '/help/templates'
+    },
+    {
+        title: 'Calendari Extern (iCal)',
+        description: 'Integració amb Google Calendar, Outlook i Apple Calendar.',
+        icon: 'i-heroicons-calendar',
+        to: '/help/ical'
     }
 ]
