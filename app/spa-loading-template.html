@@ -54,16 +54,13 @@
         <div class="splash-text">Dietator</div>
     </div>
     <script>
-        (function loadSplashIcon () {
+        (function loadSplashIcon() {
             const img = document.querySelector('.splash-icon')
             if (!img) { return }
-            const src = img.getAttribute('data-src') || 'icon.svg'
-            try {
-                const resolved = new URL(src, document.baseURI || window.location.origin).pathname
-                img.src = resolved
-            } catch {
-                img.src = src
-            }
+            // Verify if we can get the base from the injected link tags (which use the env var)
+            const refLink = document.querySelector('link[rel="icon"]')
+            const base = refLink ? refLink.href : window.location.origin + '/'
+            const src = new URL('icon.svg', base).href
         })()
     </script>
 </div>
