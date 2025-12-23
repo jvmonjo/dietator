@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/jvmonjo/dietator/compare/v1.19.0...v1.20.0) (2025-12-23)
+
+
+### Features
+
+* integrate Google Calendar for external events, enhance calendar widget, and add initial notes to service form ([864e7a7](https://github.com/jvmonjo/dietator/commit/864e7a74b26ed3d6b82700548d5276d879af5924))
+
 # [1.19.0](https://github.com/jvmonjo/dietator/compare/v1.18.0...v1.19.0) (2025-12-23)
 
 
