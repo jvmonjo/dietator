@@ -23,7 +23,7 @@ watch(() => [props.year, props.month], ([newYear, newMonth]) => {
     const current = placeholder.value
     // Ensure we have a CalendarDate to compare (DateValue is a union, but we are using CalendarDate)
     if ('year' in current && (current.year !== newYear || current.month !== newMonth)) {
-        placeholder.value = new CalendarDate(newYear, newMonth, 1)
+        placeholder.value = new CalendarDate(newYear || new Date().getFullYear(), newMonth, 1)
     }
 })
 
@@ -98,7 +98,8 @@ const hasRecord = (d: DateValue) => {
         <div class="flex justify-center">
             <UCalendar v-model="date" v-model:placeholder="placeholder" locale="ca-ES">
                 <template #day="{ day }">
-                    <div class="w-full h-full flex items-center justify-center rounded-full relative" :class="[
+                    <div
+class="w-full h-full flex items-center justify-center rounded-full relative" :class="[
                         hasRecord(day) ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-bold' : ''
                     ]">
                         {{ day.day }}
