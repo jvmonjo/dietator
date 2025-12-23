@@ -1,3 +1,12 @@
+# [1.19.0](https://github.com/jvmonjo/dietator/compare/v1.18.0...v1.19.0) (2025-12-23)
+
+
+### Features
+
+* Add calendar view for service records with selection to open in the service list. ([83f54cf](https://github.com/jvmonjo/dietator/commit/83f54cf1c1b69d25a0968527529171f00e5da4c2))
+* Add external calendar integration and enable pre-filling service dates in the form. ([d255816](https://github.com/jvmonjo/dietator/commit/d2558165c65c06409c4b638d98fd90ee8eb54062))
+* add iCal integration help page and link it from settings and help navigation. ([e389551](https://github.com/jvmonjo/dietator/commit/e389551353735ffc731e303303cc25a845183356))
+
 # [1.18.0](https://github.com/jvmonjo/dietator/compare/v1.17.0...v1.18.0) (2025-12-22)
 
 
