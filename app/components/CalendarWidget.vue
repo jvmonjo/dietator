@@ -12,8 +12,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'update:modelValue', value: Date): void
     (e: 'record-selected', record: ServiceRecord): void
-    (e: 'update:year', value: number): void
-    (e: 'update:month', value: number): void
+    (e: 'update:year' | 'update:month', value: number): void
 }>()
 
 // Placeholder for the current view (month/year)

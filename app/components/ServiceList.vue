@@ -151,19 +151,22 @@ defineExpose({
   <section class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }} <UBadge color="primary"
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }} <UBadge
+color="primary"
             variant="soft">{{ recordCount }} registres</UBadge>
         </h2>
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ props.description }}</p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-        <UInput v-model="searchQuery" placeholder="Buscar per municipi, notes..." class="w-full sm:w-64"
+        <UInput
+v-model="searchQuery" placeholder="Buscar per municipi, notes..." class="w-full sm:w-64"
           :ui="{ trailing: 'pointer-events-auto' }">
           <template #leading>
             <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 text-gray-400" />
           </template>
           <template #trailing>
-            <UButton v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-solid"
+            <UButton
+v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-solid"
               :padded="false" @click="searchQuery = ''" />
           </template>
         </UInput>
@@ -197,10 +200,12 @@ defineExpose({
           </template>
           <template #displacements-cell="{ row }">
             <div class="text-sm text-gray-700 dark:text-gray-300">
-              <span v-for="(displacement, index) in (row.original as ServiceRecord).displacements"
+              <span
+v-for="(displacement, index) in (row.original as ServiceRecord).displacements"
                 :key="displacement.id">
                 {{ formatMunicipality(displacement.municipality) }}
-                <span v-if="displacement.hasLunch || displacement.hasDinner"
+                <span
+v-if="displacement.hasLunch || displacement.hasDinner"
                   class="text-xs text-gray-500 dark:text-gray-400">
                   ({{ displacement.hasLunch ? 'D' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? '+' : ''
                   }}{{ displacement.hasDinner ? 'S' : '' }})
@@ -211,27 +216,32 @@ defineExpose({
           <template #actions-cell="{ row }">
             <div class="flex gap-2">
               <UTooltip text="Editar">
-                <UButton v-if="props.enableEdit" icon="i-heroicons-pencil-square" size="xs" variant="soft"
+                <UButton
+v-if="props.enableEdit" icon="i-heroicons-pencil-square" size="xs" variant="soft"
                   @click="openRecord(row.original as ServiceRecord)" />
               </UTooltip>
 
               <UTooltip text="Duplicar">
-                <UButton icon="i-heroicons-document-duplicate" size="xs" variant="soft" color="neutral"
+                <UButton
+icon="i-heroicons-document-duplicate" size="xs" variant="soft" color="neutral"
                   @click="duplicateRecord(row.original as ServiceRecord)" />
               </UTooltip>
 
               <UTooltip text="Eliminar">
-                <UButton v-if="props.enableDelete" icon="i-heroicons-trash" size="xs" color="error" variant="ghost"
+                <UButton
+v-if="props.enableDelete" icon="i-heroicons-trash" size="xs" color="error" variant="ghost"
                   @click="confirmDelete((row.original as ServiceRecord).id)" />
               </UTooltip>
             </div>
           </template>
         </UTable>
 
-        <div v-if="recordCount > 5"
+        <div
+v-if="recordCount > 5"
           class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-200 dark:border-gray-800 pt-4">
           <div class="text-sm text-gray-500 dark:text-gray-400">
-            <USelect v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attribute="value"
+            <USelect
+v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attribute="value"
               size="xs" color="neutral" variant="outline" />
           </div>
 
@@ -263,7 +273,8 @@ defineExpose({
 
         <!-- Body -->
         <div class="p-6">
-          <ServiceForm v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
+          <ServiceForm
+v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
             :is-duplicate="isDuplicateMode" @saved="handleSaved" />
         </div>
       </div>

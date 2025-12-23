@@ -1,7 +1,6 @@
 import type { CalendarConfig } from '~/stores/settings'
 
 const EVENT_TITLE = 'Dietator: Generar documents'
-const EVENT_DESCRIPTION = 'Recordatori per generar i enviar els documents de dietes i desplaçaments del mes.'
 
 function getNextDate(day: number, time: string): Date {
     const [hours, minutes] = time.split(':').map(Number)
