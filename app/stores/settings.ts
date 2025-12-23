@@ -30,7 +30,6 @@ interface SettingsState {
   reminder: CalendarConfig
   googleClientId?: string
   googleCalendarId?: string
-  icalUrl: string
 }
 
 const settingsStorage = piniaPluginPersistedstate.localStorage()
@@ -52,8 +51,7 @@ export const useSettingsStore = defineStore('settings', {
       isRecurring: true
     },
     googleClientId: useRuntimeConfig().public.googleClientId || '',
-    googleCalendarId: '',
-    icalUrl: ''
+    googleCalendarId: ''
   }),
   actions: {
     updateDietPrices(prices: { half: number, full: number }) {
@@ -85,7 +83,6 @@ export const useSettingsStore = defineStore('settings', {
       if (settings.reminder) {
         this.reminder = settings.reminder
       }
-      this.icalUrl = settings.icalUrl || ''
       this.googleClientId = settings.googleClientId || ''
       this.googleCalendarId = settings.googleCalendarId || ''
     }

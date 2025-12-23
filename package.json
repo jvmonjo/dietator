@@ -22,7 +22,6 @@
     "@vite-pwa/nuxt": "^1.1.0",
     "@vueuse/integrations": "^14.1.0",
     "file-saver": "^2.0.5",
-    "ical.js": "^2.2.1",
     "jspdf": "^3.0.4",
     "jszip": "^3.10.1",
     "nuxt": "^4.2.1",

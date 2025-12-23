@@ -28,6 +28,6 @@ export const helpTopics = [
         title: 'Integració Google Calendar',
         description: 'Sincronitza els teus esdeveniments de Google Calendar automàticament.',
         icon: 'i-logos-google-calendar',
-        to: '/help/ical'
+        to: '/help/google-calendar'
     }
 ]
