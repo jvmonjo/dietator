@@ -43,7 +43,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             })
         },
 
-        async syncEvents(mode: 'events' | 'calendars' = 'events') {
+        async syncEvents(mode: 'events' | 'calendars' = 'events', targetDate?: Date) {
             const settings = useSettingsStore()
             const config = useRuntimeConfig()
             const toast = useToast()
@@ -71,7 +71,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                         if (mode === 'calendars') {
                             await this.fetchCalendars(tokenResponse.access_token)
                         } else {
-                            await this.fetchGoogleEvents(tokenResponse.access_token)
+                            await this.fetchGoogleEvents(tokenResponse.access_token, targetDate)
                         }
                     },
                 })
@@ -117,14 +117,14 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             }
         },
 
-        async fetchGoogleEvents(accessToken: string) {
+        async fetchGoogleEvents(accessToken: string, targetDate: Date = new Date()) {
             const settings = useSettingsStore()
             const toast = useToast()
             try {
-                // Determine time range: From 1 month ago to 3 months ahead
-                const now = new Date()
-                const timeMin = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
-                const timeMax = new Date(now.getFullYear(), now.getMonth() + 3, 1).toISOString()
+                // Determine time range: centered around targetDate (+/- 3 months)
+                // This ensures if user is looking at a future/past date, we sync that range
+                const timeMin = new Date(targetDate.getFullYear(), targetDate.getMonth() - 6, 1).toISOString()
+                const timeMax = new Date(targetDate.getFullYear(), targetDate.getMonth() + 6, 1).toISOString()
 
                 const calendarId = settings.googleCalendarId || 'primary'
 

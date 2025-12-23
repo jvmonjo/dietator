@@ -97,7 +97,10 @@ const isToday = (d: DateValue) => {
 }
 
 const handleSync = async () => {
-    await externalCalendar.syncEvents()
+    // Pass the current view date to ensure we sync the relevant month
+    // placeholder is a CalendarDate { year, month, day }
+    const currentViewDate = new Date(placeholder.value.year, placeholder.value.month - 1, 1)
+    await externalCalendar.syncEvents('events', currentViewDate)
 }
 </script>
 
