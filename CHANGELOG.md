@@ -1,3 +1,15 @@
+# [1.21.0](https://github.com/jvmonjo/dietator/compare/v1.20.3...v1.21.0) (2025-12-23)
+
+
+### Bug Fixes
+
+* Set icon image source in SPA loading template ([7e55bc0](https://github.com/jvmonjo/dietator/commit/7e55bc0495fc78d2bb8b6a6aed4b01e4eb94a44f))
+
+
+### Features
+
+* Allow initializing service form with start/end times and displacements via props and update `openNewService` to pass these values. ([2e70ba8](https://github.com/jvmonjo/dietator/commit/2e70ba82eb8b1e39f0aa1476dfa75154e3a6c77e))
+
 ## [1.20.3](https://github.com/jvmonjo/dietator/compare/v1.20.2...v1.20.3) (2025-12-23)
 
 
