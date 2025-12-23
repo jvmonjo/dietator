@@ -1,3 +1,12 @@
+# [1.22.0](https://github.com/jvmonjo/dietator/compare/v1.21.0...v1.22.0) (2025-12-23)
+
+
+### Features
+
+* Add displacement duplication functionality to the service form. ([d6619eb](https://github.com/jvmonjo/dietator/commit/d6619ebfa1fe43ec56b211c282dec6642f59a4de))
+* Dynamically fetch external calendar events based on a target date from the current view, expanding the sync range. ([7beb4b0](https://github.com/jvmonjo/dietator/commit/7beb4b00744ccb93f58f0356db466889dfbea51d))
+* Refine the diet warning condition and enhance calendar display to visually distinguish records based on diet inclusion. ([9c64a1d](https://github.com/jvmonjo/dietator/commit/9c64a1d8a7c4fd8f6b95a2647473b9bde5c49f4e))
+
 # [1.21.0](https://github.com/jvmonjo/dietator/compare/v1.20.3...v1.21.0) (2025-12-23)
 
 
