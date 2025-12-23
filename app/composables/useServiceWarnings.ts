@@ -47,7 +47,8 @@ export const useServiceWarnings = () => {
         if (isSameDay) {
             // 2. End < 15:30 (15,5 * 60 = 930 minutes)
             // "Compte. Assegura't de que has dinat i tens dret a dieta"
-            if (totalMinutes < 930) {
+            const hasLunch = displacements.some(d => d.hasLunch)
+            if (totalMinutes < 930 && hasLunch) {
                 warnings.push({
                     message: "Compte. Assegura't de que has dinat i tens dret a dieta",
                     type: 'warning'
