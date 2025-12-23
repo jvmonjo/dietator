@@ -61,6 +61,7 @@
             const refLink = document.querySelector('link[rel="icon"]')
             const base = refLink ? refLink.href : window.location.origin + '/'
             const src = new URL('icon.svg', base).href
+            img.src = src
         })()
     </script>
 </div>
