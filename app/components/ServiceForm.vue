@@ -100,6 +100,22 @@ const removeDisplacement = (index: number) => {
   state.displacements.splice(index, 1)
 }
 
+const duplicateDisplacement = (index: number) => {
+  const original = state.displacements[index]!
+  // Create a copy but reset meal flags to avoid claiming duplicate diets by accident
+  const copy: FormDisplacement = {
+    ...original,
+    id: uuidv4(),
+    hasLunch: false,
+    hasDinner: false,
+    province: original.province || '',
+    municipality: original.municipality || ''
+  }
+  // Insert after the original
+  state.displacements.splice(index + 1, 0, copy)
+  toast.add({ title: 'Desplaçament duplicat', color: 'success' })
+}
+
 const resetState = () => {
   if (props.initialDate) {
     const baseDate = new Date(props.initialDate)
@@ -273,8 +289,7 @@ const serviceWarnings = computed(() => {
     </div>
 
     <UFormField label="Notes (Opcional)" name="notes">
-      <UTextarea
-v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="3" autoresize
+      <UTextarea v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="3" autoresize
         class="w-full" />
     </UFormField>
 
@@ -282,52 +297,49 @@ v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="
 
     <!-- Displacements List -->
     <div ref="displacementListRef" class="space-y-4">
-      <div
-v-for="(displacement, index) in state.displacements" :key="displacement.id"
+      <div v-for="(displacement, index) in state.displacements" :key="displacement.id"
         class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 relative group transition-all hover:border-primary-200 dark:hover:border-primary-800">
         <div class="absolute top-4 right-4 flex items-center gap-2">
-          <UIcon
-name="i-heroicons-bars-3"
+          <UIcon name="i-heroicons-bars-3"
             class="w-5 h-5 text-gray-400 cursor-move drag-handle hover:text-gray-600 dark:hover:text-gray-300" />
-          <UButton
-v-if="state.displacements.length > 1" icon="i-heroicons-trash" color="error" variant="ghost"
+
+          <UTooltip text="Duplicar desplaçament">
+            <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
+              @click="duplicateDisplacement(index)" />
+          </UTooltip>
+
+          <UButton v-if="state.displacements.length > 1" icon="i-heroicons-trash" color="error" variant="ghost"
             size="xs" @click="removeDisplacement(index)" />
         </div>
 
         <div class="grid grid-cols-1 gap-4 pr-8">
           <UFormField label="Província" :name="`displacements.${index}.province`" required>
-            <ProvinceSelect
-v-model="displacement.province" :items="provinces" placeholder="Selecciona província"
+            <ProvinceSelect v-model="displacement.province" :items="provinces" placeholder="Selecciona província"
               @update:model-value="displacement.municipality = ''" />
           </UFormField>
 
           <UFormField label="Municipi" :name="`displacements.${index}.municipality`" required>
-            <MunicipalitySelect
-v-model="displacement.municipality" :items="getMunicipalities(displacement.province)"
+            <MunicipalitySelect v-model="displacement.municipality" :items="getMunicipalities(displacement.province)"
               :disabled="!displacement.province" placeholder="Selecciona municipi" />
           </UFormField>
 
           <div class="flex flex-wrap gap-4">
-            <UCheckbox
-v-model="displacement.hasLunch" label="Dinar inclòs"
+            <UCheckbox v-model="displacement.hasLunch" label="Dinar inclòs"
               :disabled="state.displacements.some((d, idx) => idx !== index && d.hasLunch)"
               :ui="{ base: 'w-5 h-5', container: 'flex items-center' }" />
-            <UCheckbox
-v-model="displacement.hasDinner" label="Sopar inclòs"
+            <UCheckbox v-model="displacement.hasDinner" label="Sopar inclòs"
               :disabled="state.displacements.some((d, idx) => idx !== index && d.hasDinner)"
               :ui="{ base: 'w-5 h-5', container: 'flex items-center' }" />
           </div>
 
           <UFormField label="Observacions" :name="`displacements.${index}.observations`">
-            <UTextarea
-v-model="displacement.observations" placeholder="Detalls addicionals d'aquest desplaçament..."
+            <UTextarea v-model="displacement.observations" placeholder="Detalls addicionals d'aquest desplaçament..."
               icon="i-heroicons-pencil-square" class="w-full" />
           </UFormField>
         </div>
       </div>
 
-      <UButton
-icon="i-heroicons-plus-circle" variant="soft" block
+      <UButton icon="i-heroicons-plus-circle" variant="soft" block
         class="border-dashed border-2 border-gray-300 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500"
         @click="addDisplacement">
         Afegir un altre desplaçament
