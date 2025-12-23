@@ -37,10 +37,10 @@ const filteredRecords = computed(() => {
   return props.records.filter(record => {
     // Check notes
     if (record.notes?.toLowerCase().includes(query)) return true
-    
+
     // Check displacements (municipality or observations)
-    return record.displacements.some(d => 
-      d.municipality.toLowerCase().includes(query) || 
+    return record.displacements.some(d =>
+      d.municipality.toLowerCase().includes(query) ||
       d.observations?.toLowerCase().includes(query)
     )
   })
@@ -141,43 +141,34 @@ const formatMunicipality = (name: string) => {
   if (!name) return ''
   return name.length > 3 ? name.substring(0, 3) : name
 }
+
+defineExpose({
+  openRecord
+})
 </script>
 
 <template>
   <section class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }} <UBadge color="primary" variant="soft">{{ recordCount }} registres</UBadge></h2>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }} <UBadge color="primary"
+            variant="soft">{{ recordCount }} registres</UBadge>
+        </h2>
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ props.description }}</p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-        <UInput
-          v-model="searchQuery"
-          placeholder="Buscar per municipi, notes..."
-          class="w-full sm:w-64"
-          :ui="{ trailing: 'pointer-events-auto' }"
-        >
+        <UInput v-model="searchQuery" placeholder="Buscar per municipi, notes..." class="w-full sm:w-64"
+          :ui="{ trailing: 'pointer-events-auto' }">
           <template #leading>
             <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 text-gray-400" />
           </template>
           <template #trailing>
-            <UButton
-              v-if="searchQuery"
-              color="neutral"
-              variant="link"
-              icon="i-heroicons-x-mark-20-solid"
-              :padded="false"
-              @click="searchQuery = ''"
-            />
+            <UButton v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-solid"
+              :padded="false" @click="searchQuery = ''" />
           </template>
         </UInput>
         <div class="flex items-center gap-3">
-          <UButton
-            icon="i-heroicons-plus"
-            color="primary"
-            variant="soft"
-            @click="openNewService"
-          >
+          <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="openNewService">
             Afegir servei
           </UButton>
         </div>
@@ -190,17 +181,12 @@ const formatMunicipality = (name: string) => {
       </div>
       <div v-else class="space-y-4">
 
-        <UTable
-          :key="page"
-          :data="paginatedData"
-          :columns="columns"
-        >
+        <UTable :key="page" :data="paginatedData" :columns="columns">
           <template #startTime-cell="{ row }">
             <div class="flex items-center gap-2">
               <UTooltip
                 v-if="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).length > 0"
-                :text="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).map(w => w.message).join('\n')"
-              >
+                :text="useServiceWarnings().getServiceWarnings((row.original as ServiceRecord).startTime, (row.original as ServiceRecord).endTime, (row.original as ServiceRecord).displacements).map(w => w.message).join('\n')">
                 <UIcon name="i-heroicons-exclamation-triangle" class="text-amber-500 w-5 h-5 flex-shrink-0" />
               </UTooltip>
               <span>{{ formatDate((row.original as ServiceRecord).startTime) }}</span>
@@ -211,10 +197,13 @@ const formatMunicipality = (name: string) => {
           </template>
           <template #displacements-cell="{ row }">
             <div class="text-sm text-gray-700 dark:text-gray-300">
-              <span v-for="(displacement, index) in (row.original as ServiceRecord).displacements" :key="displacement.id">
+              <span v-for="(displacement, index) in (row.original as ServiceRecord).displacements"
+                :key="displacement.id">
                 {{ formatMunicipality(displacement.municipality) }}
-                <span v-if="displacement.hasLunch || displacement.hasDinner" class="text-xs text-gray-500 dark:text-gray-400">
-                  ({{ displacement.hasLunch ? 'D' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? '+' : '' }}{{ displacement.hasDinner ? 'S' : '' }})
+                <span v-if="displacement.hasLunch || displacement.hasDinner"
+                  class="text-xs text-gray-500 dark:text-gray-400">
+                  ({{ displacement.hasLunch ? 'D' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? '+' : ''
+                  }}{{ displacement.hasDinner ? 'S' : '' }})
                 </span><span v-if="index < (row.original as ServiceRecord).displacements.length - 1">, </span>
               </span>
             </div>
@@ -222,92 +211,62 @@ const formatMunicipality = (name: string) => {
           <template #actions-cell="{ row }">
             <div class="flex gap-2">
               <UTooltip text="Editar">
-                <UButton
-                  v-if="props.enableEdit"
-                  icon="i-heroicons-pencil-square"
-                  size="xs"
-                  variant="soft"
-                  @click="openRecord(row.original as ServiceRecord)"
-                />
+                <UButton v-if="props.enableEdit" icon="i-heroicons-pencil-square" size="xs" variant="soft"
+                  @click="openRecord(row.original as ServiceRecord)" />
               </UTooltip>
-              
+
               <UTooltip text="Duplicar">
-                <UButton
-                  icon="i-heroicons-document-duplicate"
-                  size="xs"
-                  variant="soft"
-                  color="neutral"
-                  @click="duplicateRecord(row.original as ServiceRecord)"
-                />
+                <UButton icon="i-heroicons-document-duplicate" size="xs" variant="soft" color="neutral"
+                  @click="duplicateRecord(row.original as ServiceRecord)" />
               </UTooltip>
-              
+
               <UTooltip text="Eliminar">
-                <UButton
-                  v-if="props.enableDelete"
-                  icon="i-heroicons-trash"
-                  size="xs"
-                  color="error"
-                  variant="ghost"
-                  @click="confirmDelete((row.original as ServiceRecord).id)"
-                />
+                <UButton v-if="props.enableDelete" icon="i-heroicons-trash" size="xs" color="error" variant="ghost"
+                  @click="confirmDelete((row.original as ServiceRecord).id)" />
               </UTooltip>
             </div>
           </template>
         </UTable>
 
-        <div v-if="recordCount > 5" class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-200 dark:border-gray-800 pt-4">
+        <div v-if="recordCount > 5"
+          class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-200 dark:border-gray-800 pt-4">
           <div class="text-sm text-gray-500 dark:text-gray-400">
-             <USelect
-              v-model="itemsPerPage"
-              :items="pageOptions"
-              option-attribute="label"
-              value-attribute="value"
-              size="xs"
-              color="neutral"
-              variant="outline"
-             />
+            <USelect v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attribute="value"
+              size="xs" color="neutral" variant="outline" />
           </div>
 
-          <UPagination
-            v-if="totalPages > 1"
-            v-model:page="page"
-            :page-count="itemsPerPage"
-            :total="recordCount"
-          />
+          <UPagination v-if="totalPages > 1" v-model:page="page" :page-count="itemsPerPage" :total="recordCount" />
         </div>
       </div>
     </UCard>
 
     <!-- Custom Modal Overlay -->
     <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <!-- Backdrop -->
-        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" @click="closeModal" />
-        
-        <!-- Modal Content -->
-        <div class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col">
-            <!-- Header -->
-            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-                <div>
-                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ isDuplicateMode ? 'Duplicar servei' : (selectedRecord ? 'Editar servei' : 'Nou servei') }}
-                    </h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ isDuplicateMode ? 'Crea un nou servei a partir de les dades existents' : (selectedRecord ? 'Actualitza les dades del servei seleccionat' : 'Ompli les dades del servei') }}
-                    </p>
-                </div>
-                <UButton icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" @click="closeModal" />
-            </div>
+      <!-- Backdrop -->
+      <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" @click="closeModal" />
 
-            <!-- Body -->
-            <div class="p-6">
-                 <ServiceForm
-                    v-if="selectedRecord || !selectedRecord"
-                    :initial-data="selectedRecord"
-                    :is-duplicate="isDuplicateMode"
-                    @saved="handleSaved"
-                />
-            </div>
+      <!-- Modal Content -->
+      <div
+        class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ isDuplicateMode ? 'Duplicar servei' : (selectedRecord ? 'Editar servei' : 'Nou servei') }}
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {{ isDuplicateMode ? 'Crea un nou servei a partir de les dades existents' : (selectedRecord ? 'Actualitza les dades del servei seleccionat' : 'Ompli les dades del servei') }}
+            </p>
+          </div>
+          <UButton icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" @click="closeModal" />
         </div>
+
+        <!-- Body -->
+        <div class="p-6">
+          <ServiceForm v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
+            :is-duplicate="isDuplicateMode" @saved="handleSaved" />
+        </div>
+      </div>
     </div>
 
     <!-- Confirmation Modal -->
@@ -317,6 +276,6 @@ const formatMunicipality = (name: string) => {
         <UButton color="error" @click="handleConfirmDelete">Eliminar</UButton>
       </template>
     </UModal>
-      
+
   </section>
 </template>

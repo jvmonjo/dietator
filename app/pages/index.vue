@@ -214,6 +214,14 @@ const dismissWelcome = () => {
   }
 }
 
+const serviceListRef = ref()
+
+const handleRecordSelected = (record: ServiceRecord) => {
+  if (serviceListRef.value) {
+    serviceListRef.value.openRecord(record)
+  }
+}
+
 onMounted(() => {
   try {
     if (localStorage.getItem('dietator_welcome_dismissed') === 'true') {
@@ -228,11 +236,9 @@ onMounted(() => {
 <template>
   <div class="space-y-8">
     <!-- Hero Section -->
-    <div
-v-if="showWelcome"
+    <div v-if="showWelcome"
       class="relative bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 sm:p-12">
-      <UButton
-icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
+      <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
         @click="dismissWelcome" />
       <section class="text-center space-y-4">
         <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
@@ -245,8 +251,7 @@ icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 
       </section>
     </div>
 
-    <UAlert
-v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
+    <UAlert v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
       title="Afegeix el preu de la dieta"
       description="Configura el preu per poder calcular correctament els totals i generar documents." />
 
@@ -269,12 +274,10 @@ v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" var
             </p>
           </div>
           <div class="grid grid-cols-2 sm:flex sm:items-center gap-3 w-full sm:w-auto">
-            <USelect
-v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
+            <USelect v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
               class="w-full sm:min-w-[140px]" />
             <USelect v-model="selectedYear" :items="availableYears" class="w-full sm:w-[100px]" />
-            <UButton
-icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
+            <UButton icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
               class="col-span-2 sm:w-auto flex justify-center" @click="exportReport">
               Exportar
             </UButton>
@@ -283,9 +286,17 @@ icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
       </UCard>
     </section>
 
+    <!-- Calendar View -->
+    <section>
+      <CalendarWidget :records="selectedRecords" :year="selectedYear" :month="selectedMonthValue"
+        @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event"
+        @record-selected="handleRecordSelected" />
+    </section>
+
     <!-- Registered Services -->
     <section>
-      <ServiceList title="Serveis registrats" :description="serviceListDescription" :records="selectedRecords" />
+      <ServiceList ref="serviceListRef" title="Serveis registrats" :description="serviceListDescription"
+        :records="selectedRecords" />
     </section>
 
     <!-- Worked Hours -->
@@ -357,8 +368,7 @@ icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
       </UCard>
 
       <!-- Year in Review Card -->
-      <UCard
-v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
+      <UCard v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
         class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all group relative overflow-hidden"
         @click="navigateTo('/wrapped')">
         <!-- Background Decoration -->
