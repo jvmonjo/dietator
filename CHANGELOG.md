@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/jvmonjo/dietator/compare/v1.20.0...v1.20.1) (2025-12-23)
+
+
+### Bug Fixes
+
+* conditionally disable Google Sync button and display a warning when `NUXT_PUBLIC_GOOGLE_CLIENT_ID` is missing, and configure it for GitHub Pages deployment. ([3a23137](https://github.com/jvmonjo/dietator/commit/3a23137277febf9024bdb7fe235638cfcb23e57a))
+
 # [1.20.0](https://github.com/jvmonjo/dietator/compare/v1.19.0...v1.20.0) (2025-12-23)
 
 
