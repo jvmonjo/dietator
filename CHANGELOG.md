@@ -1,3 +1,10 @@
+## [1.20.3](https://github.com/jvmonjo/dietator/compare/v1.20.2...v1.20.3) (2025-12-23)
+
+
+### Bug Fixes
+
+* wrong icon.svg path ([48d076f](https://github.com/jvmonjo/dietator/commit/48d076f90343007a42e834a1078d74d4f27e9588))
+
 ## [1.20.2](https://github.com/jvmonjo/dietator/compare/v1.20.1...v1.20.2) (2025-12-23)
 
 
