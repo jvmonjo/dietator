@@ -104,10 +104,12 @@ const handleSync = async () => {
             </h3>
             <div v-if="useRuntimeConfig().public.googleClientId">
                 <UTooltip v-if="Object.keys(externalCalendar.events).length" text="Sincronitzar calendari extern">
-                    <UButton :loading="externalCalendar.isLoading" icon="i-heroicons-arrow-path" variant="ghost"
+                    <UButton
+:loading="externalCalendar.isLoading" icon="i-heroicons-arrow-path" variant="ghost"
                         color="neutral" size="xs" @click="handleSync" />
                 </UTooltip>
-                <UButton v-else :loading="externalCalendar.isLoading" icon="i-logos-google-icon" variant="soft"
+                <UButton
+v-else :loading="externalCalendar.isLoading" icon="i-logos-google-icon" variant="soft"
                     size="xs" color="neutral" @click="handleSync">
                     Connectar
                 </UButton>
@@ -117,14 +119,16 @@ const handleSync = async () => {
         <div class="flex justify-center">
             <UCalendar v-model="date" v-model:placeholder="placeholder" locale="ca-ES" :fixed-weeks="false">
                 <template #day="{ day }">
-                    <div class="w-full h-full flex items-center justify-center rounded-full relative" :class="[
+                    <div
+class="w-full h-full flex items-center justify-center rounded-full relative" :class="[
                         hasRecord(day) ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-bold' : '',
                         !hasRecord(day) && hasExternalEvent(day) ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-bold cursor-pointer' : '',
                         isToday(day) ? 'ring-2 ring-primary-500' : ''
                     ]">
                         {{ day.day }}
                         <div v-if="hasRecord(day)" class="absolute bottom-1 w-1 h-1 bg-green-500 rounded-full" />
-                        <div v-else-if="hasExternalEvent(day)"
+                        <div
+v-else-if="hasExternalEvent(day)"
                             class="absolute bottom-1 w-1 h-1 bg-orange-500 rounded-full" />
                     </div>
                 </template>
