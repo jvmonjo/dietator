@@ -15,7 +15,7 @@ const emit = defineEmits<{
     (e: 'update:year' | 'update:month', value: number): void
 }>()
 
-const settingsStore = useSettingsStore()
+
 const externalCalendar = useExternalCalendarStore()
 
 // Placeholder for the current view (month/year)
@@ -42,11 +42,12 @@ watch(placeholder, (newVal) => {
 
 const date = computed({
     get: () => {
-        if (!props.modelValue) return new CalendarDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate())
+        if (!props.modelValue) return undefined
         const d = props.modelValue
         return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate())
     },
     set: (val: DateValue) => {
+        if (!val) return
         const d = new Date(val.year, val.month - 1, val.day)
         emit('update:modelValue', d)
 
@@ -82,15 +83,17 @@ const hasExternalEvent = (d: DateValue) => {
     return externalCalendar.hasEvent(dateStr)
 }
 
+const isToday = (d: DateValue) => {
+    const today = new Date()
+    return d.day === today.getDate() &&
+        d.month === (today.getMonth() + 1) &&
+        d.year === today.getFullYear()
+}
+
 const handleSync = async () => {
     await externalCalendar.syncEvents()
 }
 
-onMounted(() => {
-    if (settingsStore.icalUrl && !Object.keys(externalCalendar.events).length) {
-        externalCalendar.syncEvents()
-    }
-})
 </script>
 
 <template>
@@ -99,25 +102,29 @@ onMounted(() => {
             <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
                 Calendari
             </h3>
-            <UTooltip v-if="settingsStore.icalUrl" text="Sincronitzar calendari extern">
-                <UButton
-:loading="externalCalendar.isLoading" icon="i-heroicons-arrow-path" variant="ghost"
-                    color="neutral" size="xs" @click="handleSync" />
-            </UTooltip>
+            <div v-if="useRuntimeConfig().public.googleClientId">
+                <UTooltip v-if="Object.keys(externalCalendar.events).length" text="Sincronitzar calendari extern">
+                    <UButton :loading="externalCalendar.isLoading" icon="i-heroicons-arrow-path" variant="ghost"
+                        color="neutral" size="xs" @click="handleSync" />
+                </UTooltip>
+                <UButton v-else :loading="externalCalendar.isLoading" icon="i-logos-google-icon" variant="soft"
+                    size="xs" color="neutral" @click="handleSync">
+                    Connectar
+                </UButton>
+            </div>
         </div>
 
         <div class="flex justify-center">
-            <UCalendar v-model="date" v-model:placeholder="placeholder" locale="ca-ES">
+            <UCalendar v-model="date" v-model:placeholder="placeholder" locale="ca-ES" :fixed-weeks="false">
                 <template #day="{ day }">
-                    <div
-class="w-full h-full flex items-center justify-center rounded-full relative" :class="[
+                    <div class="w-full h-full flex items-center justify-center rounded-full relative" :class="[
                         hasRecord(day) ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-bold' : '',
-                        !hasRecord(day) && hasExternalEvent(day) ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-bold cursor-pointer' : ''
+                        !hasRecord(day) && hasExternalEvent(day) ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-bold cursor-pointer' : '',
+                        isToday(day) ? 'ring-2 ring-primary-500' : ''
                     ]">
                         {{ day.day }}
                         <div v-if="hasRecord(day)" class="absolute bottom-1 w-1 h-1 bg-green-500 rounded-full" />
-                        <div
-v-else-if="hasExternalEvent(day)"
+                        <div v-else-if="hasExternalEvent(day)"
                             class="absolute bottom-1 w-1 h-1 bg-orange-500 rounded-full" />
                     </div>
                 </template>

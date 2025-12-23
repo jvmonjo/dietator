@@ -29,10 +29,9 @@ const formState = reactive({
   reminderDay: settingsStore.reminder?.day || 1,
   reminderTime: settingsStore.reminder?.time || '09:00',
   reminderRecurring: settingsStore.reminder?.isRecurring ?? true,
-  icalUrl: settingsStore.icalUrl || ''
+  googleClientId: settingsStore.googleClientId || '',
+  googleCalendarId: settingsStore.googleCalendarId || ''
 })
-
-const isIcalVisible = ref(false)
 
 const exportState = reactive({
   password: '',
@@ -139,7 +138,8 @@ const saveSettings = () => {
       time: formState.reminderTime,
       isRecurring: formState.reminderRecurring
     },
-    icalUrl: formState.icalUrl
+    googleClientId: formState.googleClientId,
+    googleCalendarId: formState.googleCalendarId
   })
   toast.add({ title: 'Configuració guardada', color: 'success' })
 }
@@ -563,6 +563,8 @@ const formatBytes = (bytes: number) => {
 
 const dayOptions = Array.from({ length: 31 }, (_, i) => ({ label: String(i + 1), value: i + 1 }))
 
+const externalCalendarStore = useExternalCalendarStore()
+
 const exportCalendar = (type: 'google' | 'ics') => {
   const config = {
     day: formState.reminderDay,
@@ -577,6 +579,19 @@ const exportCalendar = (type: 'google' | 'ics') => {
     const blob = generateIcsFile(config)
     saveAs(blob, 'recordatori-dietator.ics')
   }
+}
+
+const googleButtonLabel = computed(() => Object.keys(externalCalendarStore.events).length ? 'Sincronitzar ara' : 'Connectar amb Google Calendar')
+
+const calendarOptions = computed(() => {
+  return externalCalendarStore.calendars.map(c => ({ label: c.summary, value: c.id }))
+})
+
+const saveAndSyncCalendar = async () => {
+  saveSettings()
+  // Trigger a re-sync with the new calendar ID (requires a fresh token unfortunately, or standard re-flow)
+  // Actually, syncEvents('events') will trigger the oauth flow again which is safe.
+  await externalCalendarStore.syncEvents('events')
 }
 
 const formatTimestamp = (value?: string) => {
@@ -681,26 +696,54 @@ to="/help/maps"
           </template>
         </UFormField>
 
-        <UFormField label="Calendari Extern (iCal URL)" name="icalUrl">
-          <UInput
-v-model="formState.icalUrl" :type="isIcalVisible ? 'text' : 'password'" icon="i-heroicons-calendar"
-            placeholder="https://calendar.google.com/..." :ui="{ trailing: 'pointer-events-auto' }">
-            <template #trailing>
-              <UButton
-color="neutral" variant="link"
-                :icon="isIcalVisible ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" :padded="false"
-                @click="isIcalVisible = !isIcalVisible" />
-            </template>
-          </UInput>
-          <template #help>
-            URL pública o privada (si és accessible) del teu calendari de feina en format iCal (.ics).
-            <NuxtLink
-to="/help/ical"
-              class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
-              <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" /> Com obtenir-la?
-            </NuxtLink>
-          </template>
+        <div class="relative py-4">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-gray-300 dark:border-gray-700" />
+          </div>
+          <div class="relative flex justify-center">
+            <span class="bg-white dark:bg-gray-900 px-2 text-sm text-gray-500">Calendaris Externs</span>
+          </div>
+        </div>
+
+        <UFormField label="Google Calendar" name="googleCalendar">
+          <div class="flex flex-col gap-2">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Sincronitzeu el vostre calendari principal per veure els dies ocupats.
+            </p>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-3">
+                <UButton
+:loading="externalCalendarStore.isLoading" icon="i-logos-google-icon" color="neutral"
+                  variant="soft" @click="externalCalendarStore.syncEvents('events')">
+                  {{ googleButtonLabel }}
+                </UButton>
+                <UBadge v-if="Object.keys(externalCalendarStore.events).length" color="success" variant="subtle">
+                  Connectat
+                </UBadge>
+              </div>
+
+              <div v-if="Object.keys(externalCalendarStore.events).length">
+                <UButton
+                  v-if="externalCalendarStore.calendars.length === 0" icon="i-heroicons-list-bullet" color="neutral"
+                  variant="ghost" size="xs" :loading="externalCalendarStore.isLoading"
+                  @click="externalCalendarStore.syncEvents('calendars')">
+                  Canviar calendari (Carregar llista)
+                </UButton>
+
+                <UFormField v-else label="Selecciona un calendari" name="calendarSelector">
+                  <USelect
+v-model="formState.googleCalendarId" :items="calendarOptions" placeholder="Selecciona..."
+                    style="width: 100%" @change="saveAndSyncCalendar" />
+                  <template #help>
+                    Canviar el calendari tornarà a demanar permisos per sincronitzar els nous esdeveniments.
+                  </template>
+                </UFormField>
+              </div>
+            </div>
+          </div>
         </UFormField>
+
+
       </UForm>
     </UCard>
 

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { piniaPluginPersistedstate } from '#imports'
+import { piniaPluginPersistedstate, useRuntimeConfig } from '#imports'
 
 export type TemplateType = 'monthly' | 'service'
 
@@ -28,6 +28,8 @@ interface SettingsState {
   lastName?: string
   nationalId?: string
   reminder: CalendarConfig
+  googleClientId?: string
+  googleCalendarId?: string
   icalUrl: string
 }
 
@@ -49,6 +51,8 @@ export const useSettingsStore = defineStore('settings', {
       time: '09:00',
       isRecurring: true
     },
+    googleClientId: useRuntimeConfig().public.googleClientId || '',
+    googleCalendarId: '',
     icalUrl: ''
   }),
   actions: {
@@ -82,6 +86,8 @@ export const useSettingsStore = defineStore('settings', {
         this.reminder = settings.reminder
       }
       this.icalUrl = settings.icalUrl || ''
+      this.googleClientId = settings.googleClientId || ''
+      this.googleCalendarId = settings.googleCalendarId || ''
     }
   },
   persist: {

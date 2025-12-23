@@ -18,13 +18,16 @@ const uuidv4 = () => {
 const props = withDefaults(defineProps<{
   initialData?: ServiceRecord | null
   initialDate?: Date | null
+  initialNotes?: string
   isDuplicate?: boolean
 }>(), {
   initialData: null,
   initialDate: null,
+  initialNotes: '',
   isDuplicate: false
 })
 
+// ... (emit and setup)
 const emit = defineEmits<{
   (e: 'saved', record: ServiceRecord): void
 }>()
@@ -93,8 +96,7 @@ const removeDisplacement = (index: number) => {
 
 const resetState = () => {
   if (props.initialDate) {
-    // Set to passed date with default hours (e.g., 09:00 - 18:00)
-    // Ensure we format as local datetime string YYYY-MM-DDTHH:mm
+    // ... (date logic)
     const baseDate = new Date(props.initialDate)
     const yyyy = baseDate.getFullYear()
     const mm = String(baseDate.getMonth() + 1).padStart(2, '0')
@@ -108,7 +110,7 @@ const resetState = () => {
   }
   state.displacements = [createEmptyDisplacement()]
   state.kilometers = undefined
-  state.notes = ''
+  state.notes = props.initialNotes || ''
 }
 
 const loadRecord = (record: ServiceRecord) => {
@@ -125,7 +127,9 @@ const loadRecord = (record: ServiceRecord) => {
   state.notes = record.notes || ''
 }
 
-watch(() => [props.initialData, props.initialDate], () => {
+// ... (loadRecord)
+
+watch(() => [props.initialData, props.initialDate, props.initialNotes], () => {
   if (props.initialData) {
     loadRecord(props.initialData)
   } else {

@@ -6,7 +6,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      appVersion: process.env.NUXT_PUBLIC_APP_VERSION || 'dev'
+      appVersion: process.env.NUXT_PUBLIC_APP_VERSION || 'dev',
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || ''
     }
   },
   devtools: { enabled: true },

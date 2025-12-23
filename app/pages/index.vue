@@ -4,6 +4,7 @@ import type { ServiceRecord } from '~/stores/services'
 import { generateWordReport } from '~/utils/export'
 
 const settingsStore = useSettingsStore()
+const externalCalendar = useExternalCalendarStore()
 const toast = useToast()
 const { calculateTotals, currentMonthValue, monthOptions, getRecordsForMonth } = useServiceStats()
 
@@ -223,8 +224,16 @@ const handleRecordSelected = (record: ServiceRecord) => {
 }
 
 const handleDateSelected = (date: Date) => {
+  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  const events = externalCalendar.getEventsForDate(dateStr)
+  let notes = ''
+
+  if (events.length > 0) {
+    notes = '📅 Esdeveniments Google Calendar:\n' + events.map(e => `- ${e}`).join('\n')
+  }
+
   if (serviceListRef.value) {
-    serviceListRef.value.openNewService(date)
+    serviceListRef.value.openNewService(date, notes)
   }
 }
 

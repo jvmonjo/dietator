@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "typecheck": "nuxt typecheck",
     "generate-icons": "npx pwa-asset-generator public/icon.svg public/ --opaque false --icon-only --favicon --mstile --type png",
     "prepare": "husky"

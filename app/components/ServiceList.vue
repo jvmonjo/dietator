@@ -68,6 +68,7 @@ const paginatedData = computed(() => {
 const isModalOpen = ref(false)
 const selectedRecord = ref<ServiceRecord | null>(null)
 const selectedDate = ref<Date | null>(null)
+const selectedNotes = ref<string>('')
 const isDuplicateMode = ref(false)
 
 const modalTitle = computed(() => {
@@ -90,12 +91,7 @@ const columns = [
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as any[]
 
-const openNewService = (date?: Date) => {
-  selectedRecord.value = null
-  selectedDate.value = date || null
-  isDuplicateMode.value = false
-  isModalOpen.value = true
-}
+// ...
 
 const openRecord = (record: ServiceRecord) => {
   selectedRecord.value = record
@@ -111,10 +107,21 @@ const duplicateRecord = (record: ServiceRecord) => {
   isModalOpen.value = true
 }
 
+const openNewService = (date?: Date, notes?: string) => {
+  selectedRecord.value = null
+  selectedDate.value = date || null
+  selectedNotes.value = notes || ''
+  isDuplicateMode.value = false
+  isModalOpen.value = true
+}
+
+// ...
+
 const closeModal = () => {
   isModalOpen.value = false
   selectedRecord.value = null
   selectedDate.value = null
+  selectedNotes.value = ''
   isDuplicateMode.value = false
 }
 
@@ -293,7 +300,8 @@ v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attri
         <div class="p-6">
           <ServiceForm
 v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
-            :initial-date="selectedDate" :is-duplicate="isDuplicateMode" @saved="handleSaved" />
+            :initial-date="selectedDate" :initial-notes="selectedNotes" :is-duplicate="isDuplicateMode"
+            @saved="handleSaved" />
         </div>
       </div>
     </div>

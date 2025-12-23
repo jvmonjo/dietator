@@ -25,9 +25,9 @@ export const helpTopics = [
         to: '/help/templates'
     },
     {
-        title: 'Calendari Extern (iCal)',
-        description: 'Integració amb Google Calendar, Outlook i Apple Calendar.',
-        icon: 'i-heroicons-calendar',
+        title: 'Integració Google Calendar',
+        description: 'Sincronitza els teus esdeveniments de Google Calendar automàticament.',
+        icon: 'i-logos-google-calendar',
         to: '/help/ical'
     }
 ]
