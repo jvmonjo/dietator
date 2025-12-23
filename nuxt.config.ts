@@ -1,4 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+const baseURL = process.env.NUXT_APP_BASE_URL || '/'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   future: {
@@ -14,18 +17,18 @@ export default defineNuxtConfig({
   ssr: false,
 
   app: {
+    baseURL: baseURL,
     head: {
       link: [
-        { rel: 'icon', type: 'image/png', sizes: '196x196', href: 'favicon-196.png' },
-        { rel: 'icon', type: 'image/x-icon', href: 'favicon.ico' },
-        { rel: 'apple-touch-icon', href: 'apple-icon-180.png' },
-        { rel: 'manifest', href: 'manifest.webmanifest' }
+        { rel: 'icon', type: 'image/png', sizes: '196x196', href: baseURL + 'favicon-196.png' },
+        { rel: 'icon', type: 'image/x-icon', href: baseURL + 'favicon.ico' },
+        { rel: 'apple-touch-icon', href: baseURL + 'apple-icon-180.png' }
       ],
       meta: [
-        { name: 'msapplication-square70x70logo', content: 'mstile-icon-128.png' },
-        { name: 'msapplication-square150x150logo', content: 'mstile-icon-270.png' },
-        { name: 'msapplication-square310x310logo', content: 'mstile-icon-558.png' },
-        { name: 'msapplication-wide310x150logo', content: 'mstile-icon-558-270.png' },
+        { name: 'msapplication-square70x70logo', content: baseURL + 'mstile-icon-128.png' },
+        { name: 'msapplication-square150x150logo', content: baseURL + 'mstile-icon-270.png' },
+        { name: 'msapplication-square310x310logo', content: baseURL + 'mstile-icon-558.png' },
+        { name: 'msapplication-wide310x150logo', content: baseURL + 'mstile-icon-558-270.png' },
         { name: 'robots', content: 'noindex, nofollow' }
       ]
     }
