@@ -1,3 +1,10 @@
+## [1.20.2](https://github.com/jvmonjo/dietator/compare/v1.20.1...v1.20.2) (2025-12-23)
+
+
+### Bug Fixes
+
+* configure dynamic base URL for Nuxt app and asset paths, remove manifest link ([27b7a80](https://github.com/jvmonjo/dietator/commit/27b7a80891b76e0a50e39805c408495b43f5bf09))
+
 ## [1.20.1](https://github.com/jvmonjo/dietator/compare/v1.20.0...v1.20.1) (2025-12-23)
 
 
