@@ -38,7 +38,8 @@ const formState = reactive({
 
 const exportState = reactive({
   password: '',
-  selectedMonth: 'all' as string,
+  selectedYear: 0, // 0 = All
+  selectedMonth: 0, // 0 = All
   includeTemplates: true,
   encrypt: false,
   includeGoogleAuth: true
@@ -68,41 +69,48 @@ const isImporting = ref(false)
 
 const monthFormatter = new Intl.DateTimeFormat('ca-ES', { month: 'long', year: 'numeric' })
 
-const monthsWithData = computed(() => {
-  const months = new Map<string, string>()
-  serviceStore.records.forEach((record) => {
-    const date = new Date(record.startTime)
-    if (Number.isNaN(date.getTime())) { return }
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-    if (!months.has(key)) {
-      const label = monthFormatter.format(date)
-      months.set(key, label.charAt(0).toUpperCase() + label.slice(1))
-    }
+const months = [
+  { value: 0, label: 'Tots els mesos' },
+  { value: 1, label: 'Gener' },
+  { value: 2, label: 'Febrer' },
+  { value: 3, label: 'Març' },
+  { value: 4, label: 'Abril' },
+  { value: 5, label: 'Maig' },
+  { value: 6, label: 'Juny' },
+  { value: 7, label: 'Juliol' },
+  { value: 8, label: 'Agost' },
+  { value: 9, label: 'Setembre' },
+  { value: 10, label: 'Octubre' },
+  { value: 11, label: 'Novembre' },
+  { value: 12, label: 'Desembre' }
+]
+
+const exportYearOptions = computed(() => {
+  const years = new Set<number>()
+  serviceStore.records.forEach(r => {
+    const d = new Date(r.startTime)
+    if (!Number.isNaN(d.getTime())) years.add(d.getFullYear())
   })
-  return [...months.entries()]
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .map(([value, label]) => ({ value, label }))
+  const sortedYears = Array.from(years).sort((a, b) => b - a).map(y => ({ label: String(y), value: y }))
+
+  return [
+    { label: 'Tots els anys', value: 0 },
+    ...sortedYears
+  ]
 })
-
-const monthOptions = computed(() => [
-  { label: 'Tots els mesos', value: 'all', disabled: monthsWithData.value.length === 0 },
-  ...monthsWithData.value
-])
-
-
 
 const filteredServices = computed(() => {
-  if (exportState.selectedMonth === 'all') {
-    return serviceStore.records
-  }
-  const targetPrefix = `${exportState.selectedMonth}-`
-  return serviceStore.records.filter(record => record.startTime?.startsWith(targetPrefix))
-})
+  let records = serviceStore.records
 
-watch(monthsWithData, (months) => {
-  if (exportState.selectedMonth !== 'all' && !months.some(month => month.value === exportState.selectedMonth)) {
-    exportState.selectedMonth = 'all'
+  if (exportState.selectedYear !== 0) {
+    records = records.filter(r => new Date(r.startTime).getFullYear() === exportState.selectedYear)
   }
+
+  if (exportState.selectedMonth !== 0) {
+    records = records.filter(r => new Date(r.startTime).getMonth() + 1 === exportState.selectedMonth)
+  }
+
+  return records
 })
 
 const parseCurrency = (input: string | number) => {
@@ -191,20 +199,22 @@ const buildSettingsPayload = (includeTemplates: boolean) => ({
 })
 
 
-
-
-
 const buildBackupFilename = (type: 'config' | 'data', timestamp: string) => {
   if (type === 'config') {
     return `config-${timestamp}-dietator.json`
   }
 
   // Data export
-  if (exportState.selectedMonth !== 'all') {
-    return `${exportState.selectedMonth}-dades-mensuals-dietator-${timestamp}.json`
+  let prefix = ''
+  if (exportState.selectedYear !== 0) {
+    prefix += `${exportState.selectedYear}`
+    if (exportState.selectedMonth !== 0) {
+      prefix += `-${String(exportState.selectedMonth).padStart(2, '0')}`
+    }
+    prefix += '-'
   }
 
-  return `dades-dietator-${timestamp}.json`
+  return `${prefix}dades-dietator-${timestamp}.json`
 }
 
 const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share' = 'download') => {
@@ -231,9 +241,14 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
       payload.meta = { type: 'config' }
     } else {
       payload.services = JSON.parse(JSON.stringify(filteredServices.value)) as ServiceRecord[]
+
+      const metaMonth = (exportState.selectedYear !== 0 && exportState.selectedMonth !== 0)
+        ? `${exportState.selectedYear}-${String(exportState.selectedMonth).padStart(2, '0')}`
+        : 'all'
+
       payload.meta = {
         type: 'data',
-        month: exportState.selectedMonth
+        month: metaMonth
       }
 
       if (!payload.services || payload.services.length === 0) {
@@ -1100,9 +1115,10 @@ v-model="exportState.includeGoogleAuth" label="Incloure calendari i token de Goo
             </p>
 
             <div class="space-y-4 pt-2">
-              <USelect
-v-model="exportState.selectedMonth" :items="monthOptions" :disabled="monthOptions.length <= 1"
-                placeholder="Tots els mesos" class="w-full" />
+              <div class="flex gap-2">
+                <USelect v-model="exportState.selectedYear" :items="exportYearOptions" class="w-1/2" />
+                <USelect v-model="exportState.selectedMonth" :items="months" class="w-1/2" />
+              </div>
               <UButton
 :loading="isExportingData" block variant="soft" icon="i-heroicons-share"
                 @click="exportBackup('data', 'share')">

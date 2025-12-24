@@ -200,17 +200,20 @@ const handlePdf = async () => {
                         Activitat Mensual
                     </h3>
                     <div class="flex bg-gray-700/50 rounded-lg p-1 gap-1 self-stretch sm:self-auto justify-center">
-                        <button class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
+                        <button
+class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
                             :class="chartMetric === 'income' ? 'bg-gray-600 text-white shadow' : 'text-gray-400 hover:text-gray-200'"
                             @click="chartMetric = 'income'">
                             Ingressos
                         </button>
-                        <button class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
+                        <button
+class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
                             :class="chartMetric === 'hours' ? 'bg-gray-600 text-white shadow' : 'text-gray-400 hover:text-gray-200'"
                             @click="chartMetric = 'hours'">
                             Hores
                         </button>
-                        <button class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
+                        <button
+class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
                             :class="chartMetric === 'km' ? 'bg-gray-600 text-white shadow' : 'text-gray-400 hover:text-gray-200'"
                             @click="chartMetric = 'km'">
                             Km
@@ -221,7 +224,8 @@ const handlePdf = async () => {
                 <div class="h-64 sm:h-80 flex justify-between gap-1 md:gap-4 items-end">
                     <!-- DEBUG INFO (Temporary) -->
                     <!-- <div class="absolute top-0 left-0 bg-red-500 text-white text-xs p-1">Metric: {{ chartMetric }} | MaxH: {{ maxMonthlyHours }}</div> -->
-                    <div v-for="(m, i) in stats.months" :key="i"
+                    <div
+v-for="(m, i) in stats.months" :key="i"
                         class="relative flex-1 flex flex-col items-center justify-end h-full min-w-0 group">
                         <!-- Tooltip -->
                         <div
@@ -240,7 +244,8 @@ const handlePdf = async () => {
                         </div>
 
                         <!-- Bar -->
-                        <div class="w-full rounded-t-lg relative overflow-hidden transition-all duration-500 ease-out group-hover:brightness-110"
+                        <div
+class="w-full rounded-t-lg relative overflow-hidden transition-all duration-500 ease-out group-hover:brightness-110"
                             :class="{
                                 'bg-emerald-500/80': chartMetric === 'income',
                                 'bg-yellow-500/80': chartMetric === 'hours',
@@ -276,13 +281,16 @@ const handlePdf = async () => {
                                 <span class="text-gray-500 text-xs">{{ formatNumber(comp.distance) }} km</span>
                             </div>
                             <div class="h-3 bg-gray-700 rounded-full overflow-hidden relative">
-                                <div class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-1000 ease-out"
+                                <div
+class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-1000 ease-out"
                                     :style="{ width: `${comp.percentage}%` }" />
                             </div>
-                            <div v-if="comp.completed"
+                            <div
+v-if="comp.completed"
                                 class="text-xs text-green-400 font-bold text-right flex justify-end items-center gap-1">
                                 <span>Completat! 🚀</span>
-                                <span v-if="comp.timesCompleted > 1"
+                                <span
+v-if="comp.timesCompleted > 1"
                                     class="bg-green-500/20 px-1.5 py-0.5 rounded text-green-300">x{{ comp.timesCompleted
                                     }}</span>
                             </div>
@@ -303,7 +311,8 @@ const handlePdf = async () => {
                         </div>
                     </div>
 
-                    <div v-if="stats.mostActiveDay.date"
+                    <div
+v-if="stats.mostActiveDay.date"
                         class="bg-gradient-to-br from-pink-900/40 to-purple-900/40 p-8 rounded-3xl border border-pink-700/30">
                         <h4 class="text-pink-300 text-lg font-bold mb-2">Dia més actiu 🔥</h4>
                         <div class="text-3xl font-black text-white mb-1">
@@ -318,7 +327,8 @@ const handlePdf = async () => {
                         </div>
                     </div>
 
-                    <div v-if="stats.mostKmDay.date"
+                    <div
+v-if="stats.mostKmDay.date"
                         class="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 p-8 rounded-3xl border border-blue-700/30">
                         <h4 class="text-blue-300 text-lg font-bold mb-2">Dia més viatger 🚗</h4>
                         <div class="text-3xl font-black text-white mb-1">
@@ -331,7 +341,8 @@ const handlePdf = async () => {
                             Vas recórrer <span class="font-bold text-white">{{ formatNumber(stats.mostKmDay.km) }}
                                 km</span>.
                         </div>
-                        <div v-if="stats.mostKmDay.route && stats.mostKmDay.route.length > 0"
+                        <div
+v-if="stats.mostKmDay.route && stats.mostKmDay.route.length > 0"
                             class="mt-3 pt-3 border-t border-blue-500/30 text-xs text-blue-100 font-mono leading-relaxed break-words">
                             <span class="opacity-70">Ruta:</span> {{ stats.mostKmDay.route.join(' → ') }}
                         </div>
@@ -341,7 +352,8 @@ const handlePdf = async () => {
                         class="bg-gray-800/30 p-8 rounded-3xl border border-gray-700/50 flex flex-col justify-center items-center text-center space-y-4">
                         <h4 class="text-gray-400 font-medium">Descarrega el teu report</h4>
                         <div class="flex flex-col w-full gap-3">
-                            <UButton block :loading="loading" color="primary" size="xl" variant="solid"
+                            <UButton
+block :loading="loading" color="primary" size="xl" variant="solid"
                                 icon="i-heroicons-share" @click="handlePdf">
                                 Compartir PDF
                             </UButton>
