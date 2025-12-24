@@ -750,7 +750,7 @@ onBeforeRouteLeave((to, from, next) => {
       <template #header>
         <button type="button" class="flex items-center justify-between w-full text-left"
           @click="isHabitualRouteOpen = !isHabitualRouteOpen">
-          <div class="flex items-center gap-3">
+          <div class="flex-1 min-w-0 flex items-center gap-3">
             <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
               <UIcon name="i-heroicons-map" class="w-6 h-6 text-primary-500" />
             </div>
@@ -759,7 +759,7 @@ onBeforeRouteLeave((to, from, next) => {
               <p class="text-sm text-gray-500 dark:text-gray-400">Defineix uns desplaçaments habituals per importar-los
                 ràpidament als nous serveis.</p>
               <div v-if="habitualRouteSummary"
-                class="mt-2 text-sm text-primary-600 dark:text-primary-400 font-medium truncate">
+                class="mt-2 text-sm text-primary-600 dark:text-primary-400 font-medium break-words">
                 {{ habitualRouteSummary }}
               </div>
             </div>
