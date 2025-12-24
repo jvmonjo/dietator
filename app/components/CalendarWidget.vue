@@ -89,6 +89,10 @@ const hasExternalEvent = (d: DateValue) => {
     return externalCalendar.hasEvent(dateStr)
 }
 
+const goToCalendarSettings = () => {
+    navigateTo('/settings#google-calendar-section')
+}
+
 const isToday = (d: DateValue) => {
     const today = new Date()
     return d.day === today.getDate() &&
@@ -126,8 +130,8 @@ const goToToday = () => {
                 </UTooltip>
                 <UButton
 v-else :loading="externalCalendar.isLoading" icon="i-logos-google-icon" variant="soft"
-                    size="xs" color="neutral" @click="handleSync">
-                    Connectar
+                    size="xs" color="neutral" @click="goToCalendarSettings">
+                    Configurar
                 </UButton>
             </div>
         </div>

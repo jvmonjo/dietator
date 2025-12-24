@@ -826,7 +826,7 @@ to="/help/maps"
         </div>
 
         <UFormField label="Google Calendar" name="googleCalendar">
-          <div class="flex flex-col gap-2">
+          <div id="google-calendar-section" class="flex flex-col gap-2">
             <p class="text-sm text-gray-500 dark:text-gray-400">
               Sincronitzeu el vostre calendari principal per veure els dies ocupats.
             </p>
