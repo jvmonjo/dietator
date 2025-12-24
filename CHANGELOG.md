@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/jvmonjo/dietator/compare/v1.25.3...v1.26.0) (2025-12-24)
+
+
+### Features
+
+* Enhance data export functionality with year and month selection. ([9b606ba](https://github.com/jvmonjo/dietator/commit/9b606bab7600c964f0da5aac6ebbd385c660b2e9))
+
 ## [1.25.3](https://github.com/jvmonjo/dietator/compare/v1.25.2...v1.25.3) (2025-12-24)
 
 
