@@ -102,14 +102,22 @@ const handleSync = async () => {
     const currentViewDate = new Date(placeholder.value.year, placeholder.value.month - 1, 1)
     await externalCalendar.syncEvents('events', currentViewDate)
 }
+
+const goToToday = () => {
+    const today = new Date()
+    placeholder.value = new CalendarDate(today.getFullYear(), today.getMonth() + 1, 1)
+}
 </script>
 
 <template>
     <UCard>
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-                Calendari
-            </h3>
+            <div class="flex items-center gap-2">
+                <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+                    Calendari
+                </h3>
+                <UButton size="xs" color="neutral" variant="ghost" @click="goToToday">Avui</UButton>
+            </div>
             <div v-if="useRuntimeConfig().public.googleClientId">
                 <UTooltip v-if="Object.keys(externalCalendar.events).length" text="Sincronitzar calendari extern">
                     <UButton
