@@ -1,3 +1,10 @@
+## [1.23.3](https://github.com/jvmonjo/dietator/compare/v1.23.2...v1.23.3) (2025-12-24)
+
+
+### Bug Fixes
+
+* Remove title from navigator.share options in file sharing. ([76a7c89](https://github.com/jvmonjo/dietator/commit/76a7c89adb7604ab9abf6ca076641cef43b807a8))
+
 ## [1.23.2](https://github.com/jvmonjo/dietator/compare/v1.23.1...v1.23.2) (2025-12-24)
 
 
