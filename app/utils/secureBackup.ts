@@ -1,5 +1,6 @@
-import type { ServiceRecord } from '~/stores/services'
+import type { Displacement, ServiceRecord } from '~/stores/services'
 import type { TemplateFile } from '~/stores/settings'
+import type { GoogleEvent } from '~/stores/externalCalendar'
 
 interface SettingsSnapshot {
   halfDietPrice: number
@@ -7,12 +8,32 @@ interface SettingsSnapshot {
   monthlyTemplate: TemplateFile | null
   serviceTemplate: TemplateFile | null
   exportTemplates: boolean
+  googleMapsApiKey: string
+  firstName?: string
+  lastName?: string
+  nationalId?: string
+  reminder?: {
+    day: number
+    time: string
+    isRecurring: boolean
+  }
+  googleClientId?: string
+  googleCalendarId?: string
+  habitualRoute?: Displacement[]
+}
+
+export interface ExternalCalendarSnapshot {
+  events: Record<string, GoogleEvent[]>
+  calendars: { id: string, summary: string }[]
+  lastSync: number | null
+  refreshToken?: string | null
 }
 
 export interface BackupPayload {
   services?: ServiceRecord[]
   settings?: SettingsSnapshot
   distancesCache?: Record<string, number>
+  externalCalendar?: ExternalCalendarSnapshot
   meta?: {
     month?: string
     type?: 'config' | 'data' | 'full'

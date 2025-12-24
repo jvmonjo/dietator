@@ -23,10 +23,105 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
         events: {} as Record<string, GoogleEvent[]>, // key: YYYY-MM-DD -> list of event objects
         calendars: [] as { id: string, summary: string }[],
         lastSync: null as number | null,
-        isLoading: false
+        isLoading: false,
+        accessToken: null as string | null,
+        tokenExpiresAt: null as number | null,
+        refreshToken: null as string | null
     }),
     actions: {
-        // ... (loadGoogleScript and syncEvents remain same)
+        async ensureAccessToken(prompt: 'consent' | '' = ''): Promise<string | null> {
+            const settings = useSettingsStore()
+            const config = useRuntimeConfig()
+            const toast = useToast()
+
+            const clientId = config.public.googleClientId || settings.googleClientId
+
+            if (!clientId) {
+                toast.add({ title: 'Configura el Google Client ID primer', color: 'warning' })
+                return null
+            }
+
+            await this.loadGoogleScript()
+
+            const now = Date.now()
+            const isTokenFresh = this.accessToken && this.tokenExpiresAt && (this.tokenExpiresAt - 60_000) > now
+            if (isTokenFresh && prompt !== 'consent') {
+                return this.accessToken
+            }
+
+            if (this.refreshToken && prompt !== 'consent') {
+                try {
+                    const refreshed = await this.refreshAccessToken(clientId)
+                    this.accessToken = refreshed.access_token
+                    const expiresInSeconds = Number(refreshed.expires_in)
+                    this.tokenExpiresAt = Number.isFinite(expiresInSeconds) ? Date.now() + expiresInSeconds * 1000 : null
+                    return this.accessToken
+                } catch (error) {
+                    console.warn('Refresh token exchange failed, falling back to consent flow', error)
+                }
+            }
+
+            try {
+                const tokenResponse: { access_token: string, expires_in?: number, refresh_token?: string } = await new Promise((resolve, reject) => {
+                    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+                        client_id: clientId,
+                        scope: 'https://www.googleapis.com/auth/calendar.readonly',
+                        prompt,
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        callback: (response: any) => {
+                            if (response.error) {
+                                reject(new Error(response.error))
+                                return
+                            }
+                            resolve(response)
+                        }
+                    })
+
+                    tokenClient.requestAccessToken()
+                })
+
+                this.accessToken = tokenResponse.access_token
+                const expiresInSeconds = Number(tokenResponse.expires_in)
+                this.tokenExpiresAt = Number.isFinite(expiresInSeconds) ? Date.now() + expiresInSeconds * 1000 : null
+                if (tokenResponse.refresh_token) {
+                    this.refreshToken = tokenResponse.refresh_token
+                }
+
+                return this.accessToken
+            } catch (error) {
+                console.error('Google Calendar auth error:', error)
+                toast.add({ title: 'Error d\'autorització amb Google Calendar', color: 'error' })
+                return null
+            }
+        },
+
+        async refreshAccessToken(clientId: string) {
+            if (!this.refreshToken) {
+                throw new Error('Missing refresh token')
+            }
+
+            const params = new URLSearchParams({
+                client_id: clientId,
+                grant_type: 'refresh_token',
+                refresh_token: this.refreshToken
+            })
+
+            const response = await fetch('https://oauth2.googleapis.com/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            })
+
+            if (!response.ok) {
+                const errorText = await response.text()
+                throw new Error(`Refresh token exchange failed: ${errorText}`)
+            }
+
+            return response.json() as Promise<{ access_token: string, expires_in?: number }>
+        },
+
         async loadGoogleScript(): Promise<void> {
             return new Promise((resolve, reject) => {
                 if (window.google?.accounts?.oauth2) {
@@ -44,46 +139,44 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
         },
 
         async syncEvents(mode: 'events' | 'calendars' = 'events', targetDate?: Date) {
-            const settings = useSettingsStore()
-            const config = useRuntimeConfig()
-            const toast = useToast()
-
-            const clientId = config.public.googleClientId || settings.googleClientId
-
-            if (!clientId) {
-                toast.add({ title: 'Configura el Google Client ID primer', color: 'warning' })
-                return
-            }
-
             this.isLoading = true
 
             try {
-                await this.loadGoogleScript()
+                const accessToken = await this.ensureAccessToken(this.accessToken ? '' : 'consent')
+                if (!accessToken) return
 
-                const tokenClient = window.google.accounts.oauth2.initTokenClient({
-                    client_id: clientId,
-                    scope: 'https://www.googleapis.com/auth/calendar.readonly',
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    callback: async (tokenResponse: any) => {
-                        if (tokenResponse.error) {
-                            throw new Error(tokenResponse.error)
-                        }
-                        if (mode === 'calendars') {
-                            await this.fetchCalendars(tokenResponse.access_token)
-                        } else {
-                            await this.fetchGoogleEvents(tokenResponse.access_token, targetDate)
-                        }
-                    },
-                })
+                const shouldFetchCalendars = mode === 'calendars' || this.calendars.length === 0
 
-                // Request access token (triggers popup)
-                tokenClient.requestAccessToken()
+                if (shouldFetchCalendars) {
+                    await this.fetchCalendars(accessToken)
+                }
+
+                if (mode !== 'calendars') {
+                    await this.fetchGoogleEvents(accessToken, targetDate)
+                }
 
             } catch (error) {
                 console.error('Google Calendar sync error:', error)
-                toast.add({ title: 'Error al sincronitzar amb Google Calendar', color: 'error' })
+                useToast().add({ title: 'Error al sincronitzar amb Google Calendar', color: 'error' })
+            } finally {
                 this.isLoading = false
             }
+        },
+
+        getBackupSnapshot() {
+            return {
+                events: this.events,
+                calendars: this.calendars,
+                lastSync: this.lastSync,
+                refreshToken: this.refreshToken
+            }
+        },
+
+        restoreFromBackup(snapshot: { events?: Record<string, GoogleEvent[]>, calendars?: { id: string, summary: string }[], lastSync?: number | null, refreshToken?: string | null }) {
+            if (snapshot.events) this.events = snapshot.events
+            if (snapshot.calendars) this.calendars = snapshot.calendars
+            if (typeof snapshot.lastSync !== 'undefined') this.lastSync = snapshot.lastSync
+            if (typeof snapshot.refreshToken !== 'undefined') this.refreshToken = snapshot.refreshToken
         },
 
         async fetchCalendars(accessToken: string) {
@@ -112,8 +205,6 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             } catch (error) {
                 console.error('Error fetching calendar list:', error)
                 toast.add({ title: 'Error obtenint la llista de calendaris', color: 'error' })
-            } finally {
-                this.isLoading = false
             }
         },
 
@@ -182,8 +273,6 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                 console.error('Error fetching events:', error)
                 const msg = error?.message || 'Error desconegut'
                 toast.add({ title: 'Error obtenint esdeveniments', description: msg.substring(0, 100), color: 'error' })
-            } finally {
-                this.isLoading = false
             }
         },
 
@@ -200,6 +289,9 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             this.events = {}
             this.calendars = []
             this.lastSync = null
+            this.accessToken = null
+            this.tokenExpiresAt = null
+            this.refreshToken = null
             // Reset selected calendar preference
             settings.googleCalendarId = ''
             useToast().add({ title: 'Desconnectat de Google Calendar', color: 'info' })

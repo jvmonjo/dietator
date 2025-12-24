@@ -40,7 +40,8 @@ const exportState = reactive({
   password: '',
   selectedMonth: 'all' as string,
   includeTemplates: true,
-  encrypt: false
+  encrypt: false,
+  includeGoogleAuth: true
 })
 
 const importState = reactive({
@@ -183,8 +184,10 @@ const buildSettingsPayload = (includeTemplates: boolean) => ({
   firstName: settingsStore.firstName,
   lastName: settingsStore.lastName,
   nationalId: settingsStore.nationalId,
-  habitualRoute: settingsStore.habitualRoute,
-  distancesCache: distancesStore.cache
+  reminder: settingsStore.reminder,
+  googleClientId: settingsStore.googleClientId,
+  googleCalendarId: settingsStore.googleCalendarId,
+  habitualRoute: settingsStore.habitualRoute
 })
 
 
@@ -221,6 +224,10 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
 
     if (type === 'config') {
       payload.settings = buildSettingsPayload(exportState.includeTemplates)
+      if (exportState.includeGoogleAuth) {
+        payload.externalCalendar = externalCalendarStore.getBackupSnapshot()
+      }
+      payload.distancesCache = distancesStore.cache
       payload.meta = { type: 'config' }
     } else {
       payload.services = JSON.parse(JSON.stringify(filteredServices.value)) as ServiceRecord[]
@@ -320,6 +327,10 @@ const processImport = async (payload: BackupPayload) => {
 
   if (payload.distancesCache) {
     distancesStore.$patch({ cache: payload.distancesCache })
+  }
+
+  if (payload.externalCalendar) {
+    externalCalendarStore.restoreFromBackup(payload.externalCalendar)
   }
 
   const description = services && settings
@@ -594,8 +605,7 @@ const calendarOptions = computed(() => {
 
 const saveAndSyncCalendar = async () => {
   saveSettings()
-  // Trigger a re-sync with the new calendar ID (requires a fresh token unfortunately, or standard re-flow)
-  // Actually, syncEvents('events') will trigger the oauth flow again which is safe.
+  // Trigger a re-sync with the new calendar ID using the existing Google token (no extra prompts if still valid)
   await externalCalendarStore.syncEvents('events')
 }
 
@@ -854,7 +864,7 @@ v-if="externalCalendarStore.calendars.length === 0" icon="i-heroicons-list-bulle
 v-model="formState.googleCalendarId" :items="calendarOptions" placeholder="Selecciona..."
                     style="width: 100%" @change="saveAndSyncCalendar" />
                   <template #help>
-                    Canviar el calendari tornarà a demanar permisos per sincronitzar els nous esdeveniments.
+                    Canviar el calendari reutilitzarà l'autorització existent per sincronitzar els esdeveniments.
                   </template>
                 </UFormField>
               </div>
@@ -1065,6 +1075,9 @@ v-model="exportState.password" type="password" placeholder="Introdueix una contr
               <UCheckbox
 v-model="exportState.includeTemplates" label="Incloure plantilles Word"
                 help="El fitxer serà més gran." />
+              <UCheckbox
+v-model="exportState.includeGoogleAuth" label="Incloure calendari i token de Google"
+                help="Guarda calendaris i permisos per reutilitzar-los (aconsellable xifrar el fitxer)." />
               <UButton
 :loading="isExportingConfig" block variant="soft" icon="i-heroicons-share"
                 @click="exportBackup('config', 'share')">
