@@ -79,6 +79,8 @@ const state = reactive({
   notes: ''
 })
 
+const isLoading = ref(false)
+
 const isEditing = computed(() => Boolean(props.initialData) && !props.isDuplicate)
 
 // Locations loaded for passing provinces to editor
@@ -159,85 +161,99 @@ watch(() => [props.initialData, props.initialDate, props.initialNotes, props.ini
 }, { immediate: true })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  // Auto-calculate kilometers if API key is configured AND (no value is present OR number of displacements changed)
-  const initialDisplacementCount = props.initialData?.displacements?.length || 0
-  const currentDisplacementCount = state.displacements.length
-  const hasDisplacementCountChanged = initialDisplacementCount !== currentDisplacementCount
+  if (isLoading.value) return
+  isLoading.value = true
 
-  if (settingsStore.googleMapsApiKey && state.displacements.length >= 2 && (!state.kilometers || hasDisplacementCountChanged)) {
-    try {
-      // Filter out incomplete displacements
-      const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
-      if (validDisplacements.length >= 2) {
-        const { distance, path } = await calculateRouteDistance(validDisplacements)
-        if (distance > 0) {
-          state.kilometers = distance
-          toast.add({
-            title: `Kilòmetres calculats: ${distance}`,
-            description: `Ruta: ${path.join(' ➜ ')}`,
-            color: 'info'
-          })
+  try {
+    // Auto-calculate kilometers if API key is configured AND (no value is present OR number of displacements changed)
+    const initialDisplacementCount = props.initialData?.displacements?.length || 0
+    const currentDisplacementCount = state.displacements.length
+    const hasDisplacementCountChanged = initialDisplacementCount !== currentDisplacementCount
+
+    if (settingsStore.googleMapsApiKey && state.displacements.length >= 2 && (!state.kilometers || hasDisplacementCountChanged)) {
+      try {
+        // Filter out incomplete displacements
+        const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
+        if (validDisplacements.length >= 2) {
+          const { distance, path } = await calculateRouteDistance(validDisplacements)
+          if (distance > 0) {
+            state.kilometers = distance
+            toast.add({
+              title: `Kilòmetres calculats: ${distance}`,
+              description: `Ruta: ${path.join(' ➜ ')}`,
+              color: 'info'
+            })
+          }
         }
+      } catch (e: unknown) {
+        console.error('Error calculating distance', e)
+
+        let title = 'Error calculant distància'
+        let description = ''
+
+        const msg = e instanceof Error ? e.message : String(e)
+
+        if (msg.includes('REQUEST_DENIED') || msg.includes('ApiNotActivatedMapError')) {
+          title = 'API Key incorrecta'
+          description = 'Comprova la configuració i que l\'API Distance Matrix estigui activada.'
+        } else if (msg.includes('ApiTargetBlockedMapError')) {
+          title = 'API Key bloquejada'
+          description = 'La clau API no permet peticions des d\'aquest domini. Revisa les restriccions a Google Cloud.'
+        } else if (msg.includes('OVER_QUERY_LIMIT')) {
+          title = 'Quota superada'
+          description = 'S\'ha superat el límit de peticions de Google Maps.'
+        } else if (msg.includes('ZERO_RESULTS') || msg.includes('NOT_FOUND')) {
+          title = 'Ruta no trobada'
+          description = 'No s\'ha trobat una ruta per carretera entre els punts indicats.'
+        } else if (msg.includes('TIMEOUT_GOOGLE_MAPS')) {
+          title = 'Temps d\'espera esgotat'
+          description = 'Google Maps no respon. S\'ha continuat sense calcular distància automàticament.'
+        }
+
+        toast.add({ title, description, color: 'warning' })
       }
-    } catch (e: unknown) {
-      console.error('Error calculating distance', e)
-
-      let title = 'Error calculant distància'
-      let description = ''
-
-      const msg = e instanceof Error ? e.message : String(e)
-
-      if (msg.includes('REQUEST_DENIED') || msg.includes('ApiNotActivatedMapError')) {
-        title = 'API Key incorrecta'
-        description = 'Comprova la configuració i que l\'API Distance Matrix estigui activada.'
-      } else if (msg.includes('OVER_QUERY_LIMIT')) {
-        title = 'Quota superada'
-        description = 'S\'ha superat el límit de peticions de Google Maps.'
-      } else if (msg.includes('ZERO_RESULTS') || msg.includes('NOT_FOUND')) {
-        title = 'Ruta no trobada'
-        description = 'No s\'ha trobat una ruta per carretera entre els punts indicats.'
-      }
-
-      toast.add({ title, description, color: 'warning' })
     }
-  }
 
-  // Check for duplicate start date (ignoring time)
-  const targetDate = event.data.startTime.split('T')[0]
-  const isDuplicateDate = serviceStore.records.some(record => {
-    const recordDate = record.startTime ? record.startTime.split('T')[0] : ''
-    return recordDate === targetDate &&
-      (!props.initialData || props.isDuplicate || record.id !== props.initialData.id)
-  })
+    // Check for duplicate start date (ignoring time)
+    const targetDate = event.data.startTime.split('T')[0]
+    const isDuplicateDate = serviceStore.records.some(record => {
+      const recordDate = record.startTime ? record.startTime.split('T')[0] : ''
+      return recordDate === targetDate &&
+        (!props.initialData || props.isDuplicate || record.id !== props.initialData.id)
+    })
 
-  if (isDuplicateDate) {
-    toast.add({ title: 'Ja existeix un servei amb aquesta data d\'inici', color: 'error' })
-    return
-  }
+    if (isDuplicateDate) {
+      toast.add({ title: 'Ja existeix un servei amb aquesta data d\'inici', color: 'error' })
+      return
+    }
 
-  const baseRecord: ServiceRecord = {
-    id: (props.initialData?.id && !props.isDuplicate) ? props.initialData.id : uuidv4(),
-    startTime: event.data.startTime,
-    endTime: event.data.endTime,
-    displacements: state.displacements.map(displacement => ({
-      ...displacement,
-      id: displacement.id || uuidv4()
-    })),
-    kilometers: state.kilometers,
-    notes: state.notes
-  }
+    const baseRecord: ServiceRecord = {
+      id: (props.initialData?.id && !props.isDuplicate) ? props.initialData.id : uuidv4(),
+      startTime: event.data.startTime,
+      endTime: event.data.endTime,
+      displacements: state.displacements.map(displacement => ({
+        ...displacement,
+        id: displacement.id || uuidv4()
+      })),
+      kilometers: state.kilometers,
+      notes: state.notes
+    }
 
-
-
-  if (isEditing.value) {
-    serviceStore.updateRecord(baseRecord)
-    toast.add({ title: 'Servei actualitzat correctament', color: 'success' })
-    emit('saved', baseRecord)
-  } else {
-    serviceStore.addRecord(baseRecord)
-    toast.add({ title: 'Servei registrat correctament', color: 'success' })
-    resetState()
-    emit('saved', baseRecord)
+    if (isEditing.value) {
+      serviceStore.updateRecord(baseRecord)
+      toast.add({ title: 'Servei actualitzat correctament', color: 'success' })
+      emit('saved', baseRecord)
+    } else {
+      serviceStore.addRecord(baseRecord)
+      toast.add({ title: 'Servei registrat correctament', color: 'success' })
+      resetState()
+      emit('saved', baseRecord)
+    }
+  } catch (error) {
+    console.error('Error saving service', error)
+    toast.add({ title: 'Error guardant el servei', color: 'error' })
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -297,7 +313,7 @@ v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" var
     <DisplacementListEditor v-model="state.displacements" :provinces="provinces" />
 
     <div class="pt-4">
-      <UButton type="submit" block size="xl" :loading="false">
+      <UButton type="submit" block size="xl" :loading="isLoading">
         {{ submitLabel }}
       </UButton>
     </div>

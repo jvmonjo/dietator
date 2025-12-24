@@ -74,7 +74,7 @@ export const useDistanceCalculator = () => {
             const service = new google.maps.DistanceMatrixService()
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const result = await new Promise<any>((resolve, reject) => {
+            const apiCall = new Promise<any>((resolve, reject) => {
                 service.getDistanceMatrix(
                     {
                         origins: [origin],
@@ -95,6 +95,14 @@ export const useDistanceCalculator = () => {
                     }
                 )
             })
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const timeout = new Promise<any>((_, reject) => {
+                setTimeout(() => reject(new Error('TIMEOUT_GOOGLE_MAPS')), 3000)
+            })
+
+
+            const result = await Promise.race([apiCall, timeout])
 
             const element = result.rows[0]?.elements[0]
             if (element) {
