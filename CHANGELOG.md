@@ -1,3 +1,16 @@
+# [1.25.0](https://github.com/jvmonjo/dietator/compare/v1.24.0...v1.25.0) (2025-12-24)
+
+
+### Bug Fixes
+
+* Wrap Google Calendar section in a scroll anchor div. ([0f1e92e](https://github.com/jvmonjo/dietator/commit/0f1e92eba1460ca8404212dc10cede27d30ee68a))
+
+
+### Features
+
+* Add 20s timeout to Google OAuth token request to prevent stuck loading. ([25ff6ac](https://github.com/jvmonjo/dietator/commit/25ff6aca1eb1938d025f5c7d30a6de4a5f5d3015))
+* Redirect calendar widget's connect button to the Google Calendar settings section. ([4aaf16c](https://github.com/jvmonjo/dietator/commit/4aaf16cd439aa28f84019dd3c875fd940bb7c40c))
+
 # [1.24.0](https://github.com/jvmonjo/dietator/compare/v1.23.3...v1.24.0) (2025-12-24)
 
 
