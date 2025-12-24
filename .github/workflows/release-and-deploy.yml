@@ -3,6 +3,9 @@ name: Release and Deploy
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,6 +20,7 @@ concurrency:
 
 jobs:
   release:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     outputs:
       released: ${{ steps.sr.outputs.new_release_published }}
@@ -72,3 +76,24 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
+
+  ci:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (Nuxt generate)
+        run: |
+          export NUXT_PUBLIC_APP_VERSION="0.0.0-pr"
+          npm run generate
+        env:
+          NUXT_APP_BASE_URL: /dietator/
+          NITRO_PRESET: github-pages
