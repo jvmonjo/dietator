@@ -48,6 +48,10 @@ const date = computed({
     },
     set: (val: DateValue) => {
         if (!val) return
+
+        // Prevent interaction with days outside the current month view
+        if (val.month !== placeholder.value.month) return
+
         const d = new Date(val.year, val.month - 1, val.day)
         emit('update:modelValue', d)
 
@@ -91,6 +95,10 @@ const hasExternalEvent = (d: DateValue) => {
 
 const goToCalendarSettings = () => {
     navigateTo('/settings#google-calendar-section')
+}
+
+const isCurrentMonth = (d: DateValue) => {
+    return d.month === placeholder.value.month
 }
 
 const isToday = (d: DateValue) => {
@@ -140,18 +148,21 @@ v-else :loading="externalCalendar.isLoading" icon="i-logos-google-icon" variant=
                 <template #day="{ day }">
                     <div
 class="w-full h-full flex items-center justify-center rounded-full relative" :class="[
-                        hasRecord(day) && hasDiet(getRecord(day)!) ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-bold' : '',
-                        hasRecord(day) && !hasDiet(getRecord(day)!) ? 'bg-lime-100 dark:bg-lime-900/40 text-lime-700 dark:text-lime-300 font-bold' : '',
-                        !hasRecord(day) && hasExternalEvent(day) ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-bold cursor-pointer' : '',
-                        isToday(day) ? 'ring-2 ring-primary-500' : ''
+                        !isCurrentMonth(day) ? 'text-gray-300 dark:text-gray-700 pointer-events-none' : '',
+                        isCurrentMonth(day) && hasRecord(day) && hasDiet(getRecord(day)!) ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-bold' : '',
+                        isCurrentMonth(day) && hasRecord(day) && !hasDiet(getRecord(day)!) ? 'bg-lime-100 dark:bg-lime-900/40 text-lime-700 dark:text-lime-300 font-bold' : '',
+                        isCurrentMonth(day) && !hasRecord(day) && hasExternalEvent(day) ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-bold cursor-pointer' : '',
+                        isCurrentMonth(day) && isToday(day) ? 'ring-2 ring-primary-500' : ''
                     ]">
                         {{ day.day }}
-                        <div
+                        <template v-if="isCurrentMonth(day)">
+                            <div
 v-if="getRecord(day)" class="absolute bottom-1 w-1 h-1 rounded-full"
-                            :class="hasDiet(getRecord(day)!) ? 'bg-green-500' : 'bg-lime-500'" />
-                        <div
+                                :class="hasDiet(getRecord(day)!) ? 'bg-green-500' : 'bg-lime-500'" />
+                            <div
 v-else-if="hasExternalEvent(day)"
-                            class="absolute bottom-1 w-1 h-1 bg-orange-500 rounded-full" />
+                                class="absolute bottom-1 w-1 h-1 bg-orange-500 rounded-full" />
+                        </template>
                     </div>
                 </template>
             </UCalendar>
