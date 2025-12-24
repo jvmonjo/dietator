@@ -1,3 +1,10 @@
+## [1.25.3](https://github.com/jvmonjo/dietator/compare/v1.25.2...v1.25.3) (2025-12-24)
+
+
+### Bug Fixes
+
+* implement Web Share API for PDF sharing with download fallback and update button UI ([012ab3b](https://github.com/jvmonjo/dietator/commit/012ab3b47b134d3412915dfb1b6782820451a04d))
+
 ## [1.25.2](https://github.com/jvmonjo/dietator/compare/v1.25.1...v1.25.2) (2025-12-24)
 
 
