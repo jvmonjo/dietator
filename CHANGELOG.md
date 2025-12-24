@@ -1,3 +1,10 @@
+## [1.25.2](https://github.com/jvmonjo/dietator/compare/v1.25.1...v1.25.2) (2025-12-24)
+
+
+### Bug Fixes
+
+* Disable interaction and visually dim calendar days outside the current month view. ([dc18af3](https://github.com/jvmonjo/dietator/commit/dc18af3e88fa7b89ac53326998c810e6f9fc0295))
+
 ## [1.25.1](https://github.com/jvmonjo/dietator/compare/v1.25.0...v1.25.1) (2025-12-24)
 
 
