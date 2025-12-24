@@ -825,52 +825,54 @@ to="/help/maps"
           </div>
         </div>
 
-        <UFormField label="Google Calendar" name="googleCalendar">
-          <div id="google-calendar-section" class="flex flex-col gap-2">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              Sincronitzeu el vostre calendari principal per veure els dies ocupats.
-            </p>
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center gap-3">
-                <UButton
-:loading="externalCalendarStore.isLoading"
-                  :disabled="!useRuntimeConfig().public.googleClientId" icon="i-logos-google-icon" color="neutral"
-                  variant="soft" @click="externalCalendarStore.syncEvents('events')">
-                  {{ googleButtonLabel }}
-                </UButton>
-                <UBadge v-if="Object.keys(externalCalendarStore.events).length" color="success" variant="subtle">
-                  Connectat
-                </UBadge>
-                <UButton
-v-if="Object.keys(externalCalendarStore.events).length" icon="i-heroicons-trash" color="error"
-                  variant="ghost" size="xs" @click="externalCalendarStore.disconnect()">
-                  Desconnectar
-                </UButton>
-              </div>
-              <p v-if="!useRuntimeConfig().public.googleClientId" class="text-xs text-red-500 dark:text-red-400">
-                Falta configurar la variable d'entorn <code>NUXT_PUBLIC_GOOGLE_CLIENT_ID</code>.
+        <div id="google-calendar-section" class="scroll-mt-32">
+          <UFormField label="Google Calendar" name="googleCalendar">
+            <div class="flex flex-col gap-2">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Sincronitzeu el vostre calendari principal per veure els dies ocupats.
               </p>
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-3">
+                  <UButton
+:loading="externalCalendarStore.isLoading"
+                    :disabled="!useRuntimeConfig().public.googleClientId" icon="i-logos-google-icon" color="neutral"
+                    variant="soft" @click="externalCalendarStore.syncEvents('events')">
+                    {{ googleButtonLabel }}
+                  </UButton>
+                  <UBadge v-if="Object.keys(externalCalendarStore.events).length" color="success" variant="subtle">
+                    Connectat
+                  </UBadge>
+                  <UButton
+v-if="Object.keys(externalCalendarStore.events).length" icon="i-heroicons-trash"
+                    color="error" variant="ghost" size="xs" @click="externalCalendarStore.disconnect()">
+                    Desconnectar
+                  </UButton>
+                </div>
+                <p v-if="!useRuntimeConfig().public.googleClientId" class="text-xs text-red-500 dark:text-red-400">
+                  Falta configurar la variable d'entorn <code>NUXT_PUBLIC_GOOGLE_CLIENT_ID</code>.
+                </p>
 
-              <div v-if="Object.keys(externalCalendarStore.events).length">
-                <UButton
+                <div v-if="Object.keys(externalCalendarStore.events).length">
+                  <UButton
 v-if="externalCalendarStore.calendars.length === 0" icon="i-heroicons-list-bullet"
-                  color="neutral" variant="ghost" size="xs" :loading="externalCalendarStore.isLoading"
-                  @click="externalCalendarStore.syncEvents('calendars')">
-                  Canviar calendari (Carregar llista)
-                </UButton>
+                    color="neutral" variant="ghost" size="xs" :loading="externalCalendarStore.isLoading"
+                    @click="externalCalendarStore.syncEvents('calendars')">
+                    Canviar calendari (Carregar llista)
+                  </UButton>
 
-                <UFormField v-else label="Selecciona un calendari" name="calendarSelector">
-                  <USelect
+                  <UFormField v-else label="Selecciona un calendari" name="calendarSelector">
+                    <USelect
 v-model="formState.googleCalendarId" :items="calendarOptions" placeholder="Selecciona..."
-                    style="width: 100%" @change="saveAndSyncCalendar" />
-                  <template #help>
-                    Canviar el calendari reutilitzarà l'autorització existent per sincronitzar els esdeveniments.
-                  </template>
-                </UFormField>
+                      style="width: 100%" @change="saveAndSyncCalendar" />
+                    <template #help>
+                      Canviar el calendari reutilitzarà l'autorització existent per sincronitzar els esdeveniments.
+                    </template>
+                  </UFormField>
+                </div>
               </div>
             </div>
-          </div>
-        </UFormField>
+          </UFormField>
+        </div>
 
 
       </UForm>
