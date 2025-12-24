@@ -1,3 +1,12 @@
+# [1.23.0](https://github.com/jvmonjo/dietator/compare/v1.22.0...v1.23.0) (2025-12-24)
+
+
+### Features
+
+* Add 'Go to Today' button and functionality to the calendar widget. ([919c50e](https://github.com/jvmonjo/dietator/commit/919c50ee6c0491e7429ebc91dfee6543956558f9))
+* Display habitual route summary in the settings card header. ([6bc29e4](https://github.com/jvmonjo/dietator/commit/6bc29e4c6e6b1547106b64ed6300051ff8fb55bd))
+* Extract displacement list editing to a new component and add habitual route setting with unsaved changes guard. ([d95b04c](https://github.com/jvmonjo/dietator/commit/d95b04c8c068ad815425dd12f9dafe34392cf389))
+
 # [1.22.0](https://github.com/jvmonjo/dietator/compare/v1.21.0...v1.22.0) (2025-12-23)
 
 
