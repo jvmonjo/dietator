@@ -183,6 +183,7 @@ const buildSettingsPayload = (includeTemplates: boolean) => ({
   firstName: settingsStore.firstName,
   lastName: settingsStore.lastName,
   nationalId: settingsStore.nationalId,
+  habitualRoute: settingsStore.habitualRoute,
   distancesCache: distancesStore.cache
 })
 
@@ -753,7 +754,7 @@ onBeforeRouteLeave((to, from, next) => {
             <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
               <UIcon name="i-heroicons-map" class="w-6 h-6 text-primary-500" />
             </div>
-            <div>
+            <div class="min-w-0 flex-1">
               <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Ruta Habitual</h2>
               <p class="text-sm text-gray-500 dark:text-gray-400">Defineix uns desplaçaments habituals per importar-los
                 ràpidament als nous serveis.</p>
