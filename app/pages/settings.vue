@@ -843,9 +843,10 @@ to="/help/maps"
                     Connectat
                   </UBadge>
                   <UButton
-v-if="Object.keys(externalCalendarStore.events).length" icon="i-heroicons-trash"
-                    color="error" variant="ghost" size="xs" @click="externalCalendarStore.disconnect()">
-                    Desconnectar
+v-if="externalCalendarStore.isLoading || Object.keys(externalCalendarStore.events).length" icon="i-heroicons-trash"
+                    color="error" variant="ghost" size="xs"
+                    @click="externalCalendarStore.isLoading ? externalCalendarStore.cancelSync() : externalCalendarStore.disconnect()">
+                    {{ externalCalendarStore.isLoading ? 'Cancel·lar' : 'Desconnectar' }}
                   </UButton>
                 </div>
                 <p v-if="!useRuntimeConfig().public.googleClientId" class="text-xs text-red-500 dark:text-red-400">
