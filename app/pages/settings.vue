@@ -262,8 +262,7 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
-            files: [file],
-            title: 'Còpia de seguretat Dietator'
+            files: [file]
           })
         } catch (err: unknown) {
           const errorName = (err as Error).name

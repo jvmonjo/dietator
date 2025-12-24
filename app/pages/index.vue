@@ -171,8 +171,7 @@ const exportReport = async () => {
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({
-          files: [file],
-          title: 'Documents Dietator'
+          files: [file]
         })
         toast.add({ title: 'Documents compartits correctament', color: 'success' })
         return
