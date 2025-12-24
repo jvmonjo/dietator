@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { piniaPluginPersistedstate, useRuntimeConfig } from '#imports'
+import type { Displacement } from '~/stores/services'
 
 export type TemplateType = 'monthly' | 'service'
 
@@ -30,6 +31,7 @@ interface SettingsState {
   reminder: CalendarConfig
   googleClientId?: string
   googleCalendarId?: string
+  habitualRoute: Displacement[]
 }
 
 const settingsStorage = piniaPluginPersistedstate.localStorage()
@@ -51,7 +53,8 @@ export const useSettingsStore = defineStore('settings', {
       isRecurring: true
     },
     googleClientId: useRuntimeConfig().public.googleClientId || '',
-    googleCalendarId: ''
+    googleCalendarId: '',
+    habitualRoute: []
   }),
   actions: {
     updateDietPrices(prices: { half: number, full: number }) {
@@ -85,6 +88,12 @@ export const useSettingsStore = defineStore('settings', {
       }
       this.googleClientId = settings.googleClientId || ''
       this.googleCalendarId = settings.googleCalendarId || ''
+      if (settings.habitualRoute) {
+        this.habitualRoute = settings.habitualRoute
+      }
+    },
+    updateHabitualRoute(route: Displacement[]) {
+      this.habitualRoute = route
     }
   },
   persist: {

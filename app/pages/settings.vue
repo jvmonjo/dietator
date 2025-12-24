@@ -2,6 +2,7 @@
 import type { TemplateType } from '~/stores/settings'
 import type { ServiceRecord } from '~/stores/services'
 import { encryptBackup, decryptBackup, isEncryptedBackup, type BackupPayload } from '~/utils/secureBackup'
+import { onBeforeRouteLeave } from 'vue-router'
 
 import { validateSpanishId } from 'spain-id'
 import { generateGoogleCalendarUrl, generateIcsFile } from '~/utils/calendarGenerator'
@@ -11,6 +12,7 @@ const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
 const distancesStore = useDistancesStore()
 const toast = useToast()
+const { provinces } = useLocations()
 const importFileInput = ref<HTMLInputElement | null>(null)
 const monthlyTemplateInput = ref<HTMLInputElement | null>(null)
 const serviceTemplateInput = ref<HTMLInputElement | null>(null)
@@ -30,7 +32,8 @@ const formState = reactive({
   reminderTime: settingsStore.reminder?.time || '09:00',
   reminderRecurring: settingsStore.reminder?.isRecurring ?? true,
   googleClientId: settingsStore.googleClientId || '',
-  googleCalendarId: settingsStore.googleCalendarId || ''
+  googleCalendarId: settingsStore.googleCalendarId || '',
+  habitualRoute: (settingsStore.habitualRoute || []).map(d => ({ ...d, id: d.id || crypto.randomUUID() }))
 })
 
 const exportState = reactive({
@@ -57,6 +60,7 @@ const confirmModal = reactive({
 
 const { monthlyTemplate, serviceTemplate } = storeToRefs(settingsStore)
 
+const isHabitualRouteOpen = ref(false)
 const isExportingConfig = ref(false)
 const isExportingData = ref(false)
 const isImporting = ref(false)
@@ -141,6 +145,8 @@ const saveSettings = () => {
     googleClientId: formState.googleClientId,
     googleCalendarId: formState.googleCalendarId
   })
+
+  settingsStore.updateHabitualRoute(formState.habitualRoute)
   toast.add({ title: 'Configuració guardada', color: 'success' })
 }
 
@@ -600,6 +606,66 @@ const formatTimestamp = (value?: string) => {
   if (Number.isNaN(date.getTime())) return '—'
   return date.toLocaleString('ca-ES')
 }
+
+const hasChanges = computed(() => {
+  const current = {
+    halfDietPrice: Number(String(formState.halfDietPrice).replace(',', '.')) || 0,
+    fullDietPrice: Number(String(formState.fullDietPrice).replace(',', '.')) || 0,
+    googleMapsApiKey: formState.googleMapsApiKey,
+    firstName: formState.firstName,
+    lastName: formState.lastName,
+    nationalId: formState.nationalId,
+    reminder: {
+      day: formState.reminderDay,
+      time: formState.reminderTime,
+      isRecurring: formState.reminderRecurring
+    },
+    googleClientId: formState.googleClientId,
+    googleCalendarId: formState.googleCalendarId,
+    habitualRoute: formState.habitualRoute.map(d => ({
+      province: d.province,
+      municipality: d.municipality,
+      hasLunch: d.hasLunch,
+      hasDinner: d.hasDinner,
+      observations: d.observations || ''
+    }))
+  }
+
+  const saved = {
+    halfDietPrice: settingsStore.halfDietPrice,
+    fullDietPrice: settingsStore.fullDietPrice,
+    googleMapsApiKey: settingsStore.googleMapsApiKey || '',
+    firstName: settingsStore.firstName || '',
+    lastName: settingsStore.lastName || '',
+    nationalId: settingsStore.nationalId || '',
+    reminder: {
+      day: settingsStore.reminder?.day || 1,
+      time: settingsStore.reminder?.time || '09:00',
+      isRecurring: settingsStore.reminder?.isRecurring ?? true
+    },
+    googleClientId: settingsStore.googleClientId || '',
+    googleCalendarId: settingsStore.googleCalendarId || '',
+    habitualRoute: (settingsStore.habitualRoute || []).map(d => ({
+      province: d.province,
+      municipality: d.municipality,
+      hasLunch: d.hasLunch,
+      hasDinner: d.hasDinner,
+      observations: d.observations || ''
+    }))
+  }
+
+  return JSON.stringify(current) !== JSON.stringify(saved)
+})
+
+onBeforeRouteLeave((to, from, next) => {
+  if (hasChanges.value) {
+    const answer = window.confirm('Tens canvis sense guardar. Segur que vols sortir?')
+    if (answer) next()
+    else next(false)
+  } else {
+    next()
+  }
+})
 </script>
 
 <template>
@@ -669,6 +735,36 @@ v-model="formState.fullDietPrice" type="text" icon="i-heroicons-currency-euro" i
           </UFormField>
         </div>
       </UForm>
+    </UCard>
+
+    <UCard>
+      <template #header>
+        <button
+type="button" class="flex items-center justify-between w-full text-left"
+          @click="isHabitualRouteOpen = !isHabitualRouteOpen">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
+              <UIcon name="i-heroicons-map" class="w-6 h-6 text-primary-500" />
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Ruta Habitual</h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Defineix uns desplaçaments habituals per importar-los
+                ràpidament als nous serveis.</p>
+            </div>
+          </div>
+          <UIcon
+name="i-heroicons-chevron-down" class="w-5 h-5 text-gray-500 transition-transform duration-200"
+            :class="{ 'rotate-180': isHabitualRouteOpen }" />
+        </button>
+      </template>
+
+      <div v-show="isHabitualRouteOpen" class="space-y-4">
+        <DisplacementListEditor v-model="formState.habitualRoute" :provinces="provinces" />
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Nota: Aquests desplaçaments es guardaran quan facis clic a "Desar configuració".
+          Les dades s'utilitzaran com a plantilla per als nous serveis.
+        </p>
+      </div>
     </UCard>
 
     <UCard>
