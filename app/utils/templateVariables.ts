@@ -8,7 +8,7 @@ export const globalVariables = [
     { name: '[current_month_key]', desc: 'Clau tècnica del mes (YYYY-MM).' },
     { name: '[user_name]', desc: 'Nom de l\'usuari configurat.' },
     { name: '[user_surname]', desc: 'Cognoms de l\'usuari configurat.' },
-    { name: '[user_dni]', desc: 'DNI/NIE de l\'usuari configurat.' }
+    { name: '[user_dni]', desc: 'DNI de l\'usuari configurat.' }
 ]
 
 export const monthlyVariables = [

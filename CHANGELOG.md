@@ -185,7 +185,7 @@
 ### Features
 
 * add iconify dev dependencies and simplify report generation button text ([fa1153a](https://github.com/jvmonjo/dietator/commit/fa1153a7fe8e2d990c468f8467b6fdc377f49e1a))
-* Add personal data fields (name, DNI/NIE) with validation and template support. ([3e48eae](https://github.com/jvmonjo/dietator/commit/3e48eae091b7ffdd456a2d34c84d0c05ff07ff4d))
+* Add personal data fields (name, DNI) with validation and template support. ([3e48eae](https://github.com/jvmonjo/dietator/commit/3e48eae091b7ffdd456a2d34c84d0c05ff07ff4d))
 * add proprietary proprietary license file ([0a087de](https://github.com/jvmonjo/dietator/commit/0a087ded327273568d2f4ad4f7c02cf625876152))
 * Rework month and year selection to use separate dropdowns for month and year, including an "all months" option. ([368a7bc](https://github.com/jvmonjo/dietator/commit/368a7bccb43d5979144e0414874a6ce15a0ad686))
 
