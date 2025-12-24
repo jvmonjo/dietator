@@ -1,3 +1,10 @@
+## [1.25.1](https://github.com/jvmonjo/dietator/compare/v1.25.0...v1.25.1) (2025-12-24)
+
+
+### Bug Fixes
+
+* allow canceling external calendar synchronization and remove connection timeout. ([aa4f769](https://github.com/jvmonjo/dietator/commit/aa4f76915d5d111f81b2917d6583fae364e675fc))
+
 # [1.25.0](https://github.com/jvmonjo/dietator/compare/v1.24.0...v1.25.0) (2025-12-24)
 
 
