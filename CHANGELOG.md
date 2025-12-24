@@ -1,3 +1,10 @@
+## [1.23.2](https://github.com/jvmonjo/dietator/compare/v1.23.1...v1.23.2) (2025-12-24)
+
+
+### Bug Fixes
+
+* remove `text` property from `navigator.share` options in document and backup sharing. ([8d96c19](https://github.com/jvmonjo/dietator/commit/8d96c19605b83e2833b8b76a95ba19d34eefe296))
+
 ## [1.23.1](https://github.com/jvmonjo/dietator/compare/v1.23.0...v1.23.1) (2025-12-24)
 
 
