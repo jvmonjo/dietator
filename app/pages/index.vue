@@ -172,8 +172,7 @@ const exportReport = async () => {
       try {
         await navigator.share({
           files: [file],
-          title: 'Documents Dietator',
-          text: `Documents del mes ${selectedMonth.value.label}`
+          title: 'Documents Dietator'
         })
         toast.add({ title: 'Documents compartits correctament', color: 'success' })
         return

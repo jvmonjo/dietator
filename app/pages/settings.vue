@@ -263,8 +263,7 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
         try {
           await navigator.share({
             files: [file],
-            title: 'Còpia de seguretat Dietator',
-            text: `Aquí tens la còpia de seguretat ${type === 'config' ? 'de la configuració' : 'de les dades'}.`
+            title: 'Còpia de seguretat Dietator'
           })
         } catch (err: unknown) {
           const errorName = (err as Error).name
