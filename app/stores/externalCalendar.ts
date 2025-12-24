@@ -63,12 +63,15 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
 
             try {
                 const tokenResponse: { access_token: string, expires_in?: number, refresh_token?: string } = await new Promise((resolve, reject) => {
+                    const failSafeTimeout = 20000 // 20s guard to avoid stuck loading if the user closes the popup
+
                     const tokenClient = window.google.accounts.oauth2.initTokenClient({
                         client_id: clientId,
                         scope: 'https://www.googleapis.com/auth/calendar.readonly',
                         prompt,
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         callback: (response: any) => {
+                            if (timeoutId) window.clearTimeout(timeoutId)
                             if (response.error) {
                                 reject(new Error(response.error))
                                 return
@@ -76,6 +79,10 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                             resolve(response)
                         }
                     })
+
+                    const timeoutId = window.setTimeout(() => {
+                        reject(new Error('Autorització cancel·lada o expirada'))
+                    }, failSafeTimeout)
 
                     tokenClient.requestAccessToken()
                 })
