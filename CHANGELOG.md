@@ -1,3 +1,12 @@
+## [1.23.1](https://github.com/jvmonjo/dietator/compare/v1.23.0...v1.23.1) (2025-12-24)
+
+
+### Bug Fixes
+
+* Add habitual route to settings state and adjust its UI layout. ([d9f4196](https://github.com/jvmonjo/dietator/commit/d9f4196f02fde4978347e079b21b733250dec286))
+* Add loading state to service form submission and implement timeout with new error handling for distance calculation. ([0d1678f](https://github.com/jvmonjo/dietator/commit/0d1678f1524f6a56a82cf46eccbd51bf74e2abe1))
+* improve habitual route summary display with word breaks and flex layout adjustments. ([fb661f5](https://github.com/jvmonjo/dietator/commit/fb661f5bb5635c478e80a7b9138a8208de979658))
+
 # [1.23.0](https://github.com/jvmonjo/dietator/compare/v1.22.0...v1.23.0) (2025-12-24)
 
 
