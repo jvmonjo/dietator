@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/jvmonjo/dietator/compare/v1.23.3...v1.24.0) (2025-12-24)
+
+
+### Features
+
+* Implement Google Calendar OAuth2 token management and integrate external calendar data into backup/restore. ([5c2b0ad](https://github.com/jvmonjo/dietator/commit/5c2b0ad67aa7f6fb49a5cbdc5a772ebc37feeed9))
+
 ## [1.23.3](https://github.com/jvmonjo/dietator/compare/v1.23.2...v1.23.3) (2025-12-24)
 
 
