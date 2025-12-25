@@ -1,3 +1,11 @@
+# [1.27.0](https://github.com/jvmonjo/dietator/compare/v1.26.0...v1.27.0) (2025-12-25)
+
+
+### Features
+
+* add privacy policy page and links in the footer and help section. ([7e3b1ab](https://github.com/jvmonjo/dietator/commit/7e3b1ab9b15eb0b4b2a9347d1d5f412794459e51))
+* Add terms of service page and link it from the footer and help section. ([952fd99](https://github.com/jvmonjo/dietator/commit/952fd9937ce41fa03b235680d414ccf88c9b5ab9))
+
 # [1.26.0](https://github.com/jvmonjo/dietator/compare/v1.25.3...v1.26.0) (2025-12-24)
 
 
