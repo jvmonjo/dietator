@@ -1,3 +1,10 @@
+## [1.27.2](https://github.com/jvmonjo/dietator/compare/v1.27.1...v1.27.2) (2025-12-25)
+
+
+### Bug Fixes
+
+* Add PWA manifest link and update manifest scope and start URL to use baseURL. ([357d058](https://github.com/jvmonjo/dietator/commit/357d058b4a1bc2964a87ba1009dc92c9647dad2f))
+
 ## [1.27.1](https://github.com/jvmonjo/dietator/compare/v1.27.0...v1.27.1) (2025-12-25)
 
 
