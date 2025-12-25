@@ -95,5 +95,5 @@ jobs:
           export NUXT_PUBLIC_APP_VERSION="0.0.0-pr"
           npm run generate
         env:
-          NUXT_APP_BASE_URL: /dietator/
+          NUXT_APP_BASE_URL: /
           NITRO_PRESET: github-pages
