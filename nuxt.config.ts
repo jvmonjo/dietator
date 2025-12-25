@@ -61,6 +61,8 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'prompt',
     manifest: {
+      scope: '/',
+      start_url: '/',
       name: 'Dietator',
       short_name: 'Dietator',
       background_color: '#f5dc00',
