@@ -71,25 +71,49 @@ const filteredTopics = computed(() => {
     <!-- Legal Section -->
     <section class="border-t border-gray-200 dark:border-gray-800 pt-6">
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Legal</h2>
-      <NuxtLink to="/terms" class="block group">
-        <UCard class="transition-shadow duration-200 hover:shadow-md dark:hover:shadow-gray-800">
-          <div class="flex items-center gap-4">
-            <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400">
-              <UIcon name="i-heroicons-scale" class="w-6 h-6" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <NuxtLink to="/terms" class="block group">
+          <UCard class="transition-shadow duration-200 hover:shadow-md dark:hover:shadow-gray-800 h-full">
+            <div class="flex items-center gap-4">
+              <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400">
+                <UIcon name="i-heroicons-scale" class="w-6 h-6" />
+              </div>
+              <div>
+                <h3
+                  class="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                  Condicions Generals
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Informació legal, garanties i llicència d'ús.
+                </p>
+              </div>
+              <UIcon name="i-heroicons-arrow-right"
+                class="w-5 h-5 ml-auto text-gray-400 group-hover:text-primary-500" />
             </div>
-            <div>
-              <h3
-                class="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                Condicions Generals
-              </h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                Informació legal, garanties i llicència d'ús.
-              </p>
+          </UCard>
+        </NuxtLink>
+
+        <NuxtLink to="/privacy" class="block group">
+          <UCard class="transition-shadow duration-200 hover:shadow-md dark:hover:shadow-gray-800 h-full">
+            <div class="flex items-center gap-4">
+              <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400">
+                <UIcon name="i-heroicons-shield-check" class="w-6 h-6" />
+              </div>
+              <div>
+                <h3
+                  class="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                  Política de Privacitat
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Com gestionem (i no guardem) les teves dades.
+                </p>
+              </div>
+              <UIcon name="i-heroicons-arrow-right"
+                class="w-5 h-5 ml-auto text-gray-400 group-hover:text-primary-500" />
             </div>
-            <UIcon name="i-heroicons-arrow-right" class="w-5 h-5 ml-auto text-gray-400 group-hover:text-primary-500" />
-          </div>
-        </UCard>
-      </NuxtLink>
+          </UCard>
+        </NuxtLink>
+      </div>
     </section>
   </div>
 </template>

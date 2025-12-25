@@ -67,6 +67,10 @@ const openChangelog = () => {
         <span class="mx-2">·</span>
         <NuxtLink to="/terms" class="hover:text-gray-900 dark:hover:text-gray-300 transition-colors">Condicions Generals
         </NuxtLink>
+        <span class="mx-2">·</span>
+        <NuxtLink to="/privacy" class="hover:text-gray-900 dark:hover:text-gray-300 transition-colors">Politica de
+          Privacitat
+        </NuxtLink>
       </p>
     </footer>
   </div>
