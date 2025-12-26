@@ -14,6 +14,12 @@ const uuidv4 = () => {
   });
 }
 
+// Helper to detect changes in displacements (ignoring IDs and other metadata)
+const getDisplacementSignature = (displacements: Partial<Displacement>[] | undefined) => {
+  if (!displacements) return ''
+  return displacements.map(d => `${d.province?.trim()}|${d.municipality?.trim()}`).join('||')
+}
+
 const props = withDefaults(defineProps<{
   initialData?: ServiceRecord | null
   initialDate?: Date | null
@@ -165,12 +171,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   isLoading.value = true
 
   try {
-    // Auto-calculate kilometers if API key is configured AND (no value is present OR number of displacements changed)
-    const initialDisplacementCount = props.initialData?.displacements?.length || 0
-    const currentDisplacementCount = state.displacements.length
-    const hasDisplacementCountChanged = initialDisplacementCount !== currentDisplacementCount
+    // Auto-calculate kilometers if API key is configured AND (no value is present OR displacements content changed)
+    const initialSignature = getDisplacementSignature(props.initialData?.displacements)
+    const currentSignature = getDisplacementSignature(state.displacements)
+    const hasDisplacementsChanged = initialSignature !== currentSignature
 
-    if (settingsStore.googleMapsApiKey && state.displacements.length >= 2 && (!state.kilometers || hasDisplacementCountChanged)) {
+    if (settingsStore.googleMapsApiKey && state.displacements.length >= 2 && (!state.kilometers || hasDisplacementsChanged)) {
       try {
         // Filter out incomplete displacements
         const validDisplacements = state.displacements.filter(d => d.province && d.municipality)
@@ -295,15 +301,13 @@ const serviceWarnings = computed(() => {
     </div>
 
     <UFormField label="Notes (Opcional)" name="notes">
-      <UTextarea
-v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="3" autoresize
+      <UTextarea v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="3" autoresize
         class="w-full" />
     </UFormField>
 
     <div class="flex items-center justify-between">
       <USeparator label="Desplaçaments" class="flex-1" />
-      <UButton
-v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
+      <UButton v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
         icon="i-heroicons-arrow-down-tray" class="ml-2" @click="importHabitualRoute">
         Importar ruta habitual
       </UButton>
