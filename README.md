@@ -92,15 +92,3 @@ npm run typecheck
 # Executar linter
 npm run lint
 ```
-
-## Llicència
-
-**Copyright (c) 2025 Josep Monjo**
-
-Aquest projecte està llicenciat sota la **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)**.
-Pots veure el text complet al fitxer [LICENSE](LICENSE).
-
-Això significa que:
-1.  **Attribution (BY)**: Has de donar crèdit a l'autor original.
-2.  **NonCommercial (NC)**: No pots utilitzar el material per a finalitats comercials.
-3.  **ShareAlike (SA)**: Si remescles, transformes o crees a partir del material, has de distribuir les teues contribucions sota la mateixa llicència.
