@@ -45,6 +45,12 @@ const exportState = reactive({
   includeGoogleAuth: true
 })
 
+watch(() => exportState.selectedYear, (newYear) => {
+  if (newYear === 0) {
+    exportState.selectedMonth = 0
+  }
+})
+
 const importState = reactive({
   password: '',
   file: null as File | null,
@@ -1087,7 +1093,8 @@ onBeforeRouteLeave((to, from, next) => {
             <div class="space-y-4 pt-2">
               <div class="flex gap-2">
                 <USelect v-model="exportState.selectedYear" :items="exportYearOptions" class="w-1/2" />
-                <USelect v-model="exportState.selectedMonth" :items="months" class="w-1/2" />
+                <USelect v-model="exportState.selectedMonth" :items="months" class="w-1/2"
+                  :disabled="exportState.selectedYear === 0" />
               </div>
               <UButton :loading="isExportingData" block variant="soft" icon="i-heroicons-share"
                 @click="exportBackup('data', 'share')">
