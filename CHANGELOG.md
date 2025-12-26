@@ -1,3 +1,11 @@
+## [1.27.3](https://github.com/jvmonjo/dietator/compare/v1.27.2...v1.27.3) (2025-12-26)
+
+
+### Bug Fixes
+
+* disable month selection and reset selected month when no year is chosen for data export ([7deb626](https://github.com/jvmonjo/dietator/commit/7deb626d2acc1fdc8f57f1a309821d6d3aeab742))
+* Improve kilometer auto-calculation by detecting displacement content changes instead of just displacement count. ([c4b7b45](https://github.com/jvmonjo/dietator/commit/c4b7b450cbdd32c2d0e231cd7291d689c241412d))
+
 ## [1.27.2](https://github.com/jvmonjo/dietator/compare/v1.27.1...v1.27.2) (2025-12-25)
 
 
