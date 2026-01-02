@@ -1,3 +1,10 @@
+## [1.27.4](https://github.com/jvmonjo/dietator/compare/v1.27.3...v1.27.4) (2026-01-02)
+
+
+### Bug Fixes
+
+* Add a beta warning alert to the Google Calendar connection instructions. ([a3ab202](https://github.com/jvmonjo/dietator/commit/a3ab20287052f54fc8dc977448a18ebac048e87f))
+
 ## [1.27.3](https://github.com/jvmonjo/dietator/compare/v1.27.2...v1.27.3) (2025-12-26)
 
 
