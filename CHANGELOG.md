@@ -1,3 +1,11 @@
+## [1.27.5](https://github.com/jvmonjo/dietator/compare/v1.27.4...v1.27.5) (2026-01-02)
+
+
+### Bug Fixes
+
+* add help link for Google Calendar connection in settings. ([246677a](https://github.com/jvmonjo/dietator/commit/246677a2ca38f865a46dd508fe228a94af601d22))
+* Integrate PWA module to conditionally offer direct install or help in the install banner. ([c97a340](https://github.com/jvmonjo/dietator/commit/c97a3402a488486d57b5b9583d9cc5312b0b4a1c))
+
 ## [1.27.4](https://github.com/jvmonjo/dietator/compare/v1.27.3...v1.27.4) (2026-01-02)
 
 
