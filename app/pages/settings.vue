@@ -344,6 +344,7 @@ const processImport = async (payload: BackupPayload) => {
     formState.lastName = settingsStore.lastName || ''
     formState.nationalId = settingsStore.nationalId || ''
     formState.nationalId = settingsStore.nationalId || ''
+    formState.habitualRoute = settingsStore.habitualRoute || []
   }
 
   if (payload.distancesCache) {
