@@ -845,6 +845,10 @@ onBeforeRouteLeave((to, from, next) => {
             <div class="flex flex-col gap-2">
               <p class="text-sm text-gray-500 dark:text-gray-400">
                 Sincronitzeu el vostre calendari laboral per veure els dies amb activitat.
+                <NuxtLink to="/help/google-calendar"
+                  class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 ml-1">
+                  <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" /> Com connectar?
+                </NuxtLink>
               </p>
               <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-3">
