@@ -1,3 +1,10 @@
+## [1.27.6](https://github.com/jvmonjo/dietator/compare/v1.27.5...v1.27.6) (2026-01-02)
+
+
+### Bug Fixes
+
+* Initialize habitual route in settings form. ([ea23abe](https://github.com/jvmonjo/dietator/commit/ea23abee7f3ae47b380aa480796a27a87f543277))
+
 ## [1.27.5](https://github.com/jvmonjo/dietator/compare/v1.27.4...v1.27.5) (2026-01-02)
 
 
