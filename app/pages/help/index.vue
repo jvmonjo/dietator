@@ -16,7 +16,8 @@ const filteredTopics = computed(() => {
 
 <template>
   <div class="space-y-8 pb-10">
-    <UBreadcrumb :items="[
+    <UBreadcrumb
+:items="[
       { label: 'Inici', to: '/' },
       { label: 'Ajuda', to: '/help' }
     ]" />
@@ -35,7 +36,8 @@ const filteredTopics = computed(() => {
     <section>
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Temes d'Ajuda</h2>
-        <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" placeholder="Filtrar temes..."
+        <UInput
+v-model="searchQuery" icon="i-heroicons-magnifying-glass" placeholder="Filtrar temes..."
           class="w-full max-w-xs" />
       </div>
 
@@ -87,7 +89,8 @@ const filteredTopics = computed(() => {
                   Informació legal, garanties i llicència d'ús.
                 </p>
               </div>
-              <UIcon name="i-heroicons-arrow-right"
+              <UIcon
+name="i-heroicons-arrow-right"
                 class="w-5 h-5 ml-auto text-gray-400 group-hover:text-primary-500" />
             </div>
           </UCard>
@@ -108,7 +111,8 @@ const filteredTopics = computed(() => {
                   Com gestionem (i no guardem) les teves dades.
                 </p>
               </div>
-              <UIcon name="i-heroicons-arrow-right"
+              <UIcon
+name="i-heroicons-arrow-right"
                 class="w-5 h-5 ml-auto text-gray-400 group-hover:text-primary-500" />
             </div>
           </UCard>

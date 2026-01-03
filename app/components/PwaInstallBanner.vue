@@ -41,7 +41,8 @@ const mainActionLabel = computed(() => {
 </script>
 
 <template>
-  <UAlert v-if="!isPwa && !isDismissed" icon="i-heroicons-device-phone-mobile" color="primary" variant="soft"
+  <UAlert
+v-if="!isPwa && !isDismissed" icon="i-heroicons-device-phone-mobile" color="primary" variant="soft"
     title="Instal·la Dietator"
     description="Gaudeix de l'experiència completa instal·lant l'aplicació al teu dispositiu: pantalla completa, offline i més ràpida."
     :actions="[

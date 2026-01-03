@@ -7,7 +7,8 @@ definePageMeta({
 <template>
     <div class="space-y-6 pb-10">
 
-        <UBreadcrumb :items="[
+        <UBreadcrumb
+:items="[
             { label: 'Inici', to: '/' },
             { label: 'Ajuda', to: '/help' },
             { label: 'Google Calendar' }
@@ -41,7 +42,8 @@ definePageMeta({
                     <h3 class="font-semibold text-lg">Com connectar</h3>
                 </template>
                 <div class="space-y-4 text-sm text-gray-600 dark:text-gray-300">
-                    <UAlert icon="i-heroicons-information-circle" color="warning" variant="subtle"
+                    <UAlert
+icon="i-heroicons-information-circle" color="warning" variant="subtle"
                         title="Nota sobre la fase Beta"
                         description="Al tractar-se d'un projecte beta, és possible que calgui autoritzar la teva adreça electrònica per a que pugui usar la integració amb Google Calendar. En cas d'estar interessat, contacta amb el desenvolupador."
                         class="mb-4" />

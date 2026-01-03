@@ -104,7 +104,8 @@
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">6. Contacte</h2>
                     <p>
                         Si teniu dubtes sobre aquesta política o el funcionament tècnic de l'aplicació, podeu obrir una
-                        incidència o discussió al repositori oficial de <a href="https://github.com/jvmonjo/dietator"
+                        incidència o discussió al repositori oficial de <a
+href="https://github.com/jvmonjo/dietator"
                             target="_blank" class="text-primary-500 hover:underline">GitHub</a>.
                     </p>
                 </section>

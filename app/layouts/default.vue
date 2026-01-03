@@ -38,7 +38,8 @@ const openChangelog = () => {
 
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
-    <UAlert v-if="swNeedsRefresh" icon="i-heroicons-arrow-path" color="primary" variant="soft"
+    <UAlert
+v-if="swNeedsRefresh" icon="i-heroicons-arrow-path" color="primary" variant="soft"
       title="Nova versió disponible"
       description="Hi ha actualitzacions a Dietator. Fes click a actualitza per tindre la darrera versió." :actions="[
         { label: 'Actualitza', onClick: refreshApp, color: 'primary', variant: 'solid' },
