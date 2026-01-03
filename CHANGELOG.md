@@ -1,3 +1,15 @@
+# [1.28.0](https://github.com/jvmonjo/dietator/compare/v1.27.6...v1.28.0) (2026-01-03)
+
+
+### Bug Fixes
+
+* add year metadata to backups and implement yearly import/export functionality. ([444c0bd](https://github.com/jvmonjo/dietator/commit/444c0bd69ccce234f00abfaff0b96fdacc38ae06))
+
+
+### Features
+
+* add help page for data backup, export, and restoration with corresponding navigation entry ([c35f9bd](https://github.com/jvmonjo/dietator/commit/c35f9bd6d2e50b00a524b1ce4dfaf8541bf3b2f0))
+
 ## [1.27.6](https://github.com/jvmonjo/dietator/compare/v1.27.5...v1.27.6) (2026-01-02)
 
 
