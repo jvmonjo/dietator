@@ -29,5 +29,11 @@ export const helpTopics = [
         description: 'Sincronitza els teus esdeveniments de Google Calendar automàticament.',
         icon: 'i-simple-icons-googlecalendar',
         to: '/help/google-calendar'
+    },
+    {
+        title: 'Còpies de Seguretat',
+        description: 'Com exportar, importar i protegir les teues dades.',
+        icon: 'i-heroicons-archive-box-arrow-down',
+        to: '/help/backups'
     }
 ]
