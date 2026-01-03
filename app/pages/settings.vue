@@ -254,7 +254,8 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
 
       payload.meta = {
         type: 'data',
-        month: metaMonth
+        month: metaMonth,
+        year: exportState.selectedYear !== 0 ? exportState.selectedYear : undefined
       }
 
       if (!payload.services || payload.services.length === 0) {
@@ -320,17 +321,33 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
   }
 }
 
-const processImport = async (payload: BackupPayload) => {
+// Extended payload for internal use during import
+type ImportPayload = BackupPayload & {
+  detectedYear?: number
+}
+
+const processImport = async (payload: ImportPayload) => {
   const services = Array.isArray(payload?.services) ? payload.services : undefined
   const settings = payload?.settings
 
   if (services) {
     const importMonth = payload.meta?.month ?? 'all'
+    const importYear = payload.detectedYear
+
     if (importMonth !== 'all') {
+      // Monthly import (highest priority specificity)
       const targetPrefix = `${importMonth}-`
       const preserved = serviceStore.records.filter(record => !record.startTime?.startsWith(targetPrefix))
       serviceStore.setRecords([...preserved, ...services])
+    } else if (importYear) {
+      // Yearly import
+      const preserved = serviceStore.records.filter(record => {
+        const recordYear = new Date(record.startTime).getFullYear()
+        return recordYear !== importYear
+      })
+      serviceStore.setRecords([...preserved, ...services])
     } else {
+      // Full overwrite
       serviceStore.setRecords(services)
     }
   }
@@ -420,11 +437,36 @@ const prepareImport = async () => {
     } else if (services) {
       title = 'Importar Dades'
       const month = payload.meta?.month
+      const yearMeta = (payload.meta as any)?.year // cast to any because standard BackupPayload might not have it yet
+
+      // Scan for year if not present in meta
+      let detectedYear: number | undefined
+      if (yearMeta) {
+        detectedYear = yearMeta
+      } else {
+        // Fallback: analyze services
+        const years = new Set<number>()
+        services.forEach(s => {
+          const y = new Date(s.startTime).getFullYear()
+          if (!Number.isNaN(y)) years.add(y)
+        })
+
+        if (years.size === 1) {
+          detectedYear = Array.from(years)[0]
+        }
+      }
+
+      // Pass detected year to processImport via payload mutation or similar mechanism
+      // Since processImport takes types, we can extend the object we pass
+      (payload as ImportPayload).detectedYear = detectedYear
+
       if (month && month !== 'all') {
         const [year, monthNum] = month.split('-')
         const date = new Date(Number(year), Number(monthNum) - 1)
         const monthName = monthFormatter.format(date)
         description = `Estàs a punt de sobreescriure les dades del mes de ${monthName}. Vols continuar?`
+      } else if (detectedYear) {
+        description = `Estàs a punt de sobreescriure les dades de l'any ${detectedYear}. La resta d'anys es mantindran intactes. Vols continuar?`
       } else {
         description = 'Estàs a punt de sobreescriure TOTES les dades de serveis. Aquesta acció no es pot desfer. Vols continuar?'
       }

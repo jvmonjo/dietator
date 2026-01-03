@@ -36,6 +36,7 @@ export interface BackupPayload {
   externalCalendar?: ExternalCalendarSnapshot
   meta?: {
     month?: string
+    year?: number
     type?: 'config' | 'data' | 'full'
   }
 }
