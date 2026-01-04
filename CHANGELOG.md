@@ -1,3 +1,10 @@
+## [1.29.2](https://github.com/jvmonjo/dietator/compare/v1.29.1...v1.29.2) (2026-01-04)
+
+
+### Bug Fixes
+
+* Add custom navigation icons to the calendar widget. ([7c564bd](https://github.com/jvmonjo/dietator/commit/7c564bdc7a3192cbbd38844c9fd88e626f1edd4c))
+
 ## [1.29.1](https://github.com/jvmonjo/dietator/compare/v1.29.0...v1.29.1) (2026-01-04)
 
 
