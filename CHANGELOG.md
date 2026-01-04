@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/jvmonjo/dietator/compare/v1.28.0...v1.29.0) (2026-01-04)
+
+
+### Features
+
+* Implement QR code generation and scanning for importing and sharing service records. ([758f479](https://github.com/jvmonjo/dietator/commit/758f479a034ee8cb902e6bb85fb916e74c0323b7))
+
 # [1.28.0](https://github.com/jvmonjo/dietator/compare/v1.27.6...v1.28.0) (2026-01-03)
 
 
