@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
 import type { FormSubmitEvent } from '#ui/types'
 import type { Displacement, ServiceRecord } from '~/stores/services'
 import { useSettingsStore } from '~/stores/settings'
 import { useDistanceCalculator } from '~/composables/useDistanceCalculator'
 
 
-// Replaced uuid import with local function to avoid potential crash
-const uuidv4 = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
+
+// Removed custom uuidv4 since we installed uuid package in previously
+
 
 // Helper to detect changes in displacements (ignoring IDs and other metadata)
 const getDisplacementSignature = (displacements: Partial<Displacement>[] | undefined) => {
@@ -271,6 +268,18 @@ const serviceWarnings = computed(() => {
   if (!state.startTime || !state.endTime) return []
   return getServiceWarnings(state.startTime, state.endTime, state.displacements)
 })
+
+const isQrModalOpen = ref(false)
+const qrData = computed(() => {
+  // Construct a record-like object from current state
+  return {
+    startTime: state.startTime,
+    endTime: state.endTime,
+    displacements: state.displacements,
+    kilometers: state.kilometers,
+    notes: state.notes
+  }
+})
 </script>
 
 <template>
@@ -313,6 +322,9 @@ v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" var
         icon="i-heroicons-arrow-down-tray" class="ml-2" @click="importHabitualRoute">
         Importar ruta habitual
       </UButton>
+      <UButton variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2" @click="isQrModalOpen = true">
+        Generar QR
+      </UButton>
     </div>
 
     <!-- Displacements List -->
@@ -323,5 +335,7 @@ v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" var
         {{ submitLabel }}
       </UButton>
     </div>
+
+    <QrCodeModal v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData" title="Compartir formulari actual" />
   </UForm>
 </template>

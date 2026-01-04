@@ -71,6 +71,51 @@ const selectedDate = ref<Date | null>(null)
 const selectedNotes = ref<string>('')
 const isDuplicateMode = ref(false)
 
+const isQrModalOpen = ref(false)
+const qrData = ref<ServiceRecord | null>(null)
+const isQrScannerOpen = ref(false)
+
+const handleQrImport = (result: string) => {
+  try {
+    const data = JSON.parse(result)
+    // Validate basic structure (optional but recommended)
+    if (!data.startTime || !data.endTime || !Array.isArray(data.displacements)) {
+      throw new Error('Format de dades incorrecte')
+    }
+
+    // Open new service modal with imported data
+    // We pass data but clear ID to treat as new service
+
+    // We'll reuse openNewService logic but need to adapt it slightly 
+    // or just directly set state as openNewService takes specific args
+
+    selectedRecord.value = null
+    selectedDate.value = new Date(data.startTime)
+    selectedNotes.value = data.notes || ''
+
+    // Check if openNewService can handle full object or we need to extract vars
+    // existing: openNewService(date, notes, startTime, endTime, displacements)
+
+    openNewService(
+      new Date(data.startTime),
+      data.notes,
+      data.startTime,
+      data.endTime,
+      data.displacements
+    )
+
+    toast.add({ title: 'Servei importat correctament', color: 'success' })
+  } catch (e) {
+    console.error(e)
+    toast.add({ title: 'Error important el codi QR', description: 'Format invàlid', color: 'error' })
+  }
+}
+
+const openQrCode = (record: ServiceRecord) => {
+  qrData.value = record
+  isQrModalOpen.value = true
+}
+
 const modalTitle = computed(() => {
   if (isDuplicateMode.value) return 'Duplicar servei'
   if (selectedRecord.value) return 'Editar servei'
@@ -206,6 +251,9 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
           <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="() => openNewService()">
             Afegir servei
           </UButton>
+          <UButton icon="i-heroicons-qr-code" color="neutral" variant="solid" @click="isQrScannerOpen = true">
+            Importar
+          </UButton>
         </div>
       </div>
     </div>
@@ -257,6 +305,12 @@ v-if="props.enableEdit" icon="i-heroicons-pencil-square" size="xs" variant="soft
                 <UButton
 icon="i-heroicons-document-duplicate" size="xs" variant="soft" color="neutral"
                   @click="duplicateRecord(row.original as ServiceRecord)" />
+              </UTooltip>
+
+              <UTooltip text="Generar QR">
+                <UButton
+icon="i-heroicons-qr-code" size="xs" variant="soft" color="neutral"
+                  @click="openQrCode(row.original as ServiceRecord)" />
               </UTooltip>
 
               <UTooltip text="Eliminar">
@@ -323,4 +377,8 @@ v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
     </UModal>
 
   </section>
+
+  <QrCodeModal v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData || {}" title="Compartir Servei" />
+
+  <QrScannerModal v-if="isQrScannerOpen" v-model:open="isQrScannerOpen" @detected="handleQrImport" />
 </template>
