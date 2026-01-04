@@ -56,6 +56,16 @@ export default defineNuxtConfig({
       scan: true,
       includeCustomCollections: true,
       sizeLimitKb: 256,
+      icons: [
+        'heroicons:chevron-left-20-solid',
+        'heroicons:chevron-right-20-solid',
+        'heroicons:chevron-up-20-solid',
+        'heroicons:chevron-down-20-solid',
+        'heroicons:chevron-left',
+        'heroicons:chevron-right',
+        'heroicons:chevron-up',
+        'heroicons:chevron-down'
+      ]
     },
   },
 
