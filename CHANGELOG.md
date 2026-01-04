@@ -1,3 +1,10 @@
+## [1.29.5](https://github.com/jvmonjo/dietator/compare/v1.29.4...v1.29.5) (2026-01-04)
+
+
+### Bug Fixes
+
+* Migrate icon bundling from a dedicated component to nuxt.config.ts and add package version. ([3277d35](https://github.com/jvmonjo/dietator/commit/3277d35e50a99b4591a645ef34755d593506f908))
+
 ## [1.29.4](https://github.com/jvmonjo/dietator/compare/v1.29.3...v1.29.4) (2026-01-04)
 
 
