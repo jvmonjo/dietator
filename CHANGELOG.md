@@ -1,3 +1,10 @@
+## [1.29.3](https://github.com/jvmonjo/dietator/compare/v1.29.2...v1.29.3) (2026-01-04)
+
+
+### Bug Fixes
+
+* Add custom calendar navigation with prev/next buttons and current month display. ([cf4ebc3](https://github.com/jvmonjo/dietator/commit/cf4ebc30544ca712b0ae4772929f09b555c4c129))
+
 ## [1.29.2](https://github.com/jvmonjo/dietator/compare/v1.29.1...v1.29.2) (2026-01-04)
 
 
