@@ -1,3 +1,10 @@
+## [1.29.4](https://github.com/jvmonjo/dietator/compare/v1.29.3...v1.29.4) (2026-01-04)
+
+
+### Bug Fixes
+
+* Add `OfflineIconBundle` to ensure Nuxt UI icons are bundled and simplify `CalendarWidget` navigation. ([6cdaf6a](https://github.com/jvmonjo/dietator/commit/6cdaf6abc7f7c139bbb5610693cab2d6d16a7c5f))
+
 ## [1.29.3](https://github.com/jvmonjo/dietator/compare/v1.29.2...v1.29.3) (2026-01-04)
 
 
