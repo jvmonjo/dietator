@@ -4,5 +4,7 @@
       <NuxtPage />
     </NuxtLayout>
 
+    <OfflineIconBundle />
+
   </UApp>
 </template>
