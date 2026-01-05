@@ -20,16 +20,12 @@ const links = [
 
 const { public: { appVersion } } = useRuntimeConfig()
 
-const swNeedsRefresh = useState<boolean>('swUpdateAvailable', () => false)
 const swUpdateTrigger = useState<(() => void) | null>('swUpdateTrigger', () => null)
 
 const refreshApp = () => {
   swUpdateTrigger.value?.()
 }
 
-const dismissUpdateBanner = () => {
-  swNeedsRefresh.value = false
-}
 
 const openChangelog = () => {
   window.open('https://github.com/jvmonjo/dietator/releases', '_blank')
