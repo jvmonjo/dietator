@@ -1,3 +1,10 @@
+## [1.30.6](https://github.com/jvmonjo/dietator/compare/v1.30.5...v1.30.6) (2026-01-05)
+
+
+### Bug Fixes
+
+* Migrate PWA service worker update to use $pwa module and reformat settings page attributes. ([8e6df34](https://github.com/jvmonjo/dietator/commit/8e6df34c23c37f2c8a8def714d0566496b76f78e))
+
 ## [1.30.5](https://github.com/jvmonjo/dietator/compare/v1.30.4...v1.30.5) (2026-01-05)
 
 
