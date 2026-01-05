@@ -2,10 +2,6 @@
 const { $pwa } = useNuxtApp()
 const toast = useToast()
 
-const openChangelog = () => {
-    window.open('https://github.com/jvmonjo/dietator/releases', '_blank')
-}
-
 const refreshApp = () => {
     $pwa?.updateServiceWorker?.()
 }
@@ -39,11 +35,6 @@ onMounted(() => {
                     label: 'Actualitzar',
                     icon: 'i-lucide-refresh-cw',
                     onClick: refreshApp
-                }, {
-                    label: 'Veure canvis',
-                    variant: 'outline',
-                    icon: 'i-logos-github-icon',
-                    onClick: openChangelog
                 }]
             } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
         }
