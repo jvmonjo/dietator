@@ -1,3 +1,10 @@
+## [1.30.1](https://github.com/jvmonjo/dietator/compare/v1.30.0...v1.30.1) (2026-01-05)
+
+
+### Bug Fixes
+
+* Reformat Vue component attributes to single line for improved readability. ([e7052c6](https://github.com/jvmonjo/dietator/commit/e7052c613072966520830762257b2196b6f3baa1))
+
 # [1.30.0](https://github.com/jvmonjo/dietator/compare/v1.29.7...v1.30.0) (2026-01-05)
 
 
