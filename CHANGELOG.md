@@ -1,3 +1,10 @@
+## [1.30.8](https://github.com/jvmonjo/dietator/compare/v1.30.7...v1.30.8) (2026-01-05)
+
+
+### Bug Fixes
+
+* Add icons to PWA update manager actions and update GitHub icon on the about page. ([3fb88a5](https://github.com/jvmonjo/dietator/commit/3fb88a58f5293ba505df3aa7ecbd7083bed25274))
+
 ## [1.30.7](https://github.com/jvmonjo/dietator/compare/v1.30.6...v1.30.7) (2026-01-05)
 
 
