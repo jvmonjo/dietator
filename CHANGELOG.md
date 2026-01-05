@@ -1,3 +1,10 @@
+## [1.30.7](https://github.com/jvmonjo/dietator/compare/v1.30.6...v1.30.7) (2026-01-05)
+
+
+### Bug Fixes
+
+* extract PWA update and offline ready logic into a new `PwaUpdateManager` component and remove `PwaInstallBanner` from default layout. ([90950d7](https://github.com/jvmonjo/dietator/commit/90950d729925fd66bc01bb5cba1ddd7a8e3841b0))
+
 ## [1.30.6](https://github.com/jvmonjo/dietator/compare/v1.30.5...v1.30.6) (2026-01-05)
 
 
