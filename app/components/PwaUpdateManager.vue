@@ -37,9 +37,12 @@ onMounted(() => {
                 duration: 0,
                 actions: [{
                     label: 'Actualitzar',
+                    icon: 'i-lucide-refresh-cw',
                     onClick: refreshApp
                 }, {
                     label: 'Veure canvis',
+                    variant: 'outline',
+                    icon: 'i-logos-github-icon',
                     onClick: openChangelog
                 }]
             } as any) // eslint-disable-line @typescript-eslint/no-explicit-any

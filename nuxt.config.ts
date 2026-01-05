@@ -72,7 +72,9 @@ export default defineNuxtConfig({
         'lucide:chevron-down',
         'lucide:chevrons-right',
         'lucide:chevrons-left',
-        'logos:google-icon'
+        'lucide:refresh-cw',
+        'logos:google-icon',
+        'logos:github-icon'
       ]
     },
   },
