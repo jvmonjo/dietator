@@ -1,3 +1,16 @@
+# [1.30.0](https://github.com/jvmonjo/dietator/compare/v1.29.7...v1.30.0) (2026-01-05)
+
+
+### Bug Fixes
+
+* add Lucide icon set and apply minor code formatting in ServiceForm and CalendarWidget. ([2ef3aef](https://github.com/jvmonjo/dietator/commit/2ef3aef23dbaef7f698112e24ce1885cdf4dea15))
+* add Lucide icons and refactor component template formatting ([2088619](https://github.com/jvmonjo/dietator/commit/2088619e7a76c1bb22929326c12bf91f85f116fb))
+
+
+### Features
+
+* add PWA offline ready and update notifications with a new component and icon set ([fca1048](https://github.com/jvmonjo/dietator/commit/fca10487f45aeb8b5c0572a2f1ca930ae3fbbf09))
+
 ## [1.29.7](https://github.com/jvmonjo/dietator/compare/v1.29.6...v1.29.7) (2026-01-05)
 
 
