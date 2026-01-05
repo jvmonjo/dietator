@@ -1,3 +1,10 @@
+## [1.30.5](https://github.com/jvmonjo/dietator/compare/v1.30.4...v1.30.5) (2026-01-05)
+
+
+### Bug Fixes
+
+* test update cicle ([f7eabf3](https://github.com/jvmonjo/dietator/commit/f7eabf3c7f9a7877b68230aaf76e9a0cc9937210))
+
 ## [1.30.4](https://github.com/jvmonjo/dietator/compare/v1.30.3...v1.30.4) (2026-01-05)
 
 
