@@ -1,3 +1,10 @@
+## [1.30.3](https://github.com/jvmonjo/dietator/compare/v1.30.2...v1.30.3) (2026-01-05)
+
+
+### Bug Fixes
+
+* infinite time update app toast ([357d863](https://github.com/jvmonjo/dietator/commit/357d8639e2271aeeac3333239b7a46c7052f845b))
+
 ## [1.30.2](https://github.com/jvmonjo/dietator/compare/v1.30.1...v1.30.2) (2026-01-05)
 
 
