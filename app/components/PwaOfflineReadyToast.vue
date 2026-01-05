@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const { $pwa } = useNuxtApp()
 const toast = useToast()
+const swUpdateTrigger = useState<(() => void) | null>('swUpdateTrigger', () => null)
+
+const refreshApp = () => {
+    swUpdateTrigger.value?.()
+}
 
 onMounted(() => {
     if (!$pwa) return
@@ -30,7 +35,7 @@ onMounted(() => {
                 timeout: 0,
                 actions: [{
                     label: 'Actualitzar',
-                    click: () => $pwa.updateServiceWorker()
+                    click: refreshApp
                 }]
             } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
         }
