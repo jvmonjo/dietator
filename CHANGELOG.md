@@ -1,3 +1,11 @@
+## [1.29.7](https://github.com/jvmonjo/dietator/compare/v1.29.6...v1.29.7) (2026-01-05)
+
+
+### Bug Fixes
+
+* add Lucide chevron icons and remove specific Heroicons ([ddd5a41](https://github.com/jvmonjo/dietator/commit/ddd5a41938f81cd992000f7280ac9fcd31b95c05))
+* reversion. enable icon scanning for client bundle ([be90f3e](https://github.com/jvmonjo/dietator/commit/be90f3e0199623e2d210c0f199694833734fdc83))
+
 ## [1.29.6](https://github.com/jvmonjo/dietator/compare/v1.29.5...v1.29.6) (2026-01-05)
 
 
