@@ -310,17 +310,20 @@ const qrData = computed(() => {
     </div>
 
     <UFormField label="Notes (Opcional)" name="notes">
-      <UTextarea v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="3" autoresize
+      <UTextarea
+v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="3" autoresize
         class="w-full" />
     </UFormField>
 
     <div class="flex items-center justify-between">
       <USeparator label="Desplaçaments" class="flex-1" />
-      <UButton v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
+      <UButton
+v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
         icon="i-heroicons-arrow-down-tray" class="ml-2" @click="importHabitualRoute">
         Importar ruta habitual
       </UButton>
-      <UButton v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2"
+      <UButton
+v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2"
         @click="isQrModalOpen = true">
         Generar QR
       </UButton>
