@@ -53,7 +53,7 @@ export default defineNuxtConfig({
 
   icon: {
     clientBundle: {
-      scan: false,
+      scan: true,
       includeCustomCollections: true,
       sizeLimitKb: 256,
       icons: [
