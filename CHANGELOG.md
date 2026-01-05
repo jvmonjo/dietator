@@ -1,3 +1,10 @@
+## [1.30.9](https://github.com/jvmonjo/dietator/compare/v1.30.8...v1.30.9) (2026-01-05)
+
+
+### Bug Fixes
+
+* remove changelog link from PWA update notification so update takes place ([9ea7a2b](https://github.com/jvmonjo/dietator/commit/9ea7a2bab732094fb011aa6132062b6895880f0a))
+
 ## [1.30.8](https://github.com/jvmonjo/dietator/compare/v1.30.7...v1.30.8) (2026-01-05)
 
 
