@@ -34,18 +34,51 @@ const dismissUpdateBanner = () => {
 const openChangelog = () => {
   window.open('https://github.com/jvmonjo/dietator/releases', '_blank')
 }
+
+const { $pwa } = useNuxtApp()
+const toast = useToast()
+
+onMounted(() => {
+  if (!$pwa) return
+
+  // Watch for offline ready state
+  watch(() => $pwa.offlineReady, (ready) => {
+    if (ready) {
+      toast.add({
+        title: 'App disponible sense connexió',
+        description: 'L\'aplicació s\'ha descarregat i ja funciona sense internet.',
+        icon: 'i-heroicons-check-circle',
+        color: 'success',
+        duration: 5000
+      } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+    }
+  }, { immediate: true })
+
+  // Watch for update available
+  watch(() => $pwa.needRefresh, (needRefresh) => {
+    if (needRefresh) {
+      toast.add({
+        title: 'Nova versió disponible',
+        description: 'Hi ha una actualització pendent.',
+        icon: 'i-heroicons-arrow-path',
+        color: 'primary',
+        duration: 0,
+        actions: [{
+          label: 'Actualitzar',
+          click: refreshApp
+        }, {
+          label: 'Veure canvis',
+          click: openChangelog
+        }]
+      } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+    }
+  }, { immediate: true })
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
-    <UAlert
-v-if="swNeedsRefresh" icon="i-heroicons-arrow-path" color="primary" variant="soft"
-      title="Nova versió disponible"
-      description="Hi ha actualitzacions a Dietator. Fes click a actualitza per tindre la darrera versió." :actions="[
-        { label: 'Actualitza', onClick: refreshApp, color: 'primary', variant: 'solid' },
-        { label: 'Veure canvis', onClick: openChangelog, variant: 'link' },
-        { label: 'Tancar', onClick: dismissUpdateBanner, variant: 'ghost', color: 'neutral' }
-      ]" class="rounded-none border-t-0 border-x-0 border-b" />
+
     <PwaInstallBanner />
 
     <!-- Header -->
