@@ -42,7 +42,7 @@ onMounted(() => {
     if (ready) {
       toast.add({
         title: 'App disponible sense connexió',
-        description: 'L\'aplicació s\'ha descarregat i ja funciona sense internet.',
+        description: 'L\'aplicació s\'ha descarregat i ja podeu usar-la sense internet.',
         icon: 'i-heroicons-check-circle',
         color: 'success',
         duration: 5000
