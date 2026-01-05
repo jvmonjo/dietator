@@ -4,5 +4,7 @@
       <NuxtPage />
     </NuxtLayout>
 
+    <PwaOfflineReadyToast />
+
   </UApp>
 </template>
