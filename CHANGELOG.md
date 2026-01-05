@@ -1,3 +1,10 @@
+## [1.30.4](https://github.com/jvmonjo/dietator/compare/v1.30.3...v1.30.4) (2026-01-05)
+
+
+### Bug Fixes
+
+* Migrate PWA offline and update notifications to the default layout using toasts. ([60c768a](https://github.com/jvmonjo/dietator/commit/60c768a3f8ff52e1579463083d3615a2d240a817))
+
 ## [1.30.3](https://github.com/jvmonjo/dietator/compare/v1.30.2...v1.30.3) (2026-01-05)
 
 
