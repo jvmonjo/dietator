@@ -4,5 +4,7 @@
       <NuxtPage />
     </NuxtLayout>
 
+    <PwaUpdateManager />
+
   </UApp>
 </template>
