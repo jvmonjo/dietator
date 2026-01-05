@@ -65,9 +65,12 @@ export default defineNuxtConfig({
         'heroicons:chevron-right',
         'heroicons:chevron-up',
         'heroicons:chevron-down',
-        'heroicons:check-20-solid',
-        'heroicons:x-mark-20-solid',
-        'heroicons:ellipsis-vertical-20-solid',
+        'lucide:chevron-left',
+        'lucide:chevron-right',
+        'lucide:chevron-up',
+        'lucide:chevron-down',
+        'lucide:chevrons-right',
+        'lucide:chevrons-left'
       ]
     },
   },
