@@ -1,3 +1,11 @@
+## [1.29.6](https://github.com/jvmonjo/dietator/compare/v1.29.5...v1.29.6) (2026-01-05)
+
+
+### Bug Fixes
+
+* conditionally render QR generation button and reformat component attributes ([1055069](https://github.com/jvmonjo/dietator/commit/10550697fdac7a489638b75be7e40abc81906287))
+* disable icon client bundle scanning, add new heroicons, and include woff2 files in PWA workbox glob patterns ([4b19073](https://github.com/jvmonjo/dietator/commit/4b19073865fb8a23e5cc1e347a73c3fae78a1cfb))
+
 ## [1.29.5](https://github.com/jvmonjo/dietator/compare/v1.29.4...v1.29.5) (2026-01-04)
 
 
