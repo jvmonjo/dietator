@@ -20,19 +20,16 @@ const links = [
 
 const { public: { appVersion } } = useRuntimeConfig()
 
-const swUpdateTrigger = useState<(() => void) | null>('swUpdateTrigger', () => null)
-
-const refreshApp = () => {
-  swUpdateTrigger.value?.()
-}
-
-
 const openChangelog = () => {
   window.open('https://github.com/jvmonjo/dietator/releases', '_blank')
 }
 
 const { $pwa } = useNuxtApp()
 const toast = useToast()
+
+const refreshApp = () => {
+  $pwa?.updateServiceWorker?.()
+}
 
 onMounted(() => {
   if (!$pwa) return
@@ -61,10 +58,10 @@ onMounted(() => {
         duration: 0,
         actions: [{
           label: 'Actualitzar',
-          click: refreshApp
+          onClick: refreshApp
         }, {
           label: 'Veure canvis',
-          click: openChangelog
+          onClick: openChangelog
         }]
       } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
     }
