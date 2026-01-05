@@ -15,7 +15,7 @@ onMounted(() => {
                 icon: 'i-heroicons-check-circle',
                 color: 'success',
                 timeout: 5000
-            } as any)
+            } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
         }
     }, { immediate: true })
 
