@@ -65,12 +65,14 @@ export default defineNuxtConfig({
         'heroicons:chevron-right',
         'heroicons:chevron-up',
         'heroicons:chevron-down',
+        'heroicons:archive-box-arrow-down',
         'lucide:chevron-left',
         'lucide:chevron-right',
         'lucide:chevron-up',
         'lucide:chevron-down',
         'lucide:chevrons-right',
-        'lucide:chevrons-left'
+        'lucide:chevrons-left',
+        'logos:google-icon'
       ]
     },
   },
