@@ -32,7 +32,7 @@ onMounted(() => {
                 description: 'Hi ha una actualització pendent.',
                 icon: 'i-heroicons-arrow-path',
                 color: 'primary',
-                timeout: 0,
+                duration: 0,
                 actions: [{
                     label: 'Actualitzar',
                     click: refreshApp
