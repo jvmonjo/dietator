@@ -53,7 +53,7 @@ export default defineNuxtConfig({
 
   icon: {
     clientBundle: {
-      scan: true,
+      scan: false,
       includeCustomCollections: true,
       sizeLimitKb: 256,
       icons: [
@@ -64,7 +64,10 @@ export default defineNuxtConfig({
         'heroicons:chevron-left',
         'heroicons:chevron-right',
         'heroicons:chevron-up',
-        'heroicons:chevron-down'
+        'heroicons:chevron-down',
+        'heroicons:check-20-solid',
+        'heroicons:x-mark-20-solid',
+        'heroicons:ellipsis-vertical-20-solid',
       ]
     },
   },
@@ -123,7 +126,7 @@ export default defineNuxtConfig({
       ]
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}']
+      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}']
     },
     client: {
       installPrompt: true,
