@@ -1,3 +1,13 @@
+## [1.30.10](https://github.com/jvmonjo/dietator/compare/v1.30.9...v1.30.10) (2026-01-08)
+
+
+### Bug Fixes
+
+* added last sync ([a55d4b1](https://github.com/jvmonjo/dietator/commit/a55d4b1a8e4fe54dfc8584683ce6f555fa18a394))
+* changed allowance translation ([5aebfe6](https://github.com/jvmonjo/dietator/commit/5aebfe6d468f30e2989b148ce7b75353285ed07e))
+* github icon color ([3d7b4b2](https://github.com/jvmonjo/dietator/commit/3d7b4b20745746aba1fcb43d425969b954e9b13d))
+* removed maraton from curious comparisons ([7ba2f97](https://github.com/jvmonjo/dietator/commit/7ba2f971973ef18cb8048070ab8a8e2b1c10d49d))
+
 ## [1.30.9](https://github.com/jvmonjo/dietator/compare/v1.30.8...v1.30.9) (2026-01-05)
 
 
