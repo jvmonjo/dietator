@@ -23,8 +23,8 @@ const { public: { appVersion } } = useRuntimeConfig()
           <span class="mx-3 text-gray-300 dark:text-gray-700">|</span>
           <span class="text-gray-500">&copy; 2025 Josep Monjo</span>
         </div>
-        <UButton icon="i-logos-github-icon" to="https://github.com/jvmonjo/dietator/releases" target="_blank"
-          color="neutral" variant="ghost" class="fill-white" size="xs">
+        <UButton icon="i-simple-icons-github" to="https://github.com/jvmonjo/dietator/releases" target="_blank"
+          color="neutral" variant="ghost" size="xs">
           Veure historial de canvis
         </UButton>
       </div>
