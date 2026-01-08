@@ -172,7 +172,6 @@ export const useWrappedStats = () => {
     const getDistanceComparisons = (totalKm: number) => {
         // Fun comparisons (Iconic Routes)
         const comparisons = [
-            { label: 'Marató', distance: 42.195, emoji: '🏃' },
             { label: 'Camí de Santiago (Francès)', distance: 780, emoji: '🚶' },
             { label: 'Ruta 66 (EUA)', distance: 3940, emoji: '🛣️' },
             { label: 'Rally París-Dakar', distance: 10000, emoji: 'un 🚙' },
