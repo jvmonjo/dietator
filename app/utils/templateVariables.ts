@@ -20,7 +20,7 @@ export const monthlyVariables = [
     { name: '[month_full_diets]', desc: 'Total de dietes completes.' },
     { name: '[month_diet_units]', desc: 'Unitats de dieta (completa=1, mitja=0.5).' },
     { name: '[month_kilometers]', desc: 'Total de quilòmetres registrats al mes.' },
-    { name: '[month_allowance]', desc: 'Import total a percebre.' },
+    { name: '[month_allowance]', desc: 'Dietes.' },
     { name: '[month_allowance_value]', desc: 'Valor numèric de l\'import total.' },
     { name: '[previous_month_last_working_day]', desc: 'Data de l\'últim dia laborable del mes anterior (ISO).' },
     { name: '[previous_month_last_working_day:human]', desc: 'Data de l\'últim dia laborable del mes anterior (Text).' },
@@ -49,7 +49,7 @@ export const serviceVariables = [
     { name: '[service_total_lunches]', desc: 'Total de dinars (alias).' },
     { name: '[service_total_dinners]', desc: 'Total de sopars (alias).' },
     { name: '[service_kilometers]', desc: 'Total de quilòmetres del servei.' },
-    { name: '[service_total_allowance]', desc: 'Import total del servei.' },
+    { name: '[service_total_allowance]', desc: 'Dietes del servei.' },
     { name: '[service_total_allowance_value]', desc: 'Valor numèric de l\'import total.' },
     { name: '[service_notes]', desc: 'Notes o observacions opcionals del servei.' }
 ]

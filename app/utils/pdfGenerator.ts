@@ -93,7 +93,7 @@ export const generateStatsPdf = async (options: PdfGeneratorOptions): Promise<Bl
 
     // Card 2: Allowance
     const allowanceStr = new Intl.NumberFormat('ca-ES', { style: 'currency', currency: 'EUR' }).format(Totals.allowance)
-    drawCard(doc, startX + cardWidth + gap, y, cardWidth, cardHeight, 'Import Total', allowanceStr)
+    drawCard(doc, startX + cardWidth + gap, y, cardWidth, cardHeight, 'Dietes', allowanceStr)
 
     // Card 3: Kilometers
     const kmStr = (Totals.kilometers || 0).toLocaleString('ca-ES') + ' km'
@@ -245,7 +245,7 @@ export const generateWrappedPdf = async (stats: WrappedStats): Promise<Blob> => 
     const formatCurrency = new Intl.NumberFormat('ca-ES', { style: 'currency', currency: 'EUR' }).format
     const formatNumber = new Intl.NumberFormat('ca-ES', { maximumFractionDigits: 1 }).format
 
-    drawStatCard('Ingressos', formatCurrency(totalIncome), '', 20, '#34D399') // Emerald
+    drawStatCard('Dietes', formatCurrency(totalIncome), '', 20, '#34D399') // Emerald
     drawStatCard('Hores', formatNumber(totalHours), `~${formatNumber(weeklyAverageHours)} h/setm | ${formatNumber(avgHoursPerService)} h/serv`, 65, '#FACC15') // Yellow
     drawStatCard('Serveis', totalServices.toString(), `~${formatNumber(weeklyAverageServices)} s/setm`, 110, '#A78BFA') // Purple
     drawStatCard('Kilòmetres', formatNumber(totalKm), `~${formatNumber(avgKmPerService)} km/serv`, 155, '#60A5FA') // Blue
