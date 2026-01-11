@@ -58,6 +58,8 @@ const numberFormatter = new Intl.NumberFormat('ca-ES', { maximumFractionDigits: 
 
 const formatCurrency = (val: number) => currencyFormatter.format(val)
 const formatNumber = (val: number) => numberFormatter.format(val)
+const moneyFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const formatMoney = (val: number) => moneyFormatter.format(val)
 
 const years = computed(() => {
     const list = []
@@ -156,7 +158,7 @@ const handlePdf = async () => {
                     <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Total dietes</div>
                     <div class="flex items-baseline gap-1 flex-wrap">
                         <span class="text-2xl lg:text-4xl font-black text-emerald-400">{{
-                            formatNumber(stats.totalIncome) }}</span>
+                            formatMoney(stats.totalIncome) }}</span>
                         <span class="text-lg lg:text-xl text-emerald-500 font-bold">€</span>
                     </div>
                 </div>
