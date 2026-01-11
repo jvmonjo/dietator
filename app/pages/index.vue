@@ -6,25 +6,26 @@ import { generateWordReport } from '~/utils/export'
 const settingsStore = useSettingsStore()
 const externalCalendar = useExternalCalendarStore()
 const toast = useToast()
+const { t, locale } = useI18n()
 const { calculateTotals, currentMonthValue, monthOptions, getRecordsForMonth } = useServiceStats()
 
 
 // Month/Year Selection Logic
-const months = [
-  { value: 0, label: 'Tots' },
-  { value: 1, label: 'Gener' },
-  { value: 2, label: 'Febrer' },
-  { value: 3, label: 'Març' },
-  { value: 4, label: 'Abril' },
-  { value: 5, label: 'Maig' },
-  { value: 6, label: 'Juny' },
-  { value: 7, label: 'Juliol' },
-  { value: 8, label: 'Agost' },
-  { value: 9, label: 'Setembre' },
-  { value: 10, label: 'Octubre' },
-  { value: 11, label: 'Novembre' },
-  { value: 12, label: 'Desembre' }
-]
+const months = computed(() => [
+  { value: 0, label: t('months.0') },
+  { value: 1, label: t('months.1') },
+  { value: 2, label: t('months.2') },
+  { value: 3, label: t('months.3') },
+  { value: 4, label: t('months.4') },
+  { value: 5, label: t('months.5') },
+  { value: 6, label: t('months.6') },
+  { value: 7, label: t('months.7') },
+  { value: 8, label: t('months.8') },
+  { value: 9, label: t('months.9') },
+  { value: 10, label: t('months.10') },
+  { value: 11, label: t('months.11') },
+  { value: 12, label: t('months.12') }
+])
 
 const currentYear = new Date().getFullYear()
 const selectedYear = ref(currentYear)
@@ -41,8 +42,7 @@ const availableYears = computed(() => {
 
 const activeMonth = computed<MonthOption | null>(() => {
   if (selectedMonthValue.value === 0) return null
-
-  const monthLabel = months.find(m => m.value === selectedMonthValue.value)?.label
+  const monthLabel = months.value.find(m => m.value === selectedMonthValue.value)?.label
   return {
     value: `${selectedYear.value}-${String(selectedMonthValue.value).padStart(2, '0')}`,
     label: `${monthLabel} ${selectedYear.value}`
@@ -58,8 +58,9 @@ const selectedRecords = computed(() => {
 
 const selectionTotals = computed(() => calculateTotals(selectedRecords.value))
 
-const currencyFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
-const formatCurrency = (value: number) => currencyFormatter.format(value || 0)
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }).format(value || 0)
+}
 
 const HOURS_PER_MS = 1 / (1000 * 60 * 60)
 interface ParsedMonth {
@@ -115,33 +116,35 @@ const averageKmPerService = computed(() => {
   return (selectionTotals.value.kilometers || 0) / selectionTotals.value.serviceCount
 })
 
-const hoursFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
-const weeksFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
-const formatHours = (value: number) => `${hoursFormatter.format(value || 0)} h`
-const formatWeeks = (value: number) => weeksFormatter.format(value || 0)
+const formatHours = (value: number) => {
+  return `${new Intl.NumberFormat(locale.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value || 0)} h`
+}
+const formatWeeks = (value: number) => {
+  return new Intl.NumberFormat(locale.value, { minimumFractionDigits: 1, maximumFractionDigits: 2 }).format(value || 0)
+}
 
 const selectedMonthLabel = computed(() => {
-  if (showAllMonths.value) return 'Tots els mesos'
-  return activeMonth.value?.label ?? 'Mes actual'
+  if (showAllMonths.value) return t('common.all_months')
+  return activeMonth.value?.label ?? t('common.current_month')
 })
 const hasTemplates = computed(() => Boolean(settingsStore.monthlyTemplate || settingsStore.serviceTemplate))
 const dietPriceSet = computed(() => settingsStore.fullDietPrice > 0 || settingsStore.halfDietPrice > 0)
 const canExportReport = computed(() => Boolean(activeMonth.value) && selectedRecords.value.length > 0 && hasTemplates.value)
-const serviceListDescription = computed(() => `Dinars: ${selectionTotals.value.lunches} | Sopars: ${selectionTotals.value.dinners}`)
+const serviceListDescription = computed(() => `${t('home.lunches', { count: selectionTotals.value.lunches })} | ${t('home.dinners', { count: selectionTotals.value.dinners })}`)
 
 const exportReport = async () => {
   if (!selectedMonth.value) {
-    toast.add({ title: 'Selecciona un mes per exportar', color: 'warning' })
+    toast.add({ title: t('errors.select_month_export'), color: 'warning' })
     return
   }
 
   if (selectedRecords.value.length === 0) {
-    toast.add({ title: 'No hi ha serveis per al mes seleccionat', color: 'info' })
+    toast.add({ title: t('errors.no_services_month'), color: 'info' })
     return
   }
 
   if (!hasTemplates.value) {
-    toast.add({ title: 'Configura una plantilla Word abans d\'exportar', color: 'warning' })
+    toast.add({ title: t('errors.configure_template'), color: 'warning' })
     return
   }
 
@@ -179,7 +182,7 @@ const exportReport = async () => {
         if ((err as Error).name !== 'AbortError') {
           // Continue to fallback
           if ((err as Error).name === 'NotAllowedError') {
-            toast.add({ title: 'Compartició no permesa, descarregant...', color: 'info' })
+            toast.add({ title: t('errors.share_not_allowed'), color: 'info' })
           }
         } else {
           // User cancelled share
@@ -195,11 +198,11 @@ const exportReport = async () => {
     link.download = filename
     link.click()
     URL.revokeObjectURL(url)
-    toast.add({ title: 'Documents exportats correctament', color: 'success' })
+    toast.add({ title: t('success.documents_exported'), color: 'success' })
 
   } catch (error) {
     console.error(error)
-    toast.add({ title: 'No s\'han pogut generar els documents', color: 'error' })
+    toast.add({ title: t('errors.documents_generation_failed'), color: 'error' })
   }
 }
 const showWelcome = ref(true)
@@ -270,7 +273,7 @@ const handleDateSelected = (date: Date) => {
   sortedEvents.forEach(e => {
     let timeStr = ''
     if (e.isAllDay) {
-      timeStr = 'Tot el dia'
+      timeStr = t('home.all_day')
     } else {
       const parts = formatLocalTime(new Date(e.start)).split('T')
       timeStr = parts[1] || ''
@@ -285,7 +288,7 @@ const handleDateSelected = (date: Date) => {
 
   // Join all lines
   const notes = notesLines.length > 0
-    ? '📅 Esdeveniments del dia:\n' + notesLines.join('\n')
+    ? `${t('home.events_of_day')}:\n` + notesLines.join('\n')
     : ''
 
   // Open the service form with pre-filled notes and empty displacements
@@ -308,50 +311,59 @@ onMounted(() => {
 <template>
   <div class="space-y-8">
     <!-- Hero Section -->
-    <div v-if="showWelcome"
+    <div
+v-if="showWelcome"
       class="relative bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 sm:p-12">
-      <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
+      <UButton
+icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
         @click="dismissWelcome" />
       <section class="text-center space-y-4">
         <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-          Benvingut a <span class="text-primary-500">Dietator</span>
+          {{ $t('home.welcome.title') }} <span class="text-primary-500">Dietator</span>
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Gestiona els teus serveis i dietes de manera completament local. Dietator no guarda dades a cap servidor i
-          funciona completament sense connexió a internet.
+          {{ $t('home.welcome.description') }}
         </p>
       </section>
     </div>
 
-    <UAlert v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
-      title="Afegeix el preu de la dieta"
-      description="Configura el preu per poder calcular correctament els totals i generar documents." />
+    <UAlert
+v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
+      :title="$t('home.alerts.price_missing.title')" :description="$t('home.alerts.price_missing.description')" />
 
     <section>
       <UCard>
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="space-y-1">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Generar documents</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('home.documents.title') }}</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Mes seleccionat: <strong>{{ selectedMonthLabel }}</strong> — {{ selectedRecords.length }} serveis
+              {{ $t('home.documents.selected_month') }}: <strong>{{ selectedMonthLabel }}</strong> — {{
+                $t('home.documents.services_count', { count: selectedRecords.length }) }}
             </p>
             <p class="text-xs text-gray-400">
-              Dietes: {{ selectionTotals.fullDietCount }} completes · {{ selectionTotals.halfDietCount }} mitges
+              {{ $t('home.documents.diets_types', {
+                full: selectionTotals.fullDietCount, half:
+                  selectionTotals.halfDietCount
+              }) }}
             </p>
             <p class="text-xs text-gray-400">
-              Kilòmetres: <strong>{{ selectionTotals.kilometers?.toLocaleString('ca-ES') ?? 0 }} km</strong>
+              {{ $t('home.documents.kilometers') }}: <strong>{{ selectionTotals.kilometers?.toLocaleString(locale) ?? 0
+                }}
+                km</strong>
             </p>
             <p v-if="!hasTemplates" class="text-xs text-red-500 dark:text-red-400">
-              S'ha de pujar una plantilla mensual o per servei des de Configuració.
+              {{ $t('home.documents.missing_templates') }}
             </p>
           </div>
           <div class="grid grid-cols-2 sm:flex sm:items-center gap-3 w-full sm:w-auto">
-            <USelect v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
+            <USelect
+v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
               class="w-full sm:min-w-[140px]" />
             <USelect v-model="selectedYear" :items="availableYears" class="w-full sm:w-[100px]" />
-            <UButton icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
+            <UButton
+icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
               class="col-span-2 sm:w-auto flex justify-center" @click="exportReport">
-              Exportar
+              {{ $t('common.export') }}
             </UButton>
           </div>
         </div>
@@ -360,14 +372,16 @@ onMounted(() => {
 
     <!-- Calendar View -->
     <section>
-      <CalendarWidget :records="selectedRecords" :year="selectedYear" :month="selectedMonthValue"
+      <CalendarWidget
+:records="selectedRecords" :year="selectedYear" :month="selectedMonthValue"
         @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event"
         @record-selected="handleRecordSelected" @date-selected="handleDateSelected" />
     </section>
 
     <!-- Registered Services -->
     <section>
-      <ServiceList ref="serviceListRef" title="Serveis registrats" :description="serviceListDescription"
+      <ServiceList
+ref="serviceListRef" :title="$t('home.stats.services')" :description="serviceListDescription"
         :records="selectedRecords" />
     </section>
 
@@ -376,26 +390,31 @@ onMounted(() => {
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-            Hores treballades {{ selectedMonthLabel.toLowerCase() }}
+            {{ $t('home.stats.worked_hours') }} {{ selectedMonthLabel.toLowerCase() }}
           </div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(totalHoursWorked) }}</div>
         </div>
       </UCard>
       <UCard>
         <div class="text-center space-y-1">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Mitjana setmanal</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{
+            $t('home.stats.weekly_average') }}</div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(averageWeeklyHours) }}</div>
           <p class="text-xs text-gray-400">
-            Mitjana de {{ formatWeeks(weeksInSelectedMonth) }} setmanes de {{ selectedMonthLabel.toLowerCase() }}
+            {{ $t('home.stats.weekly_average_subtitle', {
+              weeks: formatWeeks(weeksInSelectedMonth), month:
+                selectedMonthLabel.toLowerCase()
+            }) }}
           </p>
         </div>
       </UCard>
       <UCard>
         <div class="text-center space-y-1">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Mitjana per servei</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{
+            $t('home.stats.service_average') }}</div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatHours(averageHoursPerService) }}</div>
           <p class="text-xs text-gray-400">
-            Mitjana basada en {{ selectionTotals.serviceCount }} serveis
+            {{ $t('home.stats.service_average_subtitle', { count: selectionTotals.serviceCount }) }}
           </p>
         </div>
       </UCard>
@@ -406,14 +425,14 @@ onMounted(() => {
       <UCard>
         <div class="text-center">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-            Serveis {{ selectedMonthLabel.toLowerCase() }}
+            {{ $t('home.stats.services') }} {{ selectedMonthLabel.toLowerCase() }}
           </div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.serviceCount }}</div>
         </div>
       </UCard>
       <UCard>
         <div class="text-center">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Dietes {{
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ $t('home.stats.diets') }} {{
             selectedMonthLabel.toLowerCase() }}</div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(selectionTotals.allowance || 0) }}
           </div>
@@ -421,26 +440,33 @@ onMounted(() => {
       </UCard>
       <UCard>
         <div class="text-center space-y-1">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Preus configurats</div>
-          <p class="text-base text-gray-800 dark:text-gray-200">Completa: {{ formatCurrency(settingsStore.fullDietPrice
-            || 0) }}</p>
-          <p class="text-base text-gray-800 dark:text-gray-200">Mitja: {{ formatCurrency(settingsStore.halfDietPrice ||
-            0) }}</p>
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{
+            $t('home.stats.configured_prices') }}</div>
+          <p class="text-base text-gray-800 dark:text-gray-200">{{ $t('home.stats.full') }}: {{
+            formatCurrency(settingsStore.fullDietPrice || 0) }}</p>
+          <p class="text-base text-gray-800 dark:text-gray-200">{{ $t('home.stats.half') }}: {{
+            formatCurrency(settingsStore.halfDietPrice || 0) }}</p>
         </div>
       </UCard>
       <UCard>
         <div class="text-center space-y-1">
-          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">Kilòmetres</div>
-          <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.kilometers?.toLocaleString('ca-ES')
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ $t('home.stats.kilometers')
+          }}</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.kilometers?.toLocaleString(locale)
             ?? 0 }} <span class="text-sm font-normal text-gray-500">km</span></div>
           <p class="text-xs text-gray-400">
-            Mitjana: {{ averageKmPerService.toLocaleString('ca-ES', { maximumFractionDigits: 1 }) }} km/servei
+            {{ $t('home.stats.kilometers_average', {
+              avg: averageKmPerService.toLocaleString(locale, {
+                maximumFractionDigits: 1
+              })
+            }) }}
           </p>
         </div>
       </UCard>
 
       <!-- Year in Review Card -->
-      <UCard v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
+      <UCard
+v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
         class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all group relative overflow-hidden"
         @click="navigateTo('/wrapped')">
         <!-- Background Decoration -->
@@ -451,13 +477,13 @@ onMounted(() => {
           <div
             class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center justify-center gap-1">
             <UIcon name="i-heroicons-sparkles" class="text-yellow-500 w-4 h-4" />
-            Resum Anual
+            {{ $t('home.wrapped.annual_summary') }}
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors">
-            El teu {{ new Date().getFullYear() }}
+            {{ $t('home.wrapped.your_year', { year: new Date().getFullYear() }) }}
           </div>
           <p class="text-xs text-gray-400">
-            Descobreix les teues estadístiques
+            {{ $t('home.wrapped.discover') }}
           </p>
         </div>
       </UCard>

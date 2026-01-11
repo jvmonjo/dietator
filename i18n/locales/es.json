@@ -1,0 +1,581 @@
+{
+    "common": {
+        "firstName": "Nombre",
+        "lastName": "Apellidos",
+        "nationalId": "DNI",
+        "email": "Correo electrónico",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "confirm": "Confirmar",
+        "back": "Atrás",
+        "next": "Siguiente",
+        "finish": "Finalizar",
+        "loading": "Cargando...",
+        "error": "Error",
+        "success": "Configuración guardada",
+        "export": "Exportar",
+        "import": "Importar",
+        "diets": "Dietas",
+        "kilometers": "Kilómetros",
+        "km_per_service": "km/servicio",
+        "disconnect": "Desconectar",
+        "all": "Todos",
+        "current_month": "Mes actual",
+        "all_months": "Todos los meses"
+    },
+    "errors": {
+        "share_not_allowed": "Compartición no permitida, descargando...",
+        "share_not_supported": "Tu dispositivo no soporta compartir este archivo, descargando...",
+        "export_failed": "No se ha podido exportar",
+        "no_data": "No hay datos para exportar",
+        "dni_incorrect": "DNI incorrecto",
+        "select_month_export": "Selecciona un mes para exportar",
+        "no_services_month": "No hay servicios para el mes seleccionado",
+        "configure_template": "Configura una plantilla Word antes de exportar",
+        "documents_generation_failed": "No se han podido generar los documentos"
+    },
+    "success": {
+        "documents_shared": "Documentos compartidos correctamente",
+        "documents_exported": "Documentos exportados correctamente"
+    },
+    "settings": {
+        "title": "Configuración",
+        "description": "Gestiona tus datos personales y preferencias de la aplicación.",
+        "save": "Guardar configuración",
+        "language": {
+            "title": "Idioma",
+            "description": "Selecciona el idioma de la aplicación."
+        },
+        "personal_data": {
+            "title": "Datos Personales",
+            "description": "Información básica para los documentos.",
+            "firstNamePlaceholder": "Tu nombre",
+            "lastNamePlaceholder": "Tus apellidos"
+        },
+        "prices": {
+            "title": "Precios de las dietas",
+            "description": "Define el importe para cada tipo de dieta (en €).",
+            "half_diet": "Media Dieta",
+            "full_diet": "Dieta Completa"
+        },
+        "integrations": {
+            "title": "Integraciones",
+            "description": "Configura servicios externos para automatizar tareas."
+        },
+        "api_keys": {
+            "title": "Google Maps",
+            "description": "Clave API necesaria para calcular las distancias automáticamente.",
+            "label": "Clave API de Google Maps",
+            "placeholder": "Pega tu clave API aquí",
+            "help": "¿Cómo conseguirla?",
+            "clear_cache": "Limpiar Caché",
+            "cache_size": "Tamaño de la caché local: {size}"
+        },
+        "reminders": {
+            "title": "Recordatorios",
+            "description": "Configura un recordatorio semanal para rellenar las dietas.",
+            "day": "Día",
+            "time": "Hora",
+            "recurring": "Semanalmente",
+            "add_to_calendar": "Añadir a Google Calendar",
+            "download_ics": "Descargar ICS"
+        },
+        "calendar": {
+            "title": "Google Calendar",
+            "description": "Conecta tu cuenta para importar eventos automáticamente.",
+            "client_id": "Client ID",
+            "calendar_id": "ID del Calendario",
+            "connect": "Conectar con Google",
+            "connected": "Conectado",
+            "sync": "Sincronizar ahora",
+            "help": "Cómo configurar Google Calendar",
+            "change_calendar": "Cambiar calendario",
+            "select_calendar": "Selecciona un calendario",
+            "client_id_missing": "Falta configurar la variable de entorno NUXT_PUBLIC_GOOGLE_CLIENT_ID."
+        },
+        "habitual_route": {
+            "title": "Ruta Habitual",
+            "description": "Define una ruta por defecto para los nuevos servicios.",
+            "add_stop": "Añadir parada"
+        },
+        "templates": {
+            "title": "Plantillas Word",
+            "description": "Sube las plantillas .docx para generar los informes.",
+            "monthly": "Plantilla Mensual",
+            "service": "Plantilla por Servicio",
+            "upload": "Subir plantilla",
+            "download": "Descargar",
+            "delete": "Eliminar",
+            "saved_at": "Guardada el {date}",
+            "help": "Ver ayudas y variables disponibles",
+            "select_file": "Seleccionar archivo",
+            "monthly_description": "Se utiliza para generar todos los desplazamientos del mes.",
+            "service_description": "Para generar documentos de un servicio individual.",
+            "no_monthly_template": "Aún no hay ninguna plantilla mensual guardada.",
+            "no_service_template": "Aún no hay ninguna plantilla individual guardada.",
+            "size": "Tamaño: {size}",
+            "no_file_selected": "Ningún archivo seleccionado",
+            "saved": "Plantilla guardada",
+            "read_error": "No se ha podido leer la plantilla",
+            "deleted": "Plantilla eliminada",
+            "none_available": "Ninguna plantilla disponible"
+        },
+        "backup": {
+            "title": "Copias de seguridad",
+            "description": "Exporta e importa tus datos para no perder nada.",
+            "export_config": "Exportar Configuración",
+            "import_config": "Importar Backup",
+            "export_data": "Exportar Datos",
+            "select_year": "Selecciona año",
+            "select_month": "Selecciona mes",
+            "include_templates": "Incluir plantillas",
+            "encrypt": "Encriptar con contraseña",
+            "password": "Contraseña",
+            "export_btn": "Descargar Backup",
+            "share_btn": "Compartir Backup",
+            "import_placeholder": "Selecciona un archivo .json...",
+            "include_templates_help": "El archivo será más grande.",
+            "include_google": "Incluir calendario y token de Google",
+            "include_google_help": "Guarda calendarios y permisos para reutilizarlos (aconsejable cifrar el archivo).",
+            "export_config_btn": "Exportar Config",
+            "export_config_description": "Guarda los precios, las plantillas Word y las opciones de la aplicación.",
+            "export_data_description": "Guarda los registros de los servicios realizados.",
+            "export_data_btn": "Exportar Datos",
+            "import_config_description": "Restaura una configuración o datos desde un archivo `.json` anterior.",
+            "select_file": "Seleccionar archivo",
+            "change_file": "Cambiar archivo",
+            "search_file": "Buscar archivo...",
+            "process_import": "Procesar Importación",
+            "encrypt_help": "Protege el archivo con una contraseña.",
+            "password_help": "Se utiliza para proteger el archivo exportado.",
+            "imported": "Backup importado",
+            "updated_data_config": "Se han actualizado los datos y la configuración",
+            "updated_data": "Se han actualizado los datos",
+            "updated_config": "Se ha actualizado la configuración",
+            "enter_password": "Introduce la contraseña para importar",
+            "select_file_warning": "Selecciona un archivo de backup",
+            "malformed": "Backup malformado o vacío",
+            "import_config_title": "Importar Configuración",
+            "import_config_confirm": "Esto sobrescribirá la configuración actual, incluyendo precios y plantillas. ¿Quieres continuar?",
+            "import_data_title": "Importar Datos",
+            "overwrite_month": "Estás a punto de sobrescribir los datos del mes de {month}. ¿Quieres continuar?",
+            "overwrite_year": "Estás a punto de sobrescribir los datos del año {year}. El resto de años se mantendrán intactos. ¿Quieres continuar?",
+            "overwrite_all": "Estás a punto de sobrescribir TODOS los datos de servicios. Esta acción no se puede deshacer. ¿Quieres continuar?",
+            "confirm_import": "Confirmar e Importar",
+            "import_error": "Error al importar (¿contraseña incorrecta?)"
+        },
+        "maintenance": {
+            "title": "Mantenimiento",
+            "description": "Opciones avanzadas de gestión de datos.",
+            "storage_usage": "Uso aproximado de almacenamiento",
+            "local_data": "Datos de servicios locales",
+            "total_services": "{count} servicios totales",
+            "cache_title": "Caché de kilómetros",
+            "cache_description": "Distancias guardadas para ahorrar peticiones",
+            "routes_count": "{count} rutas",
+            "clear_cache": "Limpiar",
+            "delete_data": "Borrar Datos",
+            "year": "Año",
+            "select_year": "Selecciona un año",
+            "month_optional": "Mes (Opcional)",
+            "entire_year": "Todo el año",
+            "select_year_to_delete": "Selecciona un año para borrar",
+            "delete_month_data": "Borrar datos de {month}",
+            "delete_year_data": "Borrar todo el año {year}",
+            "confirm_delete_title": "¿Borrar datos?",
+            "confirm_delete_month": "Esto eliminará todos los servicios del mes de {month}. Esta acción es irreversible.",
+            "confirm_delete_year": "Esto eliminará todos los servicios del año {year}. Esta acción es irreversible.",
+            "data_deleted": "Datos eliminados",
+            "confirm_clear_cache_title": "¿Limpiar caché?",
+            "confirm_clear_cache_description": "Perderás las distancias guardadas y tendrán que volver a calcularse. Esto puede consumir cuota de API.",
+            "cache_cleared": "Caché de kilómetros limpiada"
+        }
+    },
+    "home": {
+        "title": "Inicio",
+        "welcome": {
+            "title": "Bienvenido a",
+            "description": "Gestiona tus servicios y dietas de manera completamente local. Dietator no guarda datos en ningún servidor y funciona completamente sin conexión a internet."
+        },
+        "alerts": {
+            "price_missing": {
+                "title": "Añade el precio de la dieta",
+                "description": "Configura el precio para poder calcular correctamente los totales y generar documentos."
+            }
+        },
+        "documents": {
+            "title": "Generar documentos",
+            "selected_month": "Mes seleccionado",
+            "services_count": "{count} servicios",
+            "diets_types": "Dietas: {full} completas · {half} medias",
+            "kilometers": "Kilómetros",
+            "missing_templates": "Se debe subir una plantilla mensual o por servicio desde Configuración."
+        },
+        "stats": {
+            "worked_hours": "Horas trabajadas",
+            "weekly_average": "Media semanal",
+            "weekly_average_subtitle": "Media de {weeks} semanas de {month}",
+            "service_average": "Media por servicio",
+            "service_average_subtitle": "Media basada en {count} servicios",
+            "services": "Servicios",
+            "diets": "Dietas",
+            "configured_prices": "Precios configurados",
+            "full": "Completa",
+            "half": "Media",
+            "kilometers": "Kilómetros",
+            "kilometers_average": "Media: {avg} km/servicio"
+        },
+        "wrapped": {
+            "annual_summary": "Resumen Anual",
+            "your_year": "Tu {year}",
+            "discover": "Descubre tus estadísticas"
+        },
+        "lunches": "Comidas: {count}",
+        "dinners": "Cenas: {count}",
+        "events_of_day": "📅 Eventos del día",
+        "all_day": "Todo el día",
+        "registered_services": "Servicios registrados"
+    },
+    "months": {
+        "0": "Todos",
+        "1": "Enero",
+        "2": "Febrero",
+        "3": "Marzo",
+        "4": "Abril",
+        "5": "Mayo",
+        "6": "Junio",
+        "7": "Julio",
+        "8": "Agosto",
+        "9": "Septiembre",
+        "10": "Octubre",
+        "11": "Noviembre",
+        "12": "Diciembre"
+    },
+    "weekdays": {
+        "1": "Lunes",
+        "2": "Martes",
+        "3": "Miércoles",
+        "4": "Jueves",
+        "5": "Viernes",
+        "6": "Sábado",
+        "7": "Domingo"
+    },
+    "privacy": {
+        "title": "Política de Privacidad",
+        "local_first": {
+            "title": "1. Ausencia de Servidores (Local-First)",
+            "p1": "Dietator está diseñado con una filosofía <strong>Local-First</strong>. Esto significa que no disponemos de servidores centrales, bases de datos en la nube ni ningún sistema para recopilar, almacenar o procesar sus datos.",
+            "p2": "La totalidad de la información que introduce en la aplicación se almacena <strong>exclusivamente en su dispositivo</strong> (ordenador, tableta o móvil) utilizando las tecnologías del navegador (IndexedDB y LocalStorage)."
+        },
+        "responsibility": {
+            "title": "2. Responsabilidad del Usuario y Seguridad",
+            "p1": "Dado que no tenemos acceso a sus datos, <strong>no podemos recuperarlos</strong> en caso de pérdida, robo del dispositivo o borrado accidental del navegador.",
+            "p2": "Por lo tanto, es su responsabilidad exclusiva:",
+            "li1": "Mantener la seguridad física y lógica de su dispositivo.",
+            "li2": "Realizar <strong>copias de seguridad</strong> periódicas (Configuración > Exportar Config/Datos).",
+            "li3": "Utilizar la opción de <strong>encriptación</strong> al exportar las copias de seguridad para proteger los datos sensibles en caso de compartir el archivo."
+        },
+        "stored_data": {
+            "title": "3. Datos Almacenados",
+            "p1": "La aplicación guarda localmente la siguiente información necesaria para su funcionamiento:",
+            "li1": "Datos de perfil (nombre, apellidos, DNI y precios de dietas).",
+            "li2": "Registro de servicios y desplazamientos realizados.",
+            "li3": "Preferencias de configuración (tema, recordatorios).",
+            "li4": "Tokens de acceso a Google Calendar (si se ha conectado explícitamente).",
+            "li5": "Clave API de Google Maps (si se ha configurado)."
+        },
+        "third_party": {
+            "title": "4. Servicios de Terceros",
+            "p1": "Aunque Dietator no tiene servidores propios, la aplicación puede conectarse directamente desde su navegador a servicios de terceros si activa estas funcionalidades:",
+            "google_calendar": {
+                "title": "Google Calendar API",
+                "description": "Se utiliza únicamente para leer sus calendarios y eventos para facilitar la creación de registros. La conexión se realiza directamente entre su navegador y Google. Nosotros no tenemos acceso a estos datos."
+            },
+            "google_maps": {
+                "title": "Google Maps API",
+                "description": "Si configura su clave API, se utilizará para calcular distancias de rutas. Estas peticiones están sujetas a la política de privacidad de Google."
+            }
+        },
+        "deletion": {
+            "title": "5. Eliminación de Datos",
+            "p1": "Tiene el control absoluto sobre sus datos. Puede eliminar toda la información almacenada por Dietator en cualquier momento simplemente:",
+            "li1": "Utilizando la opción \"Borrar todos los datos\" en el apartado de mantenimiento de la Configuración.",
+            "li2": "O bien, limpiando los datos de sitios web (cookies y almacenamiento local) desde las opciones de su navegador."
+        },
+        "contact": {
+            "title": "6. Contacto",
+            "p1": "Si tiene dudas sobre esta política o el funcionamiento técnico de la aplicación, puede abrir una incidencia o discusión en el repositorio oficial de <a href=\"https://github.com/jvmonjo/dietator\" target=\"_blank\" class=\"text-primary-500 hover:underline\">GitHub</a>."
+        }
+    },
+    "terms": {
+        "title": "Condiciones Generales del Servicio",
+        "nature": {
+            "title": "1. Naturaleza del Servicio",
+            "p1": "<strong>Dietator</strong> es un proyecto de software libre y de código abierto (<a href=\"https://github.com/jvmonjo/dietator\" target=\"_blank\" class=\"text-primary-500 hover:underline\">GitHub</a>) desarrollado y distribuido de manera totalmente gratuita y sin ánimo de lucro.",
+            "p2": "El objetivo de este software es proporcionar una herramienta de utilidad para la gestión personal de dietas y servicios, pero no constituye un servicio profesional ni comercial."
+        },
+        "beta": {
+            "title": "2. Estado de desarrollo (Beta)",
+            "p1": "Esta aplicación se encuentra actualmente en fase <strong>BETA</strong> y se considera una \"prueba de concepto\". Esto significa que el software está todavía en desarrollo activo, puede contener errores, funcionalidades incompletas o sufrir cambios significativos sin previo aviso."
+        },
+        "disclaimer": {
+            "title": "3. Exención de Garantías y Responsabilidad",
+            "p1": "El software se ofrece \"TAL CUAL\" (<strong>\"AS IS\"</strong>), sin ningún tipo de garantía, expresa o implícita, incluyendo, pero sin limitarse a, garantías de comerciabilidad, idoneidad para un propósito particular o no infracción.",
+            "p2": "En ningún caso los autores o titulares de los derechos de autor serán responsables de ninguna reclamación, daño u otra responsabilidad, ya sea en una acción contractual, agravio o de otro modo, que surja de, fuera de o en conexión con el software o el uso u otras relaciones con el software.",
+            "warning": "<strong>Importante:</strong> El usuario es el único responsable de la veracidad de los datos introducidos y de realizar copias de seguridad periódicas. Dietator no guarda ningún dato en sus servidores y no se hace responsable de la pérdida de datos almacenados localmente en el dispositivo del usuario."
+        },
+        "privacy": {
+            "title": "4. Privacidad y Datos",
+            "p1": "Dietator funciona bajo una filosofía <strong>Local-First</strong>. Todos los datos que introduzca (servicios, precios, datos personales) se guardan exclusivamente en su navegador (IndexedDB / LocalStorage).",
+            "p2": "No se envía ninguna información a servidores de terceros, con la excepción de:",
+            "li1": "El uso de la API de Google Calendar si decide conectar su cuenta (la comunicación es directa entre su navegador y Google).",
+            "li2": "El uso de la API de Google Maps, si configura su clave, para calcular distancias."
+        },
+        "license": {
+            "title": "5. Licencia",
+            "p1": "Este proyecto está licenciado bajo los términos de la licencia MIT. Eres libre de usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del software, siempre que se incluya el aviso de derechos de autor y permiso original."
+        }
+    },
+    "components": {
+        "header": {
+            "title": "Dietator",
+            "beta": "Beta",
+            "home": "Inicio",
+            "settings": "Configuración",
+            "help": "Ayuda",
+            "theme": "Tema"
+        },
+        "calendar": {
+            "title": "Calendario",
+            "today": "Hoy",
+            "sync": "Sincronizar calendario externo",
+            "configure": "Configurar",
+            "last_sync": "Última sinc: {date}"
+        },
+        "service_list": {
+            "title": "Servicios registrados",
+            "records_count": "{count} registros",
+            "description": "Consulta, edita o borra los registros existentes.",
+            "search_placeholder": "Buscar por municipio, notas...",
+            "add": "Añadir servicio",
+            "import": "Importar",
+            "empty": "Todavía no hay servicios registrados.",
+            "per_page": "{count} por página",
+            "all": "Todos",
+            "actions": "Acciones",
+            "start": "Inicio",
+            "end": "Fin",
+            "displacements": "Desplazamientos",
+            "edit": "Editar",
+            "duplicate": "Duplicar",
+            "qr": "Generar QR",
+            "delete": "Eliminar",
+            "modals": {
+                "duplicate_title": "Duplicar servicio",
+                "duplicate_desc": "Crea un nuevo servicio a partir de los datos existentes",
+                "edit_title": "Editar servicio",
+                "edit_desc": "Actualiza los datos del servicio seleccionado",
+                "new_title": "Nuevo servicio",
+                "new_desc": "Rellena los datos del servicio",
+                "import_success": "Servicio importado correctamente",
+                "import_error": "Formato inválido",
+                "import_error_title": "Error importando el código QR",
+                "delete_title": "Eliminar servicio",
+                "delete_desc": "¿Estás seguro de que quieres eliminar este servicio? Esta acción no se puede deshacer.",
+                "deleted": "Servicio eliminado"
+            }
+        },
+        "service_form": {
+            "start_time": "Hora de inicio",
+            "end_time": "Hora de fin",
+            "kilometers": "Kilómetros (Opcional)",
+            "notes": "Notas (Opcional)",
+            "notes_placeholder": "Añade comentarios u observaciones...",
+            "displacements": "Desplazamientos",
+            "import_route": "Importar ruta habitual",
+            "generate_qr": "Generar QR",
+            "save": "Guardar servicio",
+            "update": "Actualizar servicio",
+            "validation": {
+                "start_required": "La hora de inicio es obligatoria",
+                "end_required": "La hora de fin es obligatoria",
+                "province_required": "La provincia es obligatoria",
+                "municipality_required": "El municipio es obligatorio",
+                "one_displacement_required": "Se requiere al menos un desplazamiento",
+                "end_after_start": "La hora de fin debe ser posterior a la hora de inicio"
+            },
+            "alerts": {
+                "replace_route": "Esto sustituirá los desplazamientos actuales. ¿Quieres continuar?",
+                "route_imported": "Ruta habitual importada",
+                "distance_calculated": "Kilómetros calculados: {distance}",
+                "distance_error": "Error calculando distancia",
+                "duplicate_date": "Ya existe un servicio con esta fecha de inicio",
+                "saved": "Servicio registrado correctamente",
+                "updated": "Servicio actualizado correctamente",
+                "save_error": "Error guardando el servicio"
+            },
+            "maps_errors": {
+                "api_key": "API Key incorrecta",
+                "api_key_desc": "Comprueba la configuración y que la API Distance Matrix esté activada.",
+                "blocked": "API Key bloqueada",
+                "blocked_desc": "La clave API no permite peticiones desde este dominio. Revisa las restricciones en Google Cloud.",
+                "quota": "Cuota superada",
+                "quota_desc": "Se ha superado el límite de peticiones de Google Maps.",
+                "not_found": "Ruta no encontrada",
+                "not_found_desc": "No se ha encontrado una ruta por carretera entre los puntos indicados.",
+                "timeout": "Tiempo de espera agotado",
+                "timeout_desc": "Google Maps no responde. Se ha continuado sin calcular distancia automáticamente."
+            }
+        },
+        "qr_modal": {
+            "title": "Código QR",
+            "description": "Escanea este código desde otro dispositivo para importar el servicio.",
+            "generating": "Generando QR...",
+            "error": "No se ha podido generar el código QR",
+            "close": "Cerrar",
+            "share_title": "Compartir formulario actual"
+        },
+        "qr_scanner": {
+            "title": "Escanear QR",
+            "description": "Enfoca el código QR dentro del recuadro para importar el servicio.",
+            "loading": "Iniciando cámara...",
+            "errors": {
+                "permission": "Necesitas dar permiso de acceso a la cámara.",
+                "not_found": "No se ha encontrado ninguna cámara en este dispositivo.",
+                "ssl": "Esta página no se sirve a través de HTTPS (seguridad requerida).",
+                "in_use": "La cámara ya está en uso.",
+                "overconstrained": "Las cámaras instaladas no son adecuadas.",
+                "stream": "El navegador no soporta el acceso a la cámara.",
+                "unknown": "Error de cámara: {error}"
+            }
+        },
+        "pwa": {
+            "update_available": "Actualización disponible",
+            "new_version": "¡Nueva versión {version} disponible!",
+            "update_now": "Actualizar ahora",
+            "dismiss": "Ignorar",
+            "install": "Instalar App",
+            "install_description": "Instala la aplicación para acceder rápidamente y trabajar sin conexión."
+        },
+        "displacement_editor": {
+            "province": "Provincia",
+            "municipality": "Municipio",
+            "select_province": "Selecciona provincia",
+            "select_municipality": "Selecciona municipio",
+            "lunch": "Comida incluida",
+            "dinner": "Cena incluida",
+            "observations": "Observaciones",
+            "observations_placeholder": "Detalles adicionales de este desplazamiento...",
+            "duplicate": "Duplicar desplazamiento",
+            "add": "Añadir otro desplazamiento",
+            "duplicated_toast": "Desplazamiento duplicado"
+        },
+        "selectors": {
+            "search_municipality": "Buscar municipio...",
+            "select_municipality": "Selecciona municipio",
+            "search_province": "Buscar provincia...",
+            "select_province": "Selecciona provincia"
+        }
+    },
+    "help": {
+        "index": {
+            "title": "Ayuda y Documentación",
+            "description": "Información sobre la aplicación y guía de referencia.",
+            "topics_title": "Temas de Ayuda",
+            "search_placeholder": "Filtrar temas...",
+            "no_results": "No se han encontrado temas que coincidan con la búsqueda.",
+            "clear_filter": "Limpiar filtro",
+            "legal_section": "Legal",
+            "terms_desc": "Información legal, garantías y licencia de uso.",
+            "privacy_desc": "Cómo gestionamos (y no guardamos) tus datos."
+        },
+        "topics": {
+            "about": {
+                "title": "Sobre Dietator",
+                "description": "Filosofía local, privacidad y cómo funcionan tus datos."
+            },
+            "pwa": {
+                "title": "Instalación (PWA)",
+                "description": "Cómo instalar la aplicación en tu móvil u ordenador."
+            },
+            "maps": {
+                "title": "API de Google Maps",
+                "description": "Cálculo automático de kilómetros y ahorro de costes."
+            },
+            "templates": {
+                "title": "Plantillas de Word",
+                "description": "Guía de variables y condicionales para personalizar informes."
+            },
+            "calendar": {
+                "title": "Integración Google Calendar",
+                "description": "Sincroniza tus eventos de Google Calendar automáticamente."
+            },
+            "backups": {
+                "title": "Copias de Seguridad",
+                "description": "Cómo exportar, importar y proteger tus datos."
+            }
+        }
+    },
+    "layout": {
+        "footer": {
+            "rights": "Todos los derechos reservados.",
+            "terms": "Condiciones Generales",
+            "privacy": "Política de Privacidad"
+        }
+    },
+    "wrapped": {
+        "title": "Tu {year}",
+        "subtitle": "Resumen del año en Dietator",
+        "stats": {
+            "income": "Total dietas",
+            "hours": "Horas",
+            "services": "Servicios",
+            "km": "Kilómetros",
+            "per_week_hours": "h/sem",
+            "per_service_hours": "h/serv",
+            "per_week_services": "servicios/sem",
+            "per_week_km": "km/sem",
+            "per_service_km": "km/serv"
+        },
+        "chart": {
+            "title": "Actividad Mensual",
+            "income": "Dietas",
+            "hours": "Horas",
+            "km": "Km",
+            "tooltip": {
+                "income": "Ingresos",
+                "hours": "Horas",
+                "km": "Km"
+            }
+        },
+        "comparisons": {
+            "title": "¿A dónde has llegado?",
+            "completed": "¡Completado! 🚀",
+            "labels": {
+                "santiago": "Camino de Santiago",
+                "route66": "Ruta 66 (EE. UU.)",
+                "dakar": "Rally París-Dakar",
+                "world": "Vuelta al mundo"
+            }
+        },
+        "fun_stats": {
+            "marathon_title": "Maratón Laboral ⏱️",
+            "marathon_desc": "¡Es el tiempo que habrías pasado trabajando si no hubieras parado ni para dormir!",
+            "days": "días",
+            "active_day_title": "Día más activo 🔥",
+            "active_day_desc": "Trabajaste <span class=\"font-bold text-white\">{hours} horas</span> este día.",
+            "travel_day_title": "Día más viajero 🚗",
+            "travel_day_desc": "Recorriste <span class=\"font-bold text-white\">{km} km</span>.",
+            "route": "Ruta"
+        },
+        "actions": {
+            "download_title": "Descarga tu reporte",
+            "share_pdf": "Compartir PDF",
+            "share_success": "PDF compartido correctamente",
+            "download_success": "PDF descargado correctamente",
+            "share_error": "Error compartiendo el PDF",
+            "generate_error": "Error generando el PDF"
+        }
+    }
+}

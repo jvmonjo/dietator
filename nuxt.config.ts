@@ -43,12 +43,26 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
     '@vite-pwa/nuxt',
-    '@nuxt/eslint'
+    '@nuxt/eslint',
+    '@nuxtjs/i18n'
   ],
 
   nitro: {
     preset: 'github-pages',
     debug: process.env.NUXT_DEBUG === '1'
+  },
+
+  i18n: {
+    langDir: 'locales',
+    locales: [
+      { code: 'es', language: 'es-ES', file: 'es.json' },
+      { code: 'ca', language: 'ca-ES', file: 'ca.json' }
+    ],
+    defaultLocale: 'ca',
+    strategy: 'no_prefix',
+    compilation: {
+      strictMessage: false
+    }
   },
 
   icon: {

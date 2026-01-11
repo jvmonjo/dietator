@@ -170,12 +170,13 @@ export const useWrappedStats = () => {
     }
 
     const getDistanceComparisons = (totalKm: number) => {
+        const { t } = useI18n()
         // Fun comparisons (Iconic Routes)
         const comparisons = [
-            { label: 'Camí de Santiago (Francès)', distance: 780, emoji: '🚶' },
-            { label: 'Ruta 66 (EUA)', distance: 3940, emoji: '🛣️' },
-            { label: 'Rally París-Dakar', distance: 10000, emoji: 'un 🚙' },
-            { label: 'Volta al món', distance: 40075, emoji: '🌍' }
+            { label: t('wrapped.comparisons.labels.santiago'), distance: 780, emoji: '🚶' },
+            { label: t('wrapped.comparisons.labels.route66'), distance: 3940, emoji: '🛣️' },
+            { label: t('wrapped.comparisons.labels.dakar'), distance: 10000, emoji: '🚙' },
+            { label: t('wrapped.comparisons.labels.world'), distance: 40075, emoji: '🌍' }
         ]
 
         return comparisons.flatMap(c => {

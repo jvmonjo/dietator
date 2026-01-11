@@ -1,38 +1,38 @@
 
 export const helpTopics = [
     {
-        title: 'Sobre Dietator',
-        description: 'Filosofia local, privadesa i com funcionen les teues dades.',
+        title: 'help.topics.about.title',
+        description: 'help.topics.about.description',
         icon: 'i-heroicons-information-circle',
         to: '/help/about'
     },
     {
-        title: 'Instal·lació (PWA)',
-        description: 'Com instal·lar l\'aplicació al teu mòbil o ordinador.',
+        title: 'help.topics.pwa.title',
+        description: 'help.topics.pwa.description',
         icon: 'i-heroicons-device-phone-mobile',
         to: '/help/pwa'
     },
     {
-        title: 'API de Google Maps',
-        description: 'Càlcul automàtic de quilòmetres i estalvi de costos.',
+        title: 'help.topics.maps.title',
+        description: 'help.topics.maps.description',
         icon: 'i-heroicons-map',
         to: '/help/maps'
     },
     {
-        title: 'Plantilles de Word',
-        description: 'Guia de variables i condicionals per personalitzar informes.',
+        title: 'help.topics.templates.title',
+        description: 'help.topics.templates.description',
         icon: 'i-heroicons-document-text',
         to: '/help/templates'
     },
     {
-        title: 'Integració Google Calendar',
-        description: 'Sincronitza els teus esdeveniments de Google Calendar automàticament.',
+        title: 'help.topics.calendar.title',
+        description: 'help.topics.calendar.description',
         icon: 'i-simple-icons-googlecalendar',
         to: '/help/google-calendar'
     },
     {
-        title: 'Còpies de Seguretat',
-        description: 'Com exportar, importar i protegir les teues dades.',
+        title: 'help.topics.backups.title',
+        description: 'help.topics.backups.description',
         icon: 'i-heroicons-archive-box-arrow-down',
         to: '/help/backups'
     }

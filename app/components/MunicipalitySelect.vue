@@ -1,6 +1,8 @@
 <script setup lang="ts">
 type SelectOption = { label: string, value: string }
 
+
+
 const props = withDefaults(defineProps<{
   modelValue: string
   items?: SelectOption[]
@@ -9,7 +11,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   items: () => [],
   disabled: false,
-  placeholder: 'Select municipality'
+  placeholder: undefined
 })
 
 const emit = defineEmits<{
@@ -23,24 +25,17 @@ const updateValue = (value: string) => {
 
 <template>
   <USelectMenu
-    :model-value="props.modelValue"
-    :items="props.items"
-    :disabled="props.disabled"
-    searchable
-    searchable-placeholder="Search municipality..."
-    :placeholder="props.placeholder"
-    icon="i-heroicons-map-pin"
-    class="w-full"
-    value-key="value"
-    label-key="label"
-    @update:model-value="updateValue"
-  />
+:model-value="props.modelValue" :items="props.items" :disabled="props.disabled" searchable
+    :searchable-placeholder="$t('components.selectors.search_municipality')"
+    :placeholder="props.placeholder || $t('components.selectors.select_municipality')" icon="i-heroicons-map-pin"
+    class="w-full" value-key="value" label-key="label" @update:model-value="updateValue" />
 </template>
 
 <style scoped>
 :deep(input) {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
+
 .dark :deep(input) {
   background-color: rgb(17 24 39 / var(--tw-bg-opacity, 1));
 }
@@ -50,6 +45,7 @@ const updateValue = (value: string) => {
   background-color: rgb(255 255 255 / 1);
   z-index: 100;
 }
+
 .dark :deep(.absolute) {
   background-color: rgb(17 24 39 / 1);
   z-index: 100;

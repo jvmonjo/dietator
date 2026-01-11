@@ -8,12 +8,16 @@ const props = withDefaults(defineProps<{
   enableDelete?: boolean
   records?: ServiceRecord[]
 }>(), {
-  title: 'Serveis registrats',
-  description: 'Consulta, edita o esborra els registres existents.',
+  title: undefined,
+  description: undefined,
   enableEdit: true,
   enableDelete: true,
   records: () => []
 })
+
+const { t } = useI18n()
+const displayTitle = computed(() => props.title || t('components.service_list.title'))
+const displayDescription = computed(() => props.description || t('components.service_list.description'))
 
 const serviceStore = useServiceStore()
 const toast = useToast()
@@ -22,14 +26,14 @@ const page = ref(1)
 const itemsPerPage = ref(10)
 const searchQuery = ref('')
 
-const pageOptions = [
-  { label: '5 per pàgina', value: 5 },
-  { label: '10 per pàgina', value: 10 },
-  { label: '20 per pàgina', value: 20 },
-  { label: '50 per pàgina', value: 50 },
-  { label: '100 per pàgina', value: 100 },
-  { label: 'Tots', value: 1000000 }
-]
+const pageOptions = computed(() => [
+  { label: t('components.service_list.per_page', { count: 5 }), value: 5 },
+  { label: t('components.service_list.per_page', { count: 10 }), value: 10 },
+  { label: t('components.service_list.per_page', { count: 20 }), value: 20 },
+  { label: t('components.service_list.per_page', { count: 50 }), value: 50 },
+  { label: t('components.service_list.per_page', { count: 100 }), value: 100 },
+  { label: t('components.service_list.all'), value: 1000000 }
+])
 
 const filteredRecords = computed(() => {
   if (!searchQuery.value) return props.records
@@ -80,7 +84,7 @@ const handleQrImport = (result: string) => {
     const data = JSON.parse(result)
     // Validate basic structure (optional but recommended)
     if (!data.startTime || !data.endTime || !Array.isArray(data.displacements)) {
-      throw new Error('Format de dades incorrecte')
+      throw new Error(t('components.service_list.modals.import_error'))
     }
 
     // Open new service modal with imported data
@@ -104,10 +108,10 @@ const handleQrImport = (result: string) => {
       data.displacements
     )
 
-    toast.add({ title: 'Servei importat correctament', color: 'success' })
+    toast.add({ title: t('components.service_list.modals.import_success'), color: 'success' })
   } catch (e) {
     console.error(e)
-    toast.add({ title: 'Error important el codi QR', description: 'Format invàlid', color: 'error' })
+    toast.add({ title: t('components.service_list.modals.import_error_title'), description: t('components.service_list.modals.import_error'), color: 'error' })
   }
 }
 
@@ -117,24 +121,24 @@ const openQrCode = (record: ServiceRecord) => {
 }
 
 const modalTitle = computed(() => {
-  if (isDuplicateMode.value) return 'Duplicar servei'
-  if (selectedRecord.value) return 'Editar servei'
-  return 'Nou servei'
+  if (isDuplicateMode.value) return t('components.service_list.modals.duplicate_title')
+  if (selectedRecord.value) return t('components.service_list.modals.edit_title')
+  return t('components.service_list.modals.new_title')
 })
 
 const modalDescription = computed(() => {
-  if (isDuplicateMode.value) return 'Crea un nou servei a partir de les dades existents'
-  if (selectedRecord.value) return 'Actualitza les dades del servei seleccionat'
-  return 'Ompli les dades del servei'
+  if (isDuplicateMode.value) return t('components.service_list.modals.duplicate_desc')
+  if (selectedRecord.value) return t('components.service_list.modals.edit_desc')
+  return t('components.service_list.modals.new_desc')
 })
 
-const columns = [
-  { accessorKey: 'actions', id: 'actions', header: 'Accions' },
-  { accessorKey: 'startTime', id: 'startTime', header: 'Inici' },
-  { accessorKey: 'endTime', id: 'endTime', header: 'Fi' },
-  { accessorKey: 'displacements', id: 'displacements', header: 'Desplaçaments' }
+const columns = computed(() => [
+  { accessorKey: 'actions', id: 'actions', header: t('components.service_list.actions') },
+  { accessorKey: 'startTime', id: 'startTime', header: t('components.service_list.start') },
+  { accessorKey: 'endTime', id: 'endTime', header: t('components.service_list.end') },
+  { accessorKey: 'displacements', id: 'displacements', header: t('components.service_list.displacements') }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as any[]
+] as any[])
 
 // ...
 
@@ -196,11 +200,11 @@ const handleConfirmDelete = () => {
 }
 
 const confirmDelete = (id: string) => {
-  confirmModal.title = 'Eliminar servei'
-  confirmModal.description = 'Estàs segur que vols eliminar aquest servei? Aquesta acció no es pot desfer.'
+  confirmModal.title = t('components.service_list.modals.delete_title')
+  confirmModal.description = t('components.service_list.modals.delete_desc')
   confirmModal.action = () => {
     serviceStore.deleteRecord(id)
-    toast.add({ title: 'Servei eliminat', color: 'success' })
+    toast.add({ title: t('components.service_list.modals.deleted'), color: 'success' })
   }
   confirmModal.isOpen = true
 }
@@ -228,16 +232,16 @@ defineExpose({
   <section class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ props.title }} <UBadge
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ displayTitle }} <UBadge
 color="primary"
-            variant="soft">{{ recordCount }} registres</UBadge>
+            variant="soft">{{ $t('components.service_list.records_count', { count: recordCount }) }}</UBadge>
         </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ props.description }}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ displayDescription }}</p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
         <UInput
-v-model="searchQuery" placeholder="Buscar per municipi, notes..." class="w-full sm:w-64"
-          :ui="{ trailing: 'pointer-events-auto' }">
+v-model="searchQuery" :placeholder="$t('components.service_list.search_placeholder')"
+          class="w-full sm:w-64" :ui="{ trailing: 'pointer-events-auto' }">
           <template #leading>
             <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 text-gray-400" />
           </template>
@@ -249,10 +253,10 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
         </UInput>
         <div class="flex items-center gap-3">
           <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="() => openNewService()">
-            Afegir servei
+            {{ $t('components.service_list.add') }}
           </UButton>
           <UButton icon="i-heroicons-qr-code" color="neutral" variant="solid" @click="isQrScannerOpen = true">
-            Importar
+            {{ $t('components.service_list.import') }}
           </UButton>
         </div>
       </div>
@@ -260,7 +264,7 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
 
     <UCard>
       <div v-if="!hasRecords" class="py-10 text-center text-gray-500 dark:text-gray-400">
-        Encara no hi ha serveis registrats.
+        {{ $t('components.service_list.empty') }}
       </div>
       <div v-else class="space-y-4">
 
@@ -295,25 +299,25 @@ v-if="displacement.hasLunch || displacement.hasDinner"
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2">
-              <UTooltip text="Editar">
+              <UTooltip :text="$t('components.service_list.edit')">
                 <UButton
 v-if="props.enableEdit" icon="i-heroicons-pencil-square" size="xs" variant="soft"
                   @click="openRecord(row.original as ServiceRecord)" />
               </UTooltip>
 
-              <UTooltip text="Duplicar">
+              <UTooltip :text="$t('components.service_list.duplicate')">
                 <UButton
 icon="i-heroicons-document-duplicate" size="xs" variant="soft" color="neutral"
                   @click="duplicateRecord(row.original as ServiceRecord)" />
               </UTooltip>
 
-              <UTooltip text="Generar QR">
+              <UTooltip :text="$t('components.service_list.qr')">
                 <UButton
 icon="i-heroicons-qr-code" size="xs" variant="soft" color="neutral"
                   @click="openQrCode(row.original as ServiceRecord)" />
               </UTooltip>
 
-              <UTooltip text="Eliminar">
+              <UTooltip :text="$t('components.service_list.delete')">
                 <UButton
 v-if="props.enableDelete" icon="i-heroicons-trash" size="xs" color="error" variant="ghost"
                   @click="confirmDelete((row.original as ServiceRecord).id)" />
@@ -371,8 +375,9 @@ v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
     <!-- Confirmation Modal -->
     <UModal v-model:open="confirmModal.isOpen" :title="confirmModal.title" :description="confirmModal.description">
       <template #footer>
-        <UButton color="neutral" variant="ghost" @click="confirmModal.isOpen = false">Cancel·lar</UButton>
-        <UButton color="error" @click="handleConfirmDelete">Eliminar</UButton>
+        <UButton color="neutral" variant="ghost" @click="confirmModal.isOpen = false">{{ $t('common.cancel') }}
+        </UButton>
+        <UButton color="error" @click="handleConfirmDelete">{{ $t('common.delete') }}</UButton>
       </template>
     </UModal>
 

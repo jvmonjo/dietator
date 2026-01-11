@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useSortable } from '@vueuse/integrations/useSortable'
 import type { Displacement } from '~/stores/services'
+const { t } = useI18n()
 
 // Local helper to avoid importing uuid library if not absolutely needed or to keep it simple
 const uuidv4 = () => {
@@ -74,7 +75,7 @@ const duplicateDisplacement = (index: number) => {
     const newList = [...props.modelValue]
     newList.splice(index + 1, 0, copy)
     emit('update:modelValue', newList)
-    useToast().add({ title: 'Desplaçament duplicat', color: 'success' })
+    useToast().add({ title: t('components.displacement_editor.duplicated_toast'), color: 'success' })
 }
 </script>
 
@@ -88,7 +89,7 @@ v-for="(displacement, index) in modelValue" :key="displacement.id"
 name="i-heroicons-bars-3"
                     class="w-5 h-5 text-gray-400 cursor-move drag-handle hover:text-gray-600 dark:hover:text-gray-300" />
 
-                <UTooltip text="Duplicar desplaçament">
+                <UTooltip :text="$t('components.displacement_editor.duplicate')">
                     <UButton
 icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
                         @click="duplicateDisplacement(index)" />
@@ -100,35 +101,42 @@ v-if="modelValue.length > 1" icon="i-heroicons-trash" color="error" variant="gho
             </div>
 
             <div class="grid grid-cols-1 gap-4 pr-8">
-                <UFormField label="Província" :name="`displacements.${index}.province`" required>
+                <UFormField
+:label="$t('components.displacement_editor.province')"
+                    :name="`displacements.${index}.province`" required>
                     <ProvinceSelect
 v-model="displacement.province" :items="provinces"
-                        placeholder="Selecciona província" @update:model-value="displacement.municipality = ''" />
+                        :placeholder="$t('components.displacement_editor.select_province')"
+                        @update:model-value="displacement.municipality = ''" />
                 </UFormField>
 
-                <UFormField label="Municipi" :name="`displacements.${index}.municipality`" required>
+                <UFormField
+:label="$t('components.displacement_editor.municipality')"
+                    :name="`displacements.${index}.municipality`" required>
                     <MunicipalitySelect
 v-model="displacement.municipality"
                         :items="getMunicipalities(displacement.province)" :disabled="!displacement.province"
-                        placeholder="Selecciona municipi" />
+                        :placeholder="$t('components.displacement_editor.select_municipality')" />
                 </UFormField>
 
                 <div class="flex flex-wrap gap-4">
                     <UCheckbox
-v-model="displacement.hasLunch" label="Dinar inclòs"
+v-model="displacement.hasLunch" :label="$t('components.displacement_editor.lunch')"
                         :disabled="modelValue.some((d, idx) => idx !== index && d.hasLunch)"
                         :ui="{ base: 'w-5 h-5', container: 'flex items-center' }" />
                     <UCheckbox
-v-model="displacement.hasDinner" label="Sopar inclòs"
+v-model="displacement.hasDinner" :label="$t('components.displacement_editor.dinner')"
                         :disabled="modelValue.some((d, idx) => idx !== index && d.hasDinner)"
                         :ui="{ base: 'w-5 h-5', container: 'flex items-center' }" />
                 </div>
 
-                <UFormField label="Observacions" :name="`displacements.${index}.observations`">
+                <UFormField
+:label="$t('components.displacement_editor.observations')"
+                    :name="`displacements.${index}.observations`">
                     <UTextarea
 v-model="displacement.observations"
-                        placeholder="Detalls addicionals d'aquest desplaçament..." icon="i-heroicons-pencil-square"
-                        class="w-full" />
+                        :placeholder="$t('components.displacement_editor.observations_placeholder')"
+                        icon="i-heroicons-pencil-square" class="w-full" />
                 </UFormField>
             </div>
         </div>
@@ -137,7 +145,7 @@ v-model="displacement.observations"
 icon="i-heroicons-plus-circle" variant="soft" block
             class="border-dashed border-2 border-gray-300 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500"
             @click="addDisplacement">
-            Afegir un altre desplaçament
+            {{ $t('components.displacement_editor.add') }}
         </UButton>
     </div>
 </template>

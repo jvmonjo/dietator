@@ -4,7 +4,8 @@ const { public: { appVersion } } = useRuntimeConfig()
 
 <template>
   <div class="max-w-3xl mx-auto space-y-8 pb-10">
-    <UBreadcrumb :items="[
+    <UBreadcrumb
+:items="[
       { label: 'Inici', to: '/' },
       { label: 'Ajuda', to: '/help' },
       { label: 'Sobre Dietator', to: '/help/about' }
@@ -23,7 +24,8 @@ const { public: { appVersion } } = useRuntimeConfig()
           <span class="mx-3 text-gray-300 dark:text-gray-700">|</span>
           <span class="text-gray-500">&copy; 2025 Josep Monjo</span>
         </div>
-        <UButton icon="i-simple-icons-github" to="https://github.com/jvmonjo/dietator/releases" target="_blank"
+        <UButton
+icon="i-simple-icons-github" to="https://github.com/jvmonjo/dietator/releases" target="_blank"
           color="neutral" variant="ghost" size="xs">
           Veure historial de canvis
         </UButton>

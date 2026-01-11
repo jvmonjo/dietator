@@ -43,25 +43,26 @@ const toast = useToast()
 const serviceStore = useServiceStore()
 const settingsStore = useSettingsStore()
 
+const { t } = useI18n()
 const { calculateRouteDistance } = useDistanceCalculator()
 
 // Schema for validation
-const schema = z.object({
-  startTime: z.string().min(1, 'L\'hora d\'inici és obligatòria'),
-  endTime: z.string().min(1, 'L\'hora de fi és obligatòria'),
+const schema = computed(() => z.object({
+  startTime: z.string().min(1, t('components.service_form.validation.start_required')),
+  endTime: z.string().min(1, t('components.service_form.validation.end_required')),
   displacements: z.array(z.object({
-    province: z.string().min(1, 'La província és obligatòria'),
-    municipality: z.string().min(1, 'El municipi és obligatori'),
+    province: z.string().min(1, t('components.service_form.validation.province_required')),
+    municipality: z.string().min(1, t('components.service_form.validation.municipality_required')),
     hasLunch: z.boolean(),
     hasDinner: z.boolean()
-  })).min(1, 'Es requereix almenys un desplaçament'),
+  })).min(1, t('components.service_form.validation.one_displacement_required')),
   kilometers: z.number().optional()
 }).refine((data) => new Date(data.endTime) > new Date(data.startTime), {
-  message: 'L\'hora de fi ha de ser posterior a l\'hora d\'inici',
+  message: t('components.service_form.validation.end_after_start'),
   path: ['endTime']
-})
+}))
 
-type Schema = z.output<typeof schema>
+
 
 type FormDisplacement = Displacement & { id: string }
 
@@ -124,7 +125,7 @@ const importHabitualRoute = () => {
     (state.displacements[0] && (state.displacements[0].province || state.displacements[0].municipality))
 
   if (hasData) {
-    if (!confirm('Això substituirà els desplaçaments actuals. Vols continuar?')) {
+    if (!confirm(t('components.service_form.alerts.replace_route'))) {
       return
     }
   }
@@ -136,7 +137,7 @@ const importHabitualRoute = () => {
     id: uuidv4()
   }))
 
-  toast.add({ title: 'Ruta habitual importada', color: 'success' })
+  toast.add({ title: t('components.service_form.alerts.route_imported'), color: 'success' })
 }
 
 const loadRecord = (record: ServiceRecord) => {
@@ -163,7 +164,8 @@ watch(() => [props.initialData, props.initialDate, props.initialNotes, props.ini
   }
 }, { immediate: true })
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function onSubmit(event: FormSubmitEvent<any>) {
   if (isLoading.value) return
   isLoading.value = true
 
@@ -182,7 +184,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           if (distance > 0) {
             state.kilometers = distance
             toast.add({
-              title: `Kilòmetres calculats: ${distance}`,
+              title: t('components.service_form.alerts.distance_calculated', { distance }),
               description: `Ruta: ${path.join(' ➜ ')}`,
               color: 'info'
             })
@@ -197,20 +199,20 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         const msg = e instanceof Error ? e.message : String(e)
 
         if (msg.includes('REQUEST_DENIED') || msg.includes('ApiNotActivatedMapError')) {
-          title = 'API Key incorrecta'
-          description = 'Comprova la configuració i que l\'API Distance Matrix estigui activada.'
+          title = t('components.service_form.maps_errors.api_key')
+          description = t('components.service_form.maps_errors.api_key_desc')
         } else if (msg.includes('ApiTargetBlockedMapError')) {
-          title = 'API Key bloquejada'
-          description = 'La clau API no permet peticions des d\'aquest domini. Revisa les restriccions a Google Cloud.'
+          title = t('components.service_form.maps_errors.blocked')
+          description = t('components.service_form.maps_errors.blocked_desc')
         } else if (msg.includes('OVER_QUERY_LIMIT')) {
-          title = 'Quota superada'
-          description = 'S\'ha superat el límit de peticions de Google Maps.'
+          title = t('components.service_form.maps_errors.quota')
+          description = t('components.service_form.maps_errors.quota_desc')
         } else if (msg.includes('ZERO_RESULTS') || msg.includes('NOT_FOUND')) {
-          title = 'Ruta no trobada'
-          description = 'No s\'ha trobat una ruta per carretera entre els punts indicats.'
+          title = t('components.service_form.maps_errors.not_found')
+          description = t('components.service_form.maps_errors.not_found_desc')
         } else if (msg.includes('TIMEOUT_GOOGLE_MAPS')) {
-          title = 'Temps d\'espera esgotat'
-          description = 'Google Maps no respon. S\'ha continuat sense calcular distància automàticament.'
+          title = t('components.service_form.maps_errors.timeout')
+          description = t('components.service_form.maps_errors.timeout_desc')
         }
 
         toast.add({ title, description, color: 'warning' })
@@ -226,7 +228,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     })
 
     if (isDuplicateDate) {
-      toast.add({ title: 'Ja existeix un servei amb aquesta data d\'inici', color: 'error' })
+      toast.add({ title: t('components.service_form.alerts.duplicate_date'), color: 'error' })
       return
     }
 
@@ -244,23 +246,23 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     if (isEditing.value) {
       serviceStore.updateRecord(baseRecord)
-      toast.add({ title: 'Servei actualitzat correctament', color: 'success' })
+      toast.add({ title: t('components.service_form.alerts.updated'), color: 'success' })
       emit('saved', baseRecord)
     } else {
       serviceStore.addRecord(baseRecord)
-      toast.add({ title: 'Servei registrat correctament', color: 'success' })
+      toast.add({ title: t('components.service_form.alerts.saved'), color: 'success' })
       resetState()
       emit('saved', baseRecord)
     }
   } catch (error) {
     console.error('Error saving service', error)
-    toast.add({ title: 'Error guardant el servei', color: 'error' })
+    toast.add({ title: t('components.service_form.alerts.save_error'), color: 'error' })
   } finally {
     isLoading.value = false
   }
 }
 
-const submitLabel = computed(() => isEditing.value ? 'Actualitzar servei' : 'Guardar servei')
+const submitLabel = computed(() => isEditing.value ? t('components.service_form.update') : t('components.service_form.save'))
 
 const { getServiceWarnings } = useServiceWarnings()
 
@@ -286,11 +288,11 @@ const qrData = computed(() => {
   <UForm :schema="schema" :state="state" class="space-y-8" @submit="onSubmit">
     <!-- Time Selection -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <UFormField label="Hora d'inici" name="startTime" required>
+      <UFormField :label="$t('components.service_form.start_time')" name="startTime" required>
         <UInput v-model="state.startTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
       </UFormField>
 
-      <UFormField label="Hora de fi" name="endTime" required>
+      <UFormField :label="$t('components.service_form.end_time')" name="endTime" required>
         <UInput v-model="state.endTime" type="datetime-local" icon="i-heroicons-clock" class="w-full" />
       </UFormField>
     </div>
@@ -302,30 +304,30 @@ const qrData = computed(() => {
 
     <!-- Km Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-      <UFormField label="Kilòmetres (Opcional)" name="kilometers">
+      <UFormField :label="$t('components.service_form.kilometers')" name="kilometers">
         <UInput v-model="state.kilometers" type="number" step="0.01" icon="i-heroicons-truck" placeholder="0.00" />
       </UFormField>
 
 
     </div>
 
-    <UFormField label="Notes (Opcional)" name="notes">
+    <UFormField :label="$t('components.service_form.notes')" name="notes">
       <UTextarea
-v-model="state.notes" placeholder="Afegeix comentaris o observacions..." :rows="3" autoresize
-        class="w-full" />
+v-model="state.notes" :placeholder="$t('components.service_form.notes_placeholder')" :rows="3"
+        autoresize class="w-full" />
     </UFormField>
 
     <div class="flex items-center justify-between">
-      <USeparator label="Desplaçaments" class="flex-1" />
+      <USeparator :label="$t('components.service_form.displacements')" class="flex-1" />
       <UButton
 v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
         icon="i-heroicons-arrow-down-tray" class="ml-2" @click="importHabitualRoute">
-        Importar ruta habitual
+        {{ $t('components.service_form.import_route') }}
       </UButton>
       <UButton
 v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2"
         @click="isQrModalOpen = true">
-        Generar QR
+        {{ $t('components.service_form.generate_qr') }}
       </UButton>
     </div>
 
@@ -338,6 +340,8 @@ v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-
       </UButton>
     </div>
 
-    <QrCodeModal v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData" title="Compartir formulari actual" />
+    <QrCodeModal
+v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData"
+      :title="$t('components.qr_modal.share_title')" />
   </UForm>
 </template>

@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { QrcodeStream } from 'vue-qrcode-reader'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   title?: string
   description?: string
 }>(), {
-  title: 'Escanejar QR',
-  description: 'Enfoca el codi QR dins del requadre per importar el servei.'
+  title: undefined,
+  description: undefined
 })
+
+const { t } = useI18n()
+const displayTitle = computed(() => props.title || t('components.qr_scanner.title'))
+const displayDescription = computed(() => props.description || t('components.qr_scanner.description'))
 
 const emit = defineEmits<{
   (e: 'detected', result: string): void
@@ -28,19 +32,19 @@ const onError = (err: any) => {
 
   const errorName = err.name
   if (errorName === 'NotAllowedError') {
-    error.value = "Necessites donar permís d'accés a la càmera."
+    error.value = t('components.qr_scanner.errors.permission')
   } else if (errorName === 'NotFoundError') {
-    error.value = 'No s\'ha trobat cap càmera en aquest dispositiu.'
+    error.value = t('components.qr_scanner.errors.not_found')
   } else if (errorName === 'NotSupportedError') {
-    error.value = 'Aquesta pàgina no es serveix a través de HTTPS (seguretat requerida).'
+    error.value = t('components.qr_scanner.errors.ssl')
   } else if (errorName === 'NotReadableError') {
-    error.value = 'La càmera ja està en ús.'
+    error.value = t('components.qr_scanner.errors.in_use')
   } else if (errorName === 'OverconstrainedError') {
-    error.value = 'Les càmeres instal·lades no són adequades.'
+    error.value = t('components.qr_scanner.errors.overconstrained')
   } else if (errorName === 'StreamApiNotSupportedError') {
-    error.value = 'El navegador no suporta l\'accés a la càmera.'
+    error.value = t('components.qr_scanner.errors.stream')
   } else {
-    error.value = `Error de càmera: ${err.message}`
+    error.value = t('components.qr_scanner.errors.unknown', { error: err.message })
   }
 }
 
@@ -63,7 +67,7 @@ watch(isOpen, (val) => {
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" :title="title" :description="description" :prevent-close="isLoading">
+  <UModal v-model:open="isOpen" :title="displayTitle" :description="displayDescription" :prevent-close="isLoading">
     <template #body>
       <div class="flex flex-col h-[60vh] sm:h-[400px]">
         <div class="flex-1 relative bg-black rounded-lg overflow-hidden min-h-[300px]">
@@ -77,7 +81,7 @@ v-if="error"
             <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-gray-900/80 z-10">
               <div class="text-white flex flex-col items-center gap-2">
                 <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin" />
-                <span>Iniciant càmera...</span>
+                <span>{{ $t('components.qr_scanner.loading') }}</span>
               </div>
             </div>
 
@@ -93,7 +97,7 @@ v-if="error"
       </div>
     </template>
     <template #footer>
-      <UButton color="neutral" variant="ghost" @click="isOpen = false">Cancel·lar</UButton>
+      <UButton color="neutral" variant="ghost" @click="isOpen = false">{{ $t('common.cancel') }}</UButton>
     </template>
   </UModal>
 </template>

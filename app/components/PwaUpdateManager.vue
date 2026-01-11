@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { $pwa } = useNuxtApp()
 const toast = useToast()
+const { t } = useI18n()
 
 const refreshApp = () => {
     $pwa?.updateServiceWorker?.()
@@ -26,13 +27,13 @@ onMounted(() => {
     watch(() => $pwa.needRefresh, (needRefresh) => {
         if (needRefresh) {
             toast.add({
-                title: 'Nova versió disponible',
-                description: 'Hi ha una actualització pendent.',
+                title: t('components.pwa.update_available'),
+                description: t('components.pwa.new_version', { version: '' }), // Version not easily available from pwa var
                 icon: 'i-heroicons-arrow-path',
                 color: 'primary',
                 duration: 0,
                 actions: [{
-                    label: 'Actualitzar',
+                    label: t('components.pwa.update_now'),
                     icon: 'i-lucide-refresh-cw',
                     onClick: refreshApp
                 }]

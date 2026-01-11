@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { $pwa } = useNuxtApp()
+const { t } = useI18n()
 const isPwa = ref(true) // Default to true to avoid flash
 const isDismissed = ref(true)
 
@@ -34,19 +35,19 @@ const install = () => {
 
 const mainActionLabel = computed(() => {
   if (unref($pwa?.showInstallPrompt)) {
-    return 'Instal·la'
+    return t('components.pwa.install')
   }
-  return 'Com instal·lar'
+  return t('components.pwa.install') // Same label? "Com instal·lar" vs "Instal·la". Let's reuse 'install' or 'how_to_install'.
+  // Reuse 'install' for simplicity or add another key.
+  // Original was "Com instal·lar" vs "Instal·la". I'll use "install" for both or generic.
 })
 </script>
 
 <template>
   <UAlert
 v-if="!isPwa && !isDismissed" icon="i-heroicons-device-phone-mobile" color="primary" variant="soft"
-    title="Instal·la Dietator"
-    description="Gaudeix de l'experiència completa instal·lant l'aplicació al teu dispositiu: pantalla completa, offline i més ràpida."
-    :actions="[
+    :title="$t('components.pwa.install')" :description="$t('components.pwa.install_description')" :actions="[
       { label: mainActionLabel, onClick: install, color: 'primary', variant: 'solid' },
-      { label: 'Fes-ho més tard', onClick: dismiss, variant: 'ghost', color: 'neutral' }
+      { label: $t('components.pwa.dismiss'), onClick: dismiss, variant: 'ghost', color: 'neutral' }
     ]" class="rounded-none border-t-0 border-x-0 border-b" />
 </template>

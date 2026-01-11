@@ -1,31 +1,32 @@
 <script setup lang="ts">
 const colorMode = useColorMode()
+const { t } = useI18n()
 
 const isDark = computed({
-  get () {
+  get() {
     return colorMode?.value === 'dark'
   },
-  set (value: boolean) {
+  set(value: boolean) {
     if (colorMode) {
       colorMode.preference = value ? 'dark' : 'light'
     }
   }
 })
 
-const links = [
+const links = computed(() => [
   {
-    label: 'Inici',
+    label: t('components.header.home'),
     to: '/'
   },
   {
-    label: 'Configuració',
+    label: t('components.header.settings'),
     to: '/settings'
   },
   {
-    label: 'Ajuda',
+    label: t('components.header.help'),
     to: '/help'
   }
-]
+])
 </script>
 
 <template>
@@ -35,19 +36,16 @@ const links = [
         <div class="flex items-center gap-2">
           <SiteLogo class="w-8 h-8" />
           <div class="flex items-center gap-1">
-            <span class="text-xl font-bold text-gray-900 dark:text-white">Dietator</span>
-            <UBadge label="Beta" variant="subtle" size="xs" />
+            <span class="text-xl font-bold text-gray-900 dark:text-white">{{ $t('components.header.title') }}</span>
+            <UBadge :label="$t('components.header.beta')" variant="subtle" size="xs" />
           </div>
         </div>
 
         <nav class="hidden md:flex items-center gap-6">
           <NuxtLink
-            v-for="link in links"
-            :key="link.to"
-            :to="link.to"
+v-for="link in links" :key="link.to" :to="link.to"
             class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-            active-class="text-primary-600 dark:text-primary-300"
-          >
+            active-class="text-primary-600 dark:text-primary-300">
             {{ link.label }}
           </NuxtLink>
         </nav>
@@ -56,12 +54,8 @@ const links = [
       <div class="flex items-center gap-4">
         <ClientOnly>
           <UButton
-            :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
-            color="neutral"
-            variant="ghost"
-            aria-label="Theme"
-            @click="isDark = !isDark"
-          />
+:icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'" color="neutral"
+            variant="ghost" aria-label="Theme" :title="$t('components.header.theme')" @click="isDark = !isDark" />
         </ClientOnly>
         <!-- <UAvatar
           src="https://avatars.githubusercontent.com/u/739984?v=4"

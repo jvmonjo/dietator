@@ -17,9 +17,9 @@ interface SettingsSnapshot {
     time: string
     isRecurring: boolean
   }
-  googleClientId?: string
   googleCalendarId?: string
   habitualRoute?: Displacement[]
+  locale?: string
 }
 
 export interface ExternalCalendarSnapshot {

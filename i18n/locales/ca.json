@@ -1,0 +1,579 @@
+{
+    "common": {
+        "firstName": "Nom",
+        "lastName": "Cognoms",
+        "nationalId": "DNI",
+        "email": "Correu electrònic",
+        "save": "Desar",
+        "cancel": "Cancel·lar",
+        "delete": "Esborrar",
+        "confirm": "Confirmar",
+        "back": "Enrere",
+        "next": "Següent",
+        "finish": "Finalitzar",
+        "loading": "Carregant...",
+        "error": "Error",
+        "success": "Configuració guardada",
+        "export": "Exportar",
+        "import": "Importar",
+        "diets": "Dietes",
+        "kilometers": "Kilòmetres",
+        "km_per_service": "km/servei",
+        "disconnect": "Desconnectar",
+        "all": "Tots",
+        "current_month": "Mes actual",
+        "all_months": "Tots els mesos"
+    },
+    "errors": {
+        "share_not_allowed": "Compartició no permesa, descarregant...",
+        "share_not_supported": "El teu dispositiu no suporta compartir aquest fitxer, descarregant...",
+        "export_failed": "No s'ha pogut exportar",
+        "no_data": "No hi ha dades per exportar",
+        "dni_incorrect": "DNI incorrecte",
+        "select_month_export": "Selecciona un mes per exportar",
+        "no_services_month": "No hi ha serveis per al mes seleccionat",
+        "configure_template": "Configura una plantilla Word abans d'exportar",
+        "documents_generation_failed": "No s'han pogut generar els documents"
+    },
+    "success": {
+        "documents_shared": "Documents compartits correctament",
+        "documents_exported": "Documents exportats correctament"
+    },
+    "settings": {
+        "title": "Configuració",
+        "description": "Gestiona les teves dades personals i preferències de l'aplicació.",
+        "save": "Desar configuració",
+        "language": {
+            "title": "Idioma",
+            "description": "Selecciona l'idioma de l'aplicació."
+        },
+        "personal_data": {
+            "title": "Dades Personals",
+            "description": "Informació bàsica per als documents.",
+            "firstNamePlaceholder": "El teu nom",
+            "lastNamePlaceholder": "Els teus cognoms"
+        },
+        "prices": {
+            "title": "Preus de les dietes",
+            "description": "Defineix l'import per a cada tipus de dieta (en €).",
+            "half_diet": "Mitja Dieta",
+            "full_diet": "Dieta Completa"
+        },
+        "integrations": {
+            "title": "Integracions",
+            "description": "Configureu serveis externs per automatitzar tasques."
+        },
+        "api_keys": {
+            "title": "Google Maps",
+            "description": "Clau API necessària per calcular les distàncies automàticament.",
+            "label": "Clau API de Google Maps",
+            "placeholder": "Enganxa la teva clau API aquí",
+            "help": "Com aconseguir-la?",
+            "clear_cache": "Netejar Caché",
+            "cache_size": "Mida de la caché local: {size}"
+        },
+        "reminders": {
+            "title": "Recordatoris",
+            "description": "Configura un recordatori setmanal per omplir les dietes.",
+            "day": "Dia",
+            "time": "Hora",
+            "recurring": "Setmanalment",
+            "add_to_calendar": "Afegir a Google Calendar",
+            "download_ics": "Descarregar ICS"
+        },
+        "calendar": {
+            "title": "Google Calendar",
+            "description": "Connecta el teu compte per importar esdeveniments automàticament.",
+            "client_id": "Client ID",
+            "calendar_id": "ID del Calendari",
+            "connect": "Connectar amb Google",
+            "connected": "Connectat",
+            "sync": "Sincronitzar ara",
+            "help": "Com configurar Google Calendar",
+            "change_calendar": "Canviar calendari",
+            "select_calendar": "Selecciona un calendari",
+            "client_id_missing": "Falta configurar la variable d'entorn NUXT_PUBLIC_GOOGLE_CLIENT_ID."
+        },
+        "habitual_route": {
+            "title": "Ruta Habitual",
+            "description": "Defineix una ruta per defecte per als nous serveis.",
+            "add_stop": "Afegir parada"
+        },
+        "templates": {
+            "title": "Plantilles Word",
+            "description": "Puja les plantilles .docx per generar els informes.",
+            "monthly": "Plantilla Mensual",
+            "service": "Plantilla per Servei",
+            "upload": "Pujar plantilla",
+            "download": "Descarregar",
+            "delete": "Eliminar",
+            "saved_at": "Guardada el {date}",
+            "help": "Veure ajudes i variables disponibles",
+            "select_file": "Selecciona fitxer",
+            "monthly_description": "S'utilitza per generar tots els desplaçaments del mes.",
+            "service_description": "Per generar documents d'un servei individual.",
+            "no_monthly_template": "Encara no hi ha cap plantilla mensual guardada.",
+            "no_service_template": "Cap plantilla individual guardada.",
+            "size": "Tamany: {size}",
+            "no_file_selected": "Cap fitxer seleccionat",
+            "saved": "Plantilla guardada",
+            "read_error": "No s'ha pogut llegir la plantilla",
+            "deleted": "Plantilla eliminada",
+            "none_available": "Cap plantilla disponible"
+        },
+        "backup": {
+            "title": "Còpies de seguretat",
+            "description": "Exporta i importa les teves dades per no perdre res.",
+            "export_config": "Exportar Configuració",
+            "import_config": "Importar Backup",
+            "export_data": "Exportar Dades",
+            "select_year": "Selecciona any",
+            "select_month": "Selecciona mes",
+            "include_templates": "Incloure plantilles",
+            "include_templates_help": "El fitxer serà més gran.",
+            "include_google": "Incloure calendari i token de Google",
+            "include_google_help": "Guarda calendaris i permisos per reutilitzar-los (aconsellable xifrar el fitxer).",
+            "export_config_btn": "Exportar Config",
+            "export_config_description": "Guarda els preus, les plantilles Word i les opcions de l'aplicació.",
+            "export_data_description": "Guarda els registres dels serveis realitzats.",
+            "export_data_btn": "Exportar Dades",
+            "import_config_description": "Restaura una configuració o dades des d'un fitxer `.json` anterior.",
+            "select_file": "Selecciona fitxer",
+            "change_file": "Canviar fitxer",
+            "search_file": "Buscar fitxer...",
+            "process_import": "Processar Importació",
+            "encrypt": "Encriptar còpia de seguretat",
+            "encrypt_help": "Protegeix el fitxer amb una contrasenya.",
+            "password": "Contrasenya",
+            "password_help": "S'utilitza per protegir el fitxer exportat.",
+            "export_btn": "Descarregar Backup",
+            "share_btn": "Compartir Backup",
+            "import_placeholder": "Selecciona un fitxer .json...",
+            "imported": "Backup importat",
+            "updated_data_config": "S'han actualitzat les dades i la configuració",
+            "updated_data": "S'han actualitzat les dades",
+            "updated_config": "S'ha actualitzat la configuració",
+            "enter_password": "Introdueix la contrasenya per importar",
+            "select_file_warning": "Selecciona un fitxer de backup",
+            "malformed": "Backup malformat o buit",
+            "import_config_title": "Importar Configuració",
+            "import_config_confirm": "Això sobreescriurà la configuració actual, incloent els preus i les plantilles. Vols continuar?",
+            "import_data_title": "Importar Dades",
+            "overwrite_month": "Estàs a punt de sobreescriure les dades del mes de {month}. Vols continuar?",
+            "overwrite_year": "Estàs a punt de sobreescriure les dades de l'any {year}. La resta d'anys es mantindran intactes. Vols continuar?",
+            "overwrite_all": "Estàs a punt de sobreescriure TOTES les dades de serveis. Aquesta acció no es pot desfer. Vols continuar?",
+            "confirm_import": "Confirmar i Importar",
+            "import_error": "Error en importar (contrasenya incorrecta?)"
+        },
+        "maintenance": {
+            "title": "Manteniment",
+            "description": "Opcions avançades de gestió de dades.",
+            "delete_data": "Esborrar Dades",
+            "storage_usage": "Ús aproximat d'emmagatzematge",
+            "local_data": "Dades de serveis locals",
+            "total_services": "{count} serveis totals",
+            "cache_title": "Caché de kilòmetres",
+            "cache_description": "Distàncies guardades per estalviar peticions",
+            "routes_count": "{count} rutes",
+            "clear_cache": "Netejar",
+            "year": "Any",
+            "select_year": "Selecciona un any",
+            "month_optional": "Mes (Opcional)",
+            "entire_year": "Tot l'any",
+            "select_year_to_delete": "Selecciona un any per esborrar",
+            "delete_month_data": "Esborrar dades de {month}",
+            "delete_year_data": "Esborrar tot l'any {year}",
+            "confirm_delete_title": "Esborrar dades?",
+            "confirm_delete_month": "Això eliminarà tots els serveis del mes de {month}. Aquesta acció és irreversible.",
+            "confirm_delete_year": "Això eliminarà tots els serveis de l'any {year}. Aquesta acció és irreversible.",
+            "data_deleted": "Dades eliminades",
+            "confirm_clear_cache_title": "Netejar caché?",
+            "confirm_clear_cache_description": "Perdràs les distàncies guardades i s'hauran de tornar a calcular. Això pot consumir quota d'API.",
+            "cache_cleared": "Caché de kilòmetres netejada"
+        }
+    },
+    "home": {
+        "welcome": {
+            "title": "Benvingut a",
+            "description": "Gestiona els teus serveis i dietes de manera completament local. Dietator no guarda dades a cap servidor i funciona completament sense connexió a internet."
+        },
+        "alerts": {
+            "price_missing": {
+                "title": "Afegeix el preu de la dieta",
+                "description": "Configura el preu per poder calcular correctament els totals i generar documents."
+            }
+        },
+        "documents": {
+            "title": "Generar documents",
+            "selected_month": "Mes seleccionat",
+            "services_count": "{count} serveis",
+            "diets_types": "Dietes: {full} completes · {half} mitges",
+            "kilometers": "Kilòmetres",
+            "missing_templates": "S'ha de pujar una plantilla mensual o per servei des de Configuració."
+        },
+        "stats": {
+            "worked_hours": "Hores treballades",
+            "weekly_average": "Mitjana setmanal",
+            "weekly_average_subtitle": "Mitjana de {weeks} setmanes de {month}",
+            "service_average": "Mitjana per servei",
+            "service_average_subtitle": "Mitjana basada en {count} serveis",
+            "services": "Serveis",
+            "diets": "Dietes",
+            "configured_prices": "Preus configurats",
+            "full": "Completa",
+            "half": "Mitja",
+            "kilometers": "Kilòmetres",
+            "kilometers_average": "Mitjana: {avg} km/servei"
+        },
+        "wrapped": {
+            "annual_summary": "Resum Anual",
+            "your_year": "El teu {year}",
+            "discover": "Descobreix les teues estadístiques"
+        },
+        "lunches": "Dinars: {count}",
+        "dinners": "Sopars: {count}",
+        "events_of_day": "📅 Esdeveniments del dia",
+        "all_day": "Tot el dia"
+    },
+    "months": {
+        "0": "Tots",
+        "1": "Gener",
+        "2": "Febrer",
+        "3": "Març",
+        "4": "Abril",
+        "5": "Maig",
+        "6": "Juny",
+        "7": "Juliol",
+        "8": "Agost",
+        "9": "Setembre",
+        "10": "Octubre",
+        "11": "Novembre",
+        "12": "Desembre"
+    },
+    "weekdays": {
+        "1": "Dilluns",
+        "2": "Dimarts",
+        "3": "Dimecres",
+        "4": "Dijous",
+        "5": "Divendres",
+        "6": "Dissabte",
+        "7": "Diumenge"
+    },
+    "privacy": {
+        "title": "Política de Privacitat",
+        "local_first": {
+            "title": "1. Absència de Servidors (Local-First)",
+            "p1": "Dietator està dissenyat amb una filosofia <strong>Local-First</strong>. Això significa que no disposem de servidors centrals, bases de dades al núvol ni cap sistema per recopilar, emmagatzemar o processar les vostres dades.",
+            "p2": "La totalitat de la informació que introduïu a l'aplicació s'emmagatzema <strong>exclusivament al vostre dispositiu</strong> (ordinador, tauleta o mòbil) utilitzant les tecnologies del navegador (IndexedDB i LocalStorage)."
+        },
+        "responsibility": {
+            "title": "2. Responsabilitat de l'Usuari i Seguretat",
+            "p1": "Com que no tenim accés a les vostres dades, <strong>no podem recuperar-les</strong> en cas de pèrdua, robatori del dispositiu o esborrat accidental del navegador.",
+            "p2": "Per tant, és la vostra responsabilitat exclusiva:",
+            "li1": "Mantenir la seguretat física i lògica del vostre dispositiu.",
+            "li2": "Realitzar <strong>còpies de seguretat</strong> periòdiques (Configuració > Exportar Config/Dades).",
+            "li3": "Utilitzar l'opció d'<strong>encriptació</strong> en exportar les còpies de seguretat per protegir les dades sensibles en cas de compartir el fitxer."
+        },
+        "stored_data": {
+            "title": "3. Dades Emmagatzemades",
+            "p1": "L'aplicació guarda localment la següent informació necessària per al seu funcionament:",
+            "li1": "Dades de perfil (nom, cognoms, DNI i preus de dietes).",
+            "li2": "Registre de serveis i desplaçaments realitzats.",
+            "li3": "Preferències de configuració (tema, recordatoris).",
+            "li4": "Tokens d'accés a Google Calendar (si s'ha connectat explícitament).",
+            "li5": "Clau API de Google Maps (si s'ha configurat)."
+        },
+        "third_party": {
+            "title": "4. Serveis de Tercers",
+            "p1": "Tot i que Dietator no té servidors propis, l'aplicació pot connectar-se directament des del vostre navegador a serveis de tercers si activeu aquestes funcionalitats:",
+            "google_calendar": {
+                "title": "Google Calendar API",
+                "description": "S'utilitza únicament per llegir els vostres calendaris i esdeveniments per facilitar la creació de registres. La connexió es fa directament entre el vostre navegador i Google. Nosaltres no tenim accés a aquestes dades."
+            },
+            "google_maps": {
+                "title": "Google Maps API",
+                "description": "Si configureu la vostra clau API, s'utilitzarà per calcular distàncies de rutes. Aquestes peticions estan subjectes a la política de privacitat de Google."
+            }
+        },
+        "deletion": {
+            "title": "5. Eliminació de Dades",
+            "p1": "Teniu el control absolut sobre les vostres dades. Podeu eliminar tota la informació emmagatzemada per Dietator en qualsevol moment simplement:",
+            "li1": "Utilitzant l'opció \"Esborrar totes les dades\" a l'apartat de manteniment de la Configuració.",
+            "li2": "O bé, netejant les dades de llocs web (cookies i emmagatzematge local) des de les opcions del vostre navegador."
+        },
+        "contact": {
+            "title": "6. Contacte",
+            "p1": "Si teniu dubtes sobre aquesta política o el funcionament tècnic de l'aplicació, podeu obrir una incidència o discussió al repositori oficial de <a href=\"https://github.com/jvmonjo/dietator\" target=\"_blank\" class=\"text-primary-500 hover:underline\">GitHub</a>."
+        }
+    },
+    "terms": {
+        "title": "Condicions Generals del Servei",
+        "nature": {
+            "title": "1. Naturalesa del Servei",
+            "p1": "<strong>Dietator</strong> és un projecte de programari lliure i de codi obert (<a href=\"https://github.com/jvmonjo/dietator\" target=\"_blank\" class=\"text-primary-500 hover:underline\">GitHub</a>) desenvolupat i distribuït de manera totalment gratuïta i sense cap ànim de lucre.",
+            "p2": "L'objectiu d'aquest programari és proporcionar una eina d'utilitat per a la gestió personal de dietes i serveis, però no constitueix un servei professional ni comercial."
+        },
+        "beta": {
+            "title": "2. Estat de desenvolupament (Beta)",
+            "p1": "Aquesta aplicació es troba actualment en fase <strong>BETA</strong> i es considera una \"prova de concepte\". Això significa que el programari està encara en desenvolupament actiu, pot contenir errors, funcionalitats incompletes o patir canvis significatius sense previ avís."
+        },
+        "disclaimer": {
+            "title": "3. Exempció de Garanties i Responsabilitat",
+            "p1": "El programari s'ofereix \"TAL QUAL\" (<strong>\"AS IS\"</strong>), sense cap mena de garantia, expressa o implícita, incloent-hi, però sense limitar-se a, garanties de mercantilitat, idoneïtat per a un propòsit particular o no infracció.",
+            "p2": "En cap cas els autors o titulars dels drets d'autor seran responsables de cap reclamació, dany o altra responsabilitat, ja sigui en una acció contractual, greuge o d'una altra manera, que sorgeixi de, fora de o en connexió amb el programari o l'ús o altres relacions amb el programari.",
+            "warning": "<strong>Important:</strong> L'usuari és l'únic responsable de la veracitat de les dades introduïdes i de realitzar còpies de seguretat periòdiques. Dietator no guarda cap dada als seus servidors i no es fa responsable de la pèrdua de dades emmagatzemades localment al dispositiu de l'usuari."
+        },
+        "privacy": {
+            "title": "4. Privacitat i Dades",
+            "p1": "Dietator funciona sota una filosofia <strong>Local-First</strong>. Totes les dades que introduïu (serveis, preus, dades personals) es guarden exclusivament al vostre navegador (IndexedDB / LocalStorage).",
+            "p2": "No s'envia cap informació a servidors de tercers, amb l'excepció de:",
+            "li1": "L'ús de l'API de Google Calendar si decidiu connectar-hi el vostre compte (la comunicació és directa entre el vostre navegador i Google).",
+            "li2": "L'ús de l'API de Google Maps, si configureu la vostra clau, per calcular distàncies."
+        },
+        "license": {
+            "title": "5. Llicència",
+            "p1": "Aquest projecte està llicenciat sota els termes de la llicència MIT. Sou lliures d'utilitzar, copiar, modificar, fusionar, publicar, distribuir, subllicenciar i/o vendre còpies del programari, sempre que s'inclogui l'avís de drets d'autor i permís original."
+        }
+    },
+    "components": {
+        "header": {
+            "title": "Dietator",
+            "beta": "Beta",
+            "home": "Inici",
+            "settings": "Configuració",
+            "help": "Ajuda",
+            "theme": "Tema"
+        },
+        "calendar": {
+            "title": "Calendari",
+            "today": "Avui",
+            "sync": "Sincronitzar calendari extern",
+            "configure": "Configurar",
+            "last_sync": "Última sinc: {date}"
+        },
+        "service_list": {
+            "title": "Serveis registrats",
+            "records_count": "{count} registres",
+            "description": "Consulta, edita o esborra els registres existents.",
+            "search_placeholder": "Buscar per municipi, notes...",
+            "add": "Afegir servei",
+            "import": "Importar",
+            "empty": "Encara no hi ha serveis registrats.",
+            "per_page": "{count} per pàgina",
+            "all": "Tots",
+            "actions": "Accions",
+            "start": "Inici",
+            "end": "Fi",
+            "displacements": "Desplaçaments",
+            "edit": "Editar",
+            "duplicate": "Duplicar",
+            "qr": "Generar QR",
+            "delete": "Eliminar",
+            "modals": {
+                "duplicate_title": "Duplicar servei",
+                "duplicate_desc": "Crea un nou servei a partir de les dades existents",
+                "edit_title": "Editar servei",
+                "edit_desc": "Actualitza les dades del servei seleccionat",
+                "new_title": "Nou servei",
+                "new_desc": "Ompli les dades del servei",
+                "import_success": "Servei importat correctament",
+                "import_error": "Format invàlid",
+                "import_error_title": "Error important el codi QR",
+                "delete_title": "Eliminar servei",
+                "delete_desc": "Estàs segur que vols eliminar aquest servei? Aquesta acció no es pot desfer.",
+                "deleted": "Servei eliminat"
+            }
+        },
+        "service_form": {
+            "start_time": "Hora d'inici",
+            "end_time": "Hora de fi",
+            "kilometers": "Kilòmetres (Opcional)",
+            "notes": "Notes (Opcional)",
+            "notes_placeholder": "Afegeix comentaris o observacions...",
+            "displacements": "Desplaçaments",
+            "import_route": "Importar ruta habitual",
+            "generate_qr": "Generar QR",
+            "save": "Guardar servei",
+            "update": "Actualitzar servei",
+            "validation": {
+                "start_required": "L'hora d'inici és obligatòria",
+                "end_required": "L'hora de fi és obligatòria",
+                "province_required": "La província és obligatòria",
+                "municipality_required": "El municipi és obligatori",
+                "one_displacement_required": "Es requereix almenys un desplaçament",
+                "end_after_start": "L'hora de fi ha de ser posterior a l'hora d'inici"
+            },
+            "alerts": {
+                "replace_route": "Això substituirà els desplaçaments actuals. Vols continuar?",
+                "route_imported": "Ruta habitual importada",
+                "distance_calculated": "Kilòmetres calculats: {distance}",
+                "distance_error": "Error calculant distància",
+                "duplicate_date": "Ja existeix un servei amb aquesta data d'inici",
+                "saved": "Servei registrat correctament",
+                "updated": "Servei actualitzat correctament",
+                "save_error": "Error guardant el servei"
+            },
+            "maps_errors": {
+                "api_key": "API Key incorrecta",
+                "api_key_desc": "Comprova la configuració i que l'API Distance Matrix estigui activada.",
+                "blocked": "API Key bloquejada",
+                "blocked_desc": "La clau API no permet peticions des d'aquest domini. Revisa les restriccions a Google Cloud.",
+                "quota": "Quota superada",
+                "quota_desc": "S'ha superat el límit de peticions de Google Maps.",
+                "not_found": "Ruta no trobada",
+                "not_found_desc": "No s'ha trobat una ruta per carretera entre els punts indicats.",
+                "timeout": "Temps d'espera esgotat",
+                "timeout_desc": "Google Maps no respon. S'ha continuat sense calcular distància automàticament."
+            }
+        },
+        "qr_modal": {
+            "title": "Codi QR",
+            "description": "Escaneja aquest codi des d'un altre dispositiu per importar el servei.",
+            "generating": "Generant QR...",
+            "error": "No s'ha pogut generar el codi QR",
+            "close": "Tancar",
+            "share_title": "Compartir formulari actual"
+        },
+        "qr_scanner": {
+            "title": "Escanejar QR",
+            "description": "Enfoca el codi QR dins del requadre per importar el servei.",
+            "loading": "Iniciant càmera...",
+            "errors": {
+                "permission": "Necessites donar permís d'accés a la càmera.",
+                "not_found": "No s'ha trobat cap càmera en aquest dispositiu.",
+                "ssl": "Aquesta pàgina no es serveix a través de HTTPS (seguretat requerida).",
+                "in_use": "La càmera ja està en ús.",
+                "overconstrained": "Les càmeres instal·lades no són adequades.",
+                "stream": "El navegador no suporta l'accés a la càmera.",
+                "unknown": "Error de càmera: {error}"
+            }
+        },
+        "pwa": {
+            "update_available": "Actualització disponible",
+            "new_version": "Nova versió {version} disponible!",
+            "update_now": "Actualitzar ara",
+            "dismiss": "Ignorar",
+            "install": "Instal·lar App",
+            "install_description": "Instal·la l'aplicació per accedir-hi ràpidament i treballar sense connexió."
+        },
+        "displacement_editor": {
+            "province": "Província",
+            "municipality": "Municipi",
+            "select_province": "Selecciona província",
+            "select_municipality": "Selecciona municipi",
+            "lunch": "Dinar inclòs",
+            "dinner": "Sopar inclòs",
+            "observations": "Observacions",
+            "observations_placeholder": "Detalls addicionals d'aquest desplaçament...",
+            "duplicate": "Duplicar desplaçament",
+            "add": "Afegir un altre desplaçament",
+            "duplicated_toast": "Desplaçament duplicat"
+        },
+        "selectors": {
+            "search_municipality": "Buscar municipi...",
+            "select_municipality": "Selecciona municipi",
+            "search_province": "Buscar província...",
+            "select_province": "Selecciona província"
+        }
+    },
+    "help": {
+        "index": {
+            "title": "Ajuda i Documentació",
+            "description": "Informació sobre l'aplicació i guia de referència.",
+            "topics_title": "Temes d'Ajuda",
+            "search_placeholder": "Filtrar temes...",
+            "no_results": "No s'han trobat temes que coincideixin amb la cerca.",
+            "clear_filter": "Netejar filtre",
+            "legal_section": "Legal",
+            "terms_desc": "Informació legal, garanties i llicència d'ús.",
+            "privacy_desc": "Com gestionem (i no guardem) les teves dades."
+        },
+        "topics": {
+            "about": {
+                "title": "Sobre Dietator",
+                "description": "Filosofia local, privadesa i com funcionen les teues dades."
+            },
+            "pwa": {
+                "title": "Instal·lació (PWA)",
+                "description": "Com instal·lar l'aplicació al teu mòbil o ordinador."
+            },
+            "maps": {
+                "title": "API de Google Maps",
+                "description": "Càlcul automàtic de quilòmetres i estalvi de costos."
+            },
+            "templates": {
+                "title": "Plantilles de Word",
+                "description": "Guia de variables i condicionals per personalitzar informes."
+            },
+            "calendar": {
+                "title": "Integració Google Calendar",
+                "description": "Sincronitza els teus esdeveniments de Google Calendar automàticament."
+            },
+            "backups": {
+                "title": "Còpies de Seguretat",
+                "description": "Com exportar, importar i protegir les teues dades."
+            }
+        }
+    },
+    "layout": {
+        "footer": {
+            "rights": "Tots els drets reservats.",
+            "terms": "Condicions Generals",
+            "privacy": "Política de Privacitat"
+        }
+    },
+    "wrapped": {
+        "title": "El teu {year}",
+        "subtitle": "Resum de l'any a Dietator",
+        "stats": {
+            "income": "Total dietes",
+            "hours": "Hores",
+            "services": "Serveis",
+            "km": "Kilòmetres",
+            "per_week_hours": "h/setm",
+            "per_service_hours": "h/serv",
+            "per_week_services": "serveis/setmana",
+            "per_week_km": "km/setm",
+            "per_service_km": "km/serv"
+        },
+        "chart": {
+            "title": "Activitat Mensual",
+            "income": "Dietes",
+            "hours": "Hores",
+            "km": "Km",
+            "tooltip": {
+                "income": "Ingressos",
+                "hours": "Hores",
+                "km": "Km"
+            }
+        },
+        "comparisons": {
+            "title": "On has arribat?",
+            "completed": "Completat! 🚀",
+            "labels": {
+                "santiago": "Camí de Santiago",
+                "route66": "Ruta 66 (EUA)",
+                "dakar": "Rally París-Dakar",
+                "world": "Volta al món"
+            }
+        },
+        "fun_stats": {
+            "marathon_title": "Marató Laboral ⏱️",
+            "marathon_desc": "És el temps que hauries passat treballant si no haguessis parat ni per dormir!",
+            "days": "dies",
+            "active_day_title": "Dia més actiu 🔥",
+            "active_day_desc": "Vas treballar <span class=\"font-bold text-white\">{hours} hores</span> aquest dia.",
+            "travel_day_title": "Dia més viatger 🚗",
+            "travel_day_desc": "Vas recórrer <span class=\"font-bold text-white\">{km} km</span>.",
+            "route": "Ruta"
+        },
+        "actions": {
+            "download_title": "Descarrega el teu report",
+            "share_pdf": "Compartir PDF",
+            "share_success": "PDF compartit correctament",
+            "download_success": "PDF descarregat correctament",
+            "share_error": "Error compartint el PDF",
+            "generate_error": "Error generant el PDF"
+        }
+    }
+}

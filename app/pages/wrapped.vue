@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <script setup lang="ts">
 import { useWrappedStats } from '~/composables/useWrappedStats'
 import { generateWrappedPdf } from '~/utils/pdfGenerator'
@@ -5,6 +6,7 @@ import { saveAs } from 'file-saver'
 
 
 const { getYearStats, getDistanceComparisons } = useWrappedStats()
+const { t, locale } = useI18n()
 
 // State
 const currentYear = new Date().getFullYear()
@@ -53,13 +55,13 @@ const getBarHeight = (monthData: { hours: number, income: number, km: number }) 
 const comparisons = computed(() => getDistanceComparisons(stats.value.totalKm))
 
 // Formatters
-const currencyFormatter = new Intl.NumberFormat('ca-ES', { style: 'currency', currency: 'EUR' })
-const numberFormatter = new Intl.NumberFormat('ca-ES', { maximumFractionDigits: 1 })
+const currencyFormatter = computed(() => new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }))
+const numberFormatter = computed(() => new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }))
+const moneyFormatter = computed(() => new Intl.NumberFormat(locale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
 
-const formatCurrency = (val: number) => currencyFormatter.format(val)
-const formatNumber = (val: number) => numberFormatter.format(val)
-const moneyFormatter = new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-const formatMoney = (val: number) => moneyFormatter.format(val)
+const formatCurrency = (val: number) => currencyFormatter.value.format(val)
+const formatNumber = (val: number) => numberFormatter.value.format(val)
+const formatMoney = (val: number) => moneyFormatter.value.format(val)
 
 const years = computed(() => {
     const list = []
@@ -72,7 +74,7 @@ const years = computed(() => {
 // Visual Helpers
 const getMonthName = (idx: number) => {
     const dates = new Date(2000, idx, 1) // Any year
-    return dates.toLocaleString('ca-ES', { month: 'short' })
+    return dates.toLocaleString(locale.value, { month: 'short' })
 }
 
 // Actions
@@ -95,27 +97,27 @@ const handlePdf = async () => {
                 await navigator.share({
                     files: [file]
                 })
-                toast.add({ title: 'PDF compartit correctament', color: 'success' })
+                toast.add({ title: t('wrapped.actions.share_success'), color: 'success' })
             } catch (err: unknown) {
                 const errorName = (err as Error).name
                 if (errorName === 'NotAllowedError' || errorName === 'TypeError') {
                     // Fallback to download if share failed (e.g. not allowed context)
                     saveAs(blob, filename)
-                    toast.add({ title: 'PDF descarregat correctament', color: 'success' })
+                    toast.add({ title: t('wrapped.actions.download_success'), color: 'success' })
                 } else if (errorName !== 'AbortError') {
                     // Unknown error
                     console.error(err)
-                    toast.add({ title: 'Error compartint el PDF', color: 'error' })
+                    toast.add({ title: t('wrapped.actions.share_error'), color: 'error' })
                 }
             }
         } else {
             // Fallback for devices not supporting file share
             saveAs(blob, filename)
-            toast.add({ title: 'PDF descarregat correctament', color: 'success' })
+            toast.add({ title: t('wrapped.actions.download_success'), color: 'success' })
         }
     } catch (e) {
         console.error(e)
-        toast.add({ title: 'Error generant el PDF', color: 'error' })
+        toast.add({ title: t('wrapped.actions.generate_error'), color: 'error' })
     } finally {
         loading.value = false
     }
@@ -123,6 +125,7 @@ const handlePdf = async () => {
 </script>
 
 <template>
+    <!-- eslint-disable vue/no-v-html -->
     <div
         class="min-h-screen bg-gray-900 text-white -mx-4 -my-6 p-6 sm:p-8 font-sans transition-colors duration-500 overflow-x-hidden">
         <!-- Background Gradients -->
@@ -140,9 +143,9 @@ const handlePdf = async () => {
                 <div class="text-center sm:text-left max-w-full">
                     <h1
                         class="text-5xl md:text-7xl font-black bg-gradient-to-r from-yellow-400 to-purple-400 bg-clip-text text-transparent break-words">
-                        El teu {{ selectedYear }}
+                        {{ $t('wrapped.title', { year: selectedYear }) }}
                     </h1>
-                    <p class="text-xl text-gray-400 mt-2">Resum de l'any a Dietator</p>
+                    <p class="text-xl text-gray-400 mt-2">{{ $t('wrapped.subtitle') }}</p>
                 </div>
 
                 <div
@@ -155,7 +158,8 @@ const handlePdf = async () => {
             <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div
                     class="col-span-2 sm:col-span-1 bg-gray-800/40 p-6 rounded-3xl border border-gray-700/50 backdrop-blur-md hover:scale-105 transition-transform duration-300">
-                    <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Total dietes</div>
+                    <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">{{
+                        $t('wrapped.stats.income') }}</div>
                     <div class="flex items-baseline gap-1 flex-wrap">
                         <span class="text-2xl lg:text-4xl font-black text-emerald-400">{{
                             formatMoney(stats.totalIncome) }}</span>
@@ -164,32 +168,36 @@ const handlePdf = async () => {
                 </div>
                 <div
                     class="bg-gray-800/40 p-6 rounded-3xl border border-gray-700/50 backdrop-blur-md hover:scale-105 transition-transform duration-300 delay-75">
-                    <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Hores</div>
+                    <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">{{
+                        $t('wrapped.stats.hours') }}</div>
                     <div class="text-2xl lg:text-4xl font-black text-yellow-400">{{ formatNumber(stats.totalHours)
-                        }}<span class="text-lg text-gray-500 ml-1">h</span></div>
+                    }}<span class="text-lg text-gray-500 ml-1">h</span></div>
                     <div class="text-xs text-yellow-500/80 mt-1 font-medium">
-                        ~{{ formatNumber(stats.weeklyAverageHours) }} h/setm · {{ formatNumber(stats.avgHoursPerService)
-                        }} h/serv
+                        ~{{ formatNumber(stats.weeklyAverageHours) }} {{ $t('wrapped.stats.per_week_hours') }} · {{
+                            formatNumber(stats.avgHoursPerService)
+                        }} {{ $t('wrapped.stats.per_service_hours') }}
                     </div>
                 </div>
                 <div
                     class="bg-gray-800/40 p-6 rounded-3xl border border-gray-700/50 backdrop-blur-md hover:scale-105 transition-transform duration-300 delay-100">
-                    <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Serveis</div>
+                    <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">{{
+                        $t('wrapped.stats.services') }}</div>
                     <div class="text-2xl lg:text-4xl font-black text-purple-400">{{ stats.totalServices }}</div>
                     <div class="text-xs text-purple-500/80 mt-1 font-medium">~{{
-                        formatNumber(stats.weeklyAverageServices) }} serveis/setmana</div>
+                        formatNumber(stats.weeklyAverageServices) }} {{ $t('wrapped.stats.per_week_services') }}</div>
                 </div>
                 <div
                     class="col-span-2 sm:col-span-1 bg-gray-800/40 p-6 rounded-3xl border border-gray-700/50 backdrop-blur-md hover:scale-105 transition-transform duration-300 delay-150">
-                    <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Kilòmetres</div>
+                    <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">{{
+                        $t('wrapped.stats.km') }}</div>
                     <div class="flex items-baseline gap-1 flex-wrap">
                         <span class="text-2xl lg:text-4xl font-black text-blue-400 break-words">{{
                             formatNumber(stats.totalKm) }}</span>
                         <span class="text-lg text-gray-500">km</span>
                     </div>
                     <div class="text-xs text-blue-500/80 mt-1 font-medium">
-                        ~{{ formatNumber(stats.weeklyAverageKm) }} km/setm · {{ formatNumber(stats.avgKmPerService) }}
-                        km/serv
+                        ~{{ formatNumber(stats.weeklyAverageKm) }} {{ $t('wrapped.stats.per_week_km') }} · {{
+                            formatNumber(stats.avgKmPerService) }} {{ $t('wrapped.stats.per_service_km') }}
                     </div>
                 </div>
             </section>
@@ -199,23 +207,26 @@ const handlePdf = async () => {
                 <div class="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
                     <h3 class="text-2xl font-bold flex items-center gap-2">
                         <UIcon name="i-heroicons-chart-bar" class="w-6 h-6 text-yellow-500" />
-                        Activitat Mensual
+                        {{ $t('wrapped.chart.title') }}
                     </h3>
                     <div class="flex bg-gray-700/50 rounded-lg p-1 gap-1 self-stretch sm:self-auto justify-center">
-                        <button class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
+                        <button
+class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
                             :class="chartMetric === 'income' ? 'bg-gray-600 text-white shadow' : 'text-gray-400 hover:text-gray-200'"
                             @click="chartMetric = 'income'">
-                            Dietes
+                            {{ $t('wrapped.chart.income') }}
                         </button>
-                        <button class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
+                        <button
+class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
                             :class="chartMetric === 'hours' ? 'bg-gray-600 text-white shadow' : 'text-gray-400 hover:text-gray-200'"
                             @click="chartMetric = 'hours'">
-                            Hores
+                            {{ $t('wrapped.chart.hours') }}
                         </button>
-                        <button class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
+                        <button
+class="px-3 py-1 text-sm rounded-md transition-all flex-1 sm:flex-none"
                             :class="chartMetric === 'km' ? 'bg-gray-600 text-white shadow' : 'text-gray-400 hover:text-gray-200'"
                             @click="chartMetric = 'km'">
-                            Km
+                            {{ $t('wrapped.chart.km') }}
                         </button>
                     </div>
                 </div>
@@ -223,7 +234,8 @@ const handlePdf = async () => {
                 <div class="h-64 sm:h-80 flex justify-between gap-1 md:gap-4 items-end">
                     <!-- DEBUG INFO (Temporary) -->
                     <!-- <div class="absolute top-0 left-0 bg-red-500 text-white text-xs p-1">Metric: {{ chartMetric }} | MaxH: {{ maxMonthlyHours }}</div> -->
-                    <div v-for="(m, i) in stats.months" :key="i"
+                    <div
+v-for="(m, i) in stats.months" :key="i"
                         class="relative flex-1 flex flex-col items-center justify-end h-full min-w-0 group">
                         <!-- Tooltip -->
                         <div
@@ -231,18 +243,19 @@ const handlePdf = async () => {
                             <div class="font-bold text-gray-100 mb-1 text-center border-b border-gray-800 pb-1">{{
                                 getMonthName(i) }}</div>
                             <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs mt-1">
-                                <span class="text-gray-400 text-left">Ingressos</span>
+                                <span class="text-gray-400 text-left">{{ $t('wrapped.chart.tooltip.income') }}</span>
                                 <span class="font-mono text-emerald-400 text-right">{{ formatCurrency(m.income)
-                                    }}</span>
-                                <span class="text-gray-400 text-left">Hores</span>
+                                }}</span>
+                                <span class="text-gray-400 text-left">{{ $t('wrapped.chart.tooltip.hours') }}</span>
                                 <span class="font-mono text-yellow-400 text-right">{{ formatNumber(m.hours) }}h</span>
-                                <span class="text-gray-400 text-left">Km</span>
+                                <span class="text-gray-400 text-left">{{ $t('wrapped.chart.tooltip.km') }}</span>
                                 <span class="font-mono text-blue-400 text-right">{{ formatNumber(m.km) }}</span>
                             </div>
                         </div>
 
                         <!-- Bar -->
-                        <div class="w-full rounded-t-lg relative overflow-hidden transition-all duration-500 ease-out group-hover:brightness-110"
+                        <div
+class="w-full rounded-t-lg relative overflow-hidden transition-all duration-500 ease-out group-hover:brightness-110"
                             :class="{
                                 'bg-emerald-500/80': chartMetric === 'income',
                                 'bg-yellow-500/80': chartMetric === 'hours',
@@ -269,7 +282,7 @@ const handlePdf = async () => {
                 <div class="bg-gray-800/30 p-8 rounded-3xl border border-gray-700/50 backdrop-blur-sm">
                     <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
                         <UIcon name="i-heroicons-map" class="w-6 h-6 text-blue-500" />
-                        On has arribat?
+                        {{ $t('wrapped.comparisons.title') }}
                     </h3>
                     <div class="space-y-6">
                         <div v-for="comp in comparisons" :key="comp.label" class="space-y-2">
@@ -278,13 +291,16 @@ const handlePdf = async () => {
                                 <span class="text-gray-500 text-xs">{{ formatNumber(comp.distance) }} km</span>
                             </div>
                             <div class="h-3 bg-gray-700 rounded-full overflow-hidden relative">
-                                <div class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-1000 ease-out"
+                                <div
+class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-1000 ease-out"
                                     :style="{ width: `${comp.percentage}%` }" />
                             </div>
-                            <div v-if="comp.completed"
+                            <div
+v-if="comp.completed"
                                 class="text-xs text-green-400 font-bold text-right flex justify-end items-center gap-1">
-                                <span>Completat! 🚀</span>
-                                <span v-if="comp.timesCompleted > 1"
+                                <span>{{ $t('wrapped.comparisons.completed') }}</span>
+                                <span
+v-if="comp.timesCompleted > 1"
                                     class="bg-green-500/20 px-1.5 py-0.5 rounded text-green-300">x{{ comp.timesCompleted
                                     }}</span>
                             </div>
@@ -296,56 +312,62 @@ const handlePdf = async () => {
                 <div class="space-y-6">
                     <div
                         class="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 p-8 rounded-3xl border border-yellow-700/30">
-                        <h4 class="text-yellow-300 text-lg font-bold mb-2">Marató Laboral ⏱️</h4>
+                        <h4 class="text-yellow-300 text-lg font-bold mb-2">{{ $t('wrapped.fun_stats.marathon_title') }}
+                        </h4>
                         <div class="text-3xl font-black text-white mb-1">
-                            {{ formatNumber(stats.totalDaysNonStop) }} dies
+                            {{ formatNumber(stats.totalDaysNonStop) }} {{ $t('wrapped.fun_stats.days') }}
                         </div>
                         <div class="text-yellow-200/80">
-                            És el temps que hauries passat treballant si no haguessis parat ni per dormir!
+                            {{ $t('wrapped.fun_stats.marathon_desc') }}
                         </div>
                     </div>
 
-                    <div v-if="stats.mostActiveDay.date"
+                    <div
+v-if="stats.mostActiveDay.date"
                         class="bg-gradient-to-br from-pink-900/40 to-purple-900/40 p-8 rounded-3xl border border-pink-700/30">
-                        <h4 class="text-pink-300 text-lg font-bold mb-2">Dia més actiu 🔥</h4>
+                        <h4 class="text-pink-300 text-lg font-bold mb-2">{{ $t('wrapped.fun_stats.active_day_title') }}
+                        </h4>
                         <div class="text-3xl font-black text-white mb-1">
-                            {{ new Date(stats.mostActiveDay.date).toLocaleDateString('ca-ES', {
+                            {{ new Date(stats.mostActiveDay.date).toLocaleDateString(locale, {
                                 day: 'numeric', month:
                                     'long'
                             }) }}
                         </div>
-                        <div class="text-pink-200/80">
-                            Vas treballar <span class="font-bold text-white">{{ formatNumber(stats.mostActiveDay.hours)
-                                }} hores</span> aquest dia.
-                        </div>
+                        <div
+class="text-pink-200/80"
+                            v-html="$t('wrapped.fun_stats.active_day_desc', { hours: formatNumber(stats.mostActiveDay.hours) })" />
                     </div>
 
-                    <div v-if="stats.mostKmDay.date"
+                    <div
+v-if="stats.mostKmDay.date"
                         class="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 p-8 rounded-3xl border border-blue-700/30">
-                        <h4 class="text-blue-300 text-lg font-bold mb-2">Dia més viatger 🚗</h4>
+                        <h4 class="text-blue-300 text-lg font-bold mb-2">{{ $t('wrapped.fun_stats.travel_day_title') }}
+                        </h4>
                         <div class="text-3xl font-black text-white mb-1">
-                            {{ new Date(stats.mostKmDay.date).toLocaleDateString('ca-ES', {
+                            {{ new Date(stats.mostKmDay.date).toLocaleDateString(locale, {
                                 day: 'numeric', month:
                                     'long'
                             }) }}
                         </div>
-                        <div class="text-blue-200/80">
-                            Vas recórrer <span class="font-bold text-white">{{ formatNumber(stats.mostKmDay.km) }}
-                                km</span>.
-                        </div>
-                        <div v-if="stats.mostKmDay.route && stats.mostKmDay.route.length > 0"
+                        <div
+class="text-blue-200/80"
+                            v-html="$t('wrapped.fun_stats.travel_day_desc', { km: formatNumber(stats.mostKmDay.km) })" />
+                        <div
+v-if="stats.mostKmDay.route && stats.mostKmDay.route.length > 0"
                             class="mt-3 pt-3 border-t border-blue-500/30 text-xs text-blue-100 font-mono leading-relaxed break-words">
-                            <span class="opacity-70">Ruta:</span> {{ stats.mostKmDay.route.join(' → ') }}
+                            <span class="opacity-70">{{ $t('wrapped.fun_stats.route') }}:</span> {{
+                                stats.mostKmDay.route.join(' → ') }}
                         </div>
                     </div>
 
                     <div
                         class="bg-gray-800/30 p-8 rounded-3xl border border-gray-700/50 flex flex-col justify-center items-center text-center space-y-4">
-                        <h4 class="text-gray-400 font-medium">Descarrega el teu report</h4>
+                        <h4 class="text-gray-400 font-medium">{{ $t('wrapped.actions.download_title') }}</h4>
                         <div class="flex flex-col w-full gap-3">
-                            <UButton block :loading="loading" color="primary" size="xl" variant="solid"
+                            <UButton
+block :loading="loading" color="primary" size="xl" variant="solid"
                                 icon="i-heroicons-share" @click="handlePdf">
-                                Compartir PDF
+                                {{ $t('wrapped.actions.share_pdf') }}
                             </UButton>
                         </div>
                     </div>

@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import QRCode from 'qrcode'
 
+// This chunk handles QrCodeModal
+const { t } = useI18n()
+
 const props = withDefaults(defineProps<{
   data: string | object
   title?: string
   description?: string
   open?: boolean
 }>(), {
-  title: 'Codi QR',
-  description: 'Escaneja aquest codi des d\'un altre dispositiu per importar el servei.',
+  title: undefined,
+  description: undefined,
   open: false
 })
+
+const displayTitle = computed(() => props.title || t('components.qr_modal.title'))
+const displayDescription = computed(() => props.description || t('components.qr_modal.description'))
 
 const emit = defineEmits<{
   (e: 'update:open', value: boolean): void
@@ -45,7 +51,7 @@ const generateQR = async () => {
     error.value = ''
   } catch (err) {
     console.error('Error generating QR code', err)
-    error.value = 'No s\'ha pogut generar el codi QR'
+    error.value = t('components.qr_modal.error')
   }
 }
 
@@ -56,7 +62,7 @@ watch(isOpen, (val) => {
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" :title="title" :description="description">
+  <UModal v-model:open="isOpen" :title="displayTitle" :description="displayDescription">
     <template #body>
       <div class="flex justify-center bg-white p-4 rounded-lg min-h-[100px]">
         <img v-if="qrDataUrl" :src="qrDataUrl" alt="QR Code" class="max-w-full h-auto rounded-lg">
@@ -64,13 +70,13 @@ watch(isOpen, (val) => {
           {{ error }}
         </div>
         <div v-else class="text-gray-400">
-          Generant QR...
+          {{ $t('components.qr_modal.generating') }}
         </div>
       </div>
     </template>
 
     <template #footer>
-      <UButton color="neutral" variant="ghost" @click="isOpen = false">Tancar</UButton>
+      <UButton color="neutral" variant="ghost" @click="isOpen = false">{{ $t('components.qr_modal.close') }}</UButton>
     </template>
   </UModal>
 </template>
