@@ -1,3 +1,10 @@
+## [1.30.11](https://github.com/jvmonjo/dietator/compare/v1.30.10...v1.30.11) (2026-01-11)
+
+
+### Bug Fixes
+
+* round figures for money to the cent ([f865395](https://github.com/jvmonjo/dietator/commit/f8653959bc47762961104b59f4ece18be1b16001))
+
 ## [1.30.10](https://github.com/jvmonjo/dietator/compare/v1.30.9...v1.30.10) (2026-01-08)
 
 
