@@ -24,6 +24,14 @@
         "current_month": "Mes actual",
         "all_months": "Tots els mesos"
     },
+    "warnings": {
+        "late_finish_no_dinner": "Has finalitzat a les 22:30 o més tard i no has marcat sopar. Revisa si et corresponia.",
+        "no_meals_claimed": "Aquest servei no genera dret a dieta perquè encara no s'ha declarat cap menjada.",
+        "duration_over_24h": "📌 La durada supera les 24 hores; comprova que la data final sigui correcta.",
+        "check_lunch_right": "Compte. Assegura't de que has dinat i tens dret a dieta",
+        "check_dinner_right": "Compte. Assegura't de que has sopat i tens dret a dieta",
+        "start_after_16_lunch": "Inici del servei posterior a les 16:00. Comprova si realment et correspon dieta de dinar."
+    },
     "errors": {
         "share_not_allowed": "Compartició no permesa, descarregant...",
         "share_not_supported": "El teu dispositiu no suporta compartir aquest fitxer, descarregant...",

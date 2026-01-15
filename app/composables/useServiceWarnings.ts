@@ -6,6 +6,8 @@ export interface ServiceWarning {
 }
 
 export const useServiceWarnings = () => {
+    const { t } = useI18n()
+
     const getServiceWarnings = (
         startTime: string,
         endTime: string,
@@ -19,7 +21,7 @@ export const useServiceWarnings = () => {
         const hasMeals = displacements.some(d => d.hasLunch || d.hasDinner)
         if (!hasMeals) {
             warnings.push({
-                message: 'Aquest servei no genera dret a dieta perquè encara no s\'ha declarat cap menjada.',
+                message: t('warnings.no_meals_claimed'),
                 type: 'warning' // Using warning type to ensure visibility, though it's informational
             })
         }
@@ -33,7 +35,7 @@ export const useServiceWarnings = () => {
         const DURATION_LIMIT_MS = 24 * 60 * 60 * 1000
         if (end.getTime() - start.getTime() > DURATION_LIMIT_MS) {
             warnings.push({
-                message: '📌 La durada supera les 24 hores; comprova que la data final sigui correcta.',
+                message: t('warnings.duration_over_24h'),
                 type: 'warning'
             })
         }
@@ -50,7 +52,7 @@ export const useServiceWarnings = () => {
             const hasLunch = displacements.some(d => d.hasLunch)
             if (totalMinutes < 930 && hasLunch) {
                 warnings.push({
-                    message: "Compte. Assegura't de que has dinat i tens dret a dieta",
+                    message: t('warnings.check_lunch_right'),
                     type: 'warning'
                 })
             }
@@ -61,10 +63,23 @@ export const useServiceWarnings = () => {
             const hasDinner = displacements.some(d => d.hasDinner)
             if (totalMinutes < 1410 && hasDinner) {
                 warnings.push({
-                    message: "Compte. Assegura't de que has sopat i tens dret a dieta",
+                    message: t('warnings.check_dinner_right'),
                     type: 'warning'
                 })
             }
+
+        }
+
+        // 3.5. End >= 22:30 OR Next Day && !hasDinner
+        // 22:30 = 1350 minutes
+        const hasDinner = displacements.some(d => d.hasDinner)
+        const isLateFinish = (!isSameDay) || (totalMinutes >= 1350)
+
+        if (isLateFinish && !hasDinner) {
+            warnings.push({
+                message: t('warnings.late_finish_no_dinner'),
+                type: 'warning'
+            })
         }
 
         const startHour = start.getHours()
@@ -76,7 +91,7 @@ export const useServiceWarnings = () => {
         const hasLunch = displacements.some(d => d.hasLunch)
         if (startTotalMinutes > 960 && hasLunch) {
             warnings.push({
-                message: "Inici del servei posterior a les 16:00. Comprova si realment et correspon dieta de dinar.",
+                message: t('warnings.start_after_16_lunch'),
                 type: 'warning'
             })
         }

@@ -55,3 +55,6 @@ S'ha mogut el formulari de creació de serveis (que estava fix al final de la p�
 - Eliminat `<ServiceForm />` de `index.vue`.
 - Afegit botó "Afegir servei" a la capçalera de `ServiceList.vue`.
 - Reutilització del mateix modal personalitzat (Overlay) per a la creació, passant `selectedRecord = null`.
+
+
+Si has d'afegir un text, fes-ho sempre amb variables traduibles i afegeix les traduccions als fitxers corresponents.

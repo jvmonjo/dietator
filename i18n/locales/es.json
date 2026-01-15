@@ -24,6 +24,14 @@
         "current_month": "Mes actual",
         "all_months": "Todos los meses"
     },
+    "warnings": {
+        "late_finish_no_dinner": "Has finalizado a las 22:30 o más tarde y no has marcado cena. Revisa si te correspondía.",
+        "no_meals_claimed": "Este servicio no genera derecho a dieta porque no se ha declarado ninguna comida.",
+        "duration_over_24h": "📌 La duración supera las 24 horas; comprueba que la fecha final sea correcta.",
+        "check_lunch_right": "Cuidado. Asegúrate de que has comido y tienes derecho a dieta.",
+        "check_dinner_right": "Cuidado. Asegúrate de que has cenado y tienes derecho a dieta.",
+        "start_after_16_lunch": "Inicio del servicio posterior a las 16:00. Comprueba si realmente te corresponde dieta de comida."
+    },
     "errors": {
         "share_not_allowed": "Compartición no permitida, descargando...",
         "share_not_supported": "Tu dispositivo no soporta compartir este archivo, descargando...",
