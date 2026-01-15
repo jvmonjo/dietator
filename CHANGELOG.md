@@ -1,3 +1,15 @@
+# [1.31.0](https://github.com/jvmonjo/dietator/compare/v1.30.12...v1.31.0) (2026-01-15)
+
+
+### Bug Fixes
+
+* added alert if the service ends after 22:30 and no dinner is checked ([837ea28](https://github.com/jvmonjo/dietator/commit/837ea2887d58fd3a3d4124f5c7b0045699d91ff8))
+
+
+### Features
+
+* direct import using qr scanner ([df652b2](https://github.com/jvmonjo/dietator/commit/df652b2e80ff3151eff9063d44a2bf29c26a607b))
+
 ## [1.30.12](https://github.com/jvmonjo/dietator/compare/v1.30.11...v1.30.12) (2026-01-15)
 
 
