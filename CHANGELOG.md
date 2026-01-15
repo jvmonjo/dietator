@@ -1,3 +1,10 @@
+## [1.30.12](https://github.com/jvmonjo/dietator/compare/v1.30.11...v1.30.12) (2026-01-15)
+
+
+### Bug Fixes
+
+* wrong periodicity in the settings ([e496210](https://github.com/jvmonjo/dietator/commit/e496210e38768be9c5d37621bf49f72acaa841e2))
+
 ## [1.30.11](https://github.com/jvmonjo/dietator/compare/v1.30.10...v1.30.11) (2026-01-11)
 
 
