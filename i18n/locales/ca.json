@@ -74,10 +74,10 @@
         },
         "reminders": {
             "title": "Recordatoris",
-            "description": "Configura un recordatori setmanal per omplir les dietes.",
+            "description": "Configura un recordatori mensual per omplir les dietes.",
             "day": "Dia",
             "time": "Hora",
-            "recurring": "Setmanalment",
+            "recurring": "Mensualment",
             "add_to_calendar": "Afegir a Google Calendar",
             "download_ics": "Descarregar ICS"
         },

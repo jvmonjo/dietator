@@ -74,10 +74,10 @@
         },
         "reminders": {
             "title": "Recordatorios",
-            "description": "Configura un recordatorio semanal para rellenar las dietas.",
+            "description": "Configura un recordatorio mensual para rellenar las dietas.",
             "day": "Día",
             "time": "Hora",
-            "recurring": "Semanalmente",
+            "recurring": "Mensualmente",
             "add_to_calendar": "Añadir a Google Calendar",
             "download_ics": "Descargar ICS"
         },
