@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ServiceRecord } from '~/stores/services'
+import { v4 as uuidv4 } from 'uuid'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -87,27 +88,21 @@ const handleQrImport = (result: string) => {
       throw new Error(t('components.service_list.modals.import_error'))
     }
 
-    // Open new service modal with imported data
-    // We pass data but clear ID to treat as new service
+    // Create new record with new IDs
+    const newRecord: ServiceRecord = {
+      id: uuidv4(),
+      startTime: data.startTime,
+      endTime: data.endTime,
+      notes: data.notes || '',
+      kilometers: data.kilometers,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      displacements: data.displacements.map((d: any) => ({
+        ...d,
+        id: uuidv4()
+      }))
+    }
 
-    // We'll reuse openNewService logic but need to adapt it slightly 
-    // or just directly set state as openNewService takes specific args
-
-    selectedRecord.value = null
-    selectedDate.value = new Date(data.startTime)
-    selectedNotes.value = data.notes || ''
-
-    // Check if openNewService can handle full object or we need to extract vars
-    // existing: openNewService(date, notes, startTime, endTime, displacements)
-
-    openNewService(
-      new Date(data.startTime),
-      data.notes,
-      data.startTime,
-      data.endTime,
-      data.displacements
-    )
-
+    serviceStore.addRecord(newRecord)
     toast.add({ title: t('components.service_list.modals.import_success'), color: 'success' })
   } catch (e) {
     console.error(e)
