@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/jvmonjo/dietator/compare/v1.31.0...v1.32.0) (2026-01-22)
+
+
+### Features
+
+* compress qr codes so large services import work ([f233d19](https://github.com/jvmonjo/dietator/commit/f233d19dae778908e6025316134f10a3c1101506))
+
 # [1.31.0](https://github.com/jvmonjo/dietator/compare/v1.30.12...v1.31.0) (2026-01-15)
 
 
