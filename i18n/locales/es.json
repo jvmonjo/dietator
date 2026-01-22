@@ -399,6 +399,7 @@
             "end_time": "Hora de fin",
             "kilometers": "Kilómetros (Opcional)",
             "notes": "Notas (Opcional)",
+            "duration": "Duración",
             "notes_placeholder": "Añade comentarios u observaciones...",
             "displacements": "Desplazamientos",
             "import_route": "Importar ruta habitual",

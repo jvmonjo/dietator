@@ -284,6 +284,22 @@ const qrData = computed(() => {
   }
   return compressServiceRecord(rawData)
 })
+
+const serviceDuration = computed(() => {
+  if (!state.startTime || !state.endTime) return '-'
+
+  const start = new Date(state.startTime)
+  const end = new Date(state.endTime)
+  const diffMs = end.getTime() - start.getTime()
+
+  if (diffMs < 0) return '-'
+
+  const totalMinutes = Math.floor(diffMs / (1000 * 60))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+
+  return `${hours}h ${String(minutes).padStart(2, '0')}m`
+})
 </script>
 
 <template>
@@ -304,30 +320,28 @@ const qrData = computed(() => {
       </p>
     </div>
 
-    <!-- Km Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
       <UFormField :label="$t('components.service_form.kilometers')" name="kilometers">
         <UInput v-model="state.kilometers" type="number" step="0.01" icon="i-heroicons-truck" placeholder="0.00" />
       </UFormField>
 
-
+      <UFormField :label="$t('components.service_form.duration')">
+        <UInput :model-value="serviceDuration" disabled icon="i-heroicons-clock" class="opacity-75" />
+      </UFormField>
     </div>
 
     <UFormField :label="$t('components.service_form.notes')" name="notes">
-      <UTextarea
-v-model="state.notes" :placeholder="$t('components.service_form.notes_placeholder')" :rows="3"
+      <UTextarea v-model="state.notes" :placeholder="$t('components.service_form.notes_placeholder')" :rows="3"
         autoresize class="w-full" />
     </UFormField>
 
     <div class="flex items-center justify-between">
       <USeparator :label="$t('components.service_form.displacements')" class="flex-1" />
-      <UButton
-v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
+      <UButton v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
         icon="i-heroicons-arrow-down-tray" class="ml-2" @click="importHabitualRoute">
         {{ $t('components.service_form.import_route') }}
       </UButton>
-      <UButton
-v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2"
+      <UButton v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2"
         @click="isQrModalOpen = true">
         {{ $t('components.service_form.generate_qr') }}
       </UButton>
@@ -342,8 +356,7 @@ v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-
       </UButton>
     </div>
 
-    <QrCodeModal
-v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData"
+    <QrCodeModal v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData"
       :title="$t('components.qr_modal.share_title')" />
   </UForm>
 </template>

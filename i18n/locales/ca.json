@@ -397,6 +397,7 @@
             "end_time": "Hora de fi",
             "kilometers": "Kilòmetres (Opcional)",
             "notes": "Notes (Opcional)",
+            "duration": "Durada",
             "notes_placeholder": "Afegeix comentaris o observacions...",
             "displacements": "Desplaçaments",
             "import_route": "Importar ruta habitual",
