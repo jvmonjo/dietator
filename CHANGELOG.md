@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/jvmonjo/dietator/compare/v1.32.0...v1.33.0) (2026-01-22)
+
+
+### Features
+
+* added a computed value for service duration inside service form ([e799dbd](https://github.com/jvmonjo/dietator/commit/e799dbda64204d72523d8ff5f0a662b3dd33b5b0))
+
 # [1.32.0](https://github.com/jvmonjo/dietator/compare/v1.31.0...v1.32.0) (2026-01-22)
 
 
