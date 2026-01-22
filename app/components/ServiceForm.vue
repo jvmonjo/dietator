@@ -6,6 +6,7 @@ import type { Displacement, ServiceRecord } from '~/stores/services'
 import { useSettingsStore } from '~/stores/settings'
 import { useDistanceCalculator } from '~/composables/useDistanceCalculator'
 
+import { compressServiceRecord } from '~/utils/qr'
 
 
 // Removed custom uuidv4 since we installed uuid package in previously
@@ -274,13 +275,14 @@ const serviceWarnings = computed(() => {
 const isQrModalOpen = ref(false)
 const qrData = computed(() => {
   // Construct a record-like object from current state
-  return {
+  const rawData = {
     startTime: state.startTime,
     endTime: state.endTime,
     displacements: state.displacements,
     kilometers: state.kilometers,
     notes: state.notes
   }
+  return compressServiceRecord(rawData)
 })
 </script>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ServiceRecord } from '~/stores/services'
 import { v4 as uuidv4 } from 'uuid'
+import { compressServiceRecord, decompressServiceRecord } from '~/utils/qr'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -83,20 +84,21 @@ const isQrScannerOpen = ref(false)
 const handleQrImport = (result: string) => {
   try {
     const data = JSON.parse(result)
+    const decompressed = decompressServiceRecord(data) as ServiceRecord
+
     // Validate basic structure (optional but recommended)
-    if (!data.startTime || !data.endTime || !Array.isArray(data.displacements)) {
+    if (!decompressed.startTime || !decompressed.endTime) {
       throw new Error(t('components.service_list.modals.import_error'))
     }
 
     // Create new record with new IDs
     const newRecord: ServiceRecord = {
       id: uuidv4(),
-      startTime: data.startTime,
-      endTime: data.endTime,
-      notes: data.notes || '',
-      kilometers: data.kilometers,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      displacements: data.displacements.map((d: any) => ({
+      startTime: decompressed.startTime,
+      endTime: decompressed.endTime,
+      notes: decompressed.notes || '',
+      kilometers: decompressed.kilometers,
+      displacements: (decompressed.displacements || []).map((d) => ({
         ...d,
         id: uuidv4()
       }))
@@ -111,7 +113,8 @@ const handleQrImport = (result: string) => {
 }
 
 const openQrCode = (record: ServiceRecord) => {
-  qrData.value = record
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  qrData.value = compressServiceRecord(record) as any
   isQrModalOpen.value = true
 }
 
