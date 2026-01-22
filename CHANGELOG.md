@@ -1,3 +1,10 @@
+## [1.33.1](https://github.com/jvmonjo/dietator/compare/v1.33.0...v1.33.1) (2026-01-22)
+
+
+### Bug Fixes
+
+* calendar sync errors ([8b92b6f](https://github.com/jvmonjo/dietator/commit/8b92b6fe68dbe5759d502654335b9898616c1172))
+
 # [1.33.0](https://github.com/jvmonjo/dietator/compare/v1.32.0...v1.33.0) (2026-01-22)
 
 
