@@ -331,17 +331,20 @@ const serviceDuration = computed(() => {
     </div>
 
     <UFormField :label="$t('components.service_form.notes')" name="notes">
-      <UTextarea v-model="state.notes" :placeholder="$t('components.service_form.notes_placeholder')" :rows="3"
+      <UTextarea
+v-model="state.notes" :placeholder="$t('components.service_form.notes_placeholder')" :rows="3"
         autoresize class="w-full" />
     </UFormField>
 
     <div class="flex items-center justify-between">
       <USeparator :label="$t('components.service_form.displacements')" class="flex-1" />
-      <UButton v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
+      <UButton
+v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" variant="ghost" size="xs"
         icon="i-heroicons-arrow-down-tray" class="ml-2" @click="importHabitualRoute">
         {{ $t('components.service_form.import_route') }}
       </UButton>
-      <UButton v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2"
+      <UButton
+v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2"
         @click="isQrModalOpen = true">
         {{ $t('components.service_form.generate_qr') }}
       </UButton>
@@ -356,7 +359,8 @@ const serviceDuration = computed(() => {
       </UButton>
     </div>
 
-    <QrCodeModal v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData"
+    <QrCodeModal
+v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData"
       :title="$t('components.qr_modal.share_title')" />
   </UForm>
 </template>

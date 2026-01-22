@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaPluginContext } from 'pinia'
 import { piniaPluginPersistedstate } from '#imports'
 
 declare global {
@@ -26,7 +26,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
         isLoading: false,
         accessToken: null as string | null,
         tokenExpiresAt: null as number | null,
-        refreshToken: null as string | null
+        refreshToken: null as string | null,
+        abortController: null as AbortController | null
     }),
     actions: {
         async ensureAccessToken(prompt: 'consent' | '' = ''): Promise<string | null> {
@@ -138,32 +139,56 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             })
         },
 
-        async syncEvents(mode: 'events' | 'calendars' = 'events', targetDate?: Date) {
+        async syncEvents(mode: 'events' | 'calendars' = 'events', targetDate?: Date): Promise<void> {
+            if (this.isLoading) {
+                // Already syncing, do nothing or cancel previous? 
+                // Let's cancel previous to be safe if user spammed it
+                this.cancelSync()
+            }
+
             this.isLoading = true
+            this.abortController = new AbortController()
+            const signal = this.abortController.signal
+
+            // Auto-timeout after 30 seconds
+            const timeoutId = setTimeout(() => {
+                if (this.isLoading && this.abortController) {
+                    this.abortController.abort('Timeout')
+                }
+            }, 30000)
 
             try {
                 const accessToken = await this.ensureAccessToken(this.accessToken ? '' : 'consent')
                 if (!accessToken) return
 
+                if (signal.aborted) return
+
                 const shouldFetchCalendars = mode === 'calendars' || this.calendars.length === 0
 
                 if (shouldFetchCalendars) {
-                    await this.fetchCalendars(accessToken)
+                    await this.fetchCalendars(accessToken, signal)
                 }
 
                 if (mode !== 'calendars') {
-                    await this.fetchGoogleEvents(accessToken, targetDate)
+                    await this.fetchGoogleEvents(accessToken, targetDate, signal)
                 }
 
-            } catch (error) {
-                console.error('Google Calendar sync error:', error)
-                useToast().add({ title: 'Error al sincronitzar amb Google Calendar', color: 'error' })
+            } catch (error: unknown) {
+                const isAbort = (error instanceof Error && error.name === 'AbortError') || error === 'Timeout'
+                if (isAbort) {
+                    useToast().add({ title: 'Sincronització cancel·lada o temps d\'espera esgotat', color: 'info' })
+                } else {
+                    console.error('Google Calendar sync error:', error)
+                    useToast().add({ title: 'Error al sincronitzar amb Google Calendar', color: 'error' })
+                }
             } finally {
+                clearTimeout(timeoutId)
                 this.isLoading = false
+                this.abortController = null
             }
         },
 
-        getBackupSnapshot() {
+        getBackupSnapshot(): { events: Record<string, GoogleEvent[]>, calendars: { id: string, summary: string }[], lastSync: number | null, refreshToken: string | null } {
             return {
                 events: this.events,
                 calendars: this.calendars,
@@ -172,21 +197,23 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             }
         },
 
-        restoreFromBackup(snapshot: { events?: Record<string, GoogleEvent[]>, calendars?: { id: string, summary: string }[], lastSync?: number | null, refreshToken?: string | null }) {
+        restoreFromBackup(snapshot: { events?: Record<string, GoogleEvent[]>, calendars?: { id: string, summary: string }[], lastSync?: number | null, refreshToken?: string | null }): void {
             if (snapshot.events) this.events = snapshot.events
             if (snapshot.calendars) this.calendars = snapshot.calendars
             if (typeof snapshot.lastSync !== 'undefined') this.lastSync = snapshot.lastSync
             if (typeof snapshot.refreshToken !== 'undefined') this.refreshToken = snapshot.refreshToken
         },
 
-        cancelSync() {
+        cancelSync(): void {
+            if (this.abortController) {
+                this.abortController.abort()
+            }
             this.isLoading = false
-            this.accessToken = null
-            this.tokenExpiresAt = null
-            useToast().add({ title: 'Connexió cancel·lada', color: 'info' })
+            this.abortController = null
+            useToast().add({ title: 'Sincronització aturada', color: 'info' })
         },
 
-        async fetchCalendars(accessToken: string) {
+        async fetchCalendars(accessToken: string, signal?: AbortSignal): Promise<void> {
             const toast = useToast()
             try {
                 const response = await fetch(
@@ -194,7 +221,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                     {
                         headers: {
                             'Authorization': `Bearer ${accessToken}`
-                        }
+                        },
+                        signal
                     }
                 )
 
@@ -209,13 +237,14 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
 
                 toast.add({ title: 'Llista de calendaris actualitzada', color: 'success' })
 
-            } catch (error) {
+            } catch (error: unknown) {
+                if (error instanceof Error && error.name === 'AbortError') throw error
                 console.error('Error fetching calendar list:', error)
                 toast.add({ title: 'Error obtenint la llista de calendaris', color: 'error' })
             }
         },
 
-        async fetchGoogleEvents(accessToken: string, targetDate: Date = new Date()) {
+        async fetchGoogleEvents(accessToken: string, targetDate: Date = new Date(), signal?: AbortSignal): Promise<void> {
             const settings = useSettingsStore()
             const toast = useToast()
             try {
@@ -231,7 +260,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                     {
                         headers: {
                             'Authorization': `Bearer ${accessToken}`
-                        }
+                        },
+                        signal
                     }
                 )
 
@@ -275,10 +305,11 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                 this.lastSync = Date.now()
                 toast.add({ title: 'Calendari de Google sincronitzat', color: 'success' })
 
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (error: any) {
+
+            } catch (error: unknown) {
+                if (error instanceof Error && error.name === 'AbortError') throw error
                 console.error('Error fetching events:', error)
-                const msg = error?.message || 'Error desconegut'
+                const msg = error instanceof Error ? error.message : 'Error desconegut'
                 toast.add({ title: 'Error obtenint esdeveniments', description: msg.substring(0, 100), color: 'error' })
             }
         },
@@ -291,7 +322,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             return this.events[dateStr] || []
         },
 
-        disconnect() {
+        disconnect(): void {
             const settings = useSettingsStore()
             this.events = {}
             this.calendars = []
@@ -306,6 +337,12 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
     },
     persist: {
         key: 'external-calendar-v2',
-        storage: piniaPluginPersistedstate.localStorage()
-    }
+        storage: piniaPluginPersistedstate.localStorage(),
+
+        afterRestore: (ctx: PiniaPluginContext) => {
+            ctx.store.isLoading = false
+            ctx.store.abortController = null
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any
 })
