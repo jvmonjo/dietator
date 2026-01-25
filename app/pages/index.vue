@@ -311,11 +311,9 @@ onMounted(() => {
 <template>
   <div class="space-y-8">
     <!-- Hero Section -->
-    <div
-v-if="showWelcome"
+    <div v-if="showWelcome"
       class="relative bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 sm:p-12">
-      <UButton
-icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
+      <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 right-4"
         @click="dismissWelcome" />
       <section class="text-center space-y-4">
         <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
@@ -327,10 +325,23 @@ icon="i-heroicons-x-mark" color="neutral" variant="ghost" class="absolute top-4 
       </section>
     </div>
 
-    <UAlert
-v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
+    <UAlert v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" variant="subtle"
       :title="$t('home.alerts.price_missing.title')" :description="$t('home.alerts.price_missing.description')" />
 
+    <!-- Calendar View -->
+    <section>
+      <CalendarWidget :records="selectedRecords" :year="selectedYear" :month="selectedMonthValue"
+        @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event"
+        @record-selected="handleRecordSelected" @date-selected="handleDateSelected" />
+    </section>
+
+    <!-- Registered Services -->
+    <section>
+      <ServiceList ref="serviceListRef" :title="$t('home.stats.services')" :description="serviceListDescription"
+        :records="selectedRecords" />
+    </section>
+
+    <!-- Docs Generator-->
     <section>
       <UCard>
         <div class="flex flex-wrap items-center justify-between gap-4">
@@ -348,7 +359,7 @@ v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" var
             </p>
             <p class="text-xs text-gray-400">
               {{ $t('home.documents.kilometers') }}: <strong>{{ selectionTotals.kilometers?.toLocaleString(locale) ?? 0
-                }}
+              }}
                 km</strong>
             </p>
             <p v-if="!hasTemplates" class="text-xs text-red-500 dark:text-red-400">
@@ -356,33 +367,16 @@ v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" var
             </p>
           </div>
           <div class="grid grid-cols-2 sm:flex sm:items-center gap-3 w-full sm:w-auto">
-            <USelect
-v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
+            <USelect v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
               class="w-full sm:min-w-[140px]" />
             <USelect v-model="selectedYear" :items="availableYears" class="w-full sm:w-[100px]" />
-            <UButton
-icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
+            <UButton icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
               class="col-span-2 sm:w-auto flex justify-center" @click="exportReport">
               {{ $t('common.export') }}
             </UButton>
           </div>
         </div>
       </UCard>
-    </section>
-
-    <!-- Calendar View -->
-    <section>
-      <CalendarWidget
-:records="selectedRecords" :year="selectedYear" :month="selectedMonthValue"
-        @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event"
-        @record-selected="handleRecordSelected" @date-selected="handleDateSelected" />
-    </section>
-
-    <!-- Registered Services -->
-    <section>
-      <ServiceList
-ref="serviceListRef" :title="$t('home.stats.services')" :description="serviceListDescription"
-        :records="selectedRecords" />
     </section>
 
     <!-- Worked Hours -->
@@ -451,7 +445,7 @@ ref="serviceListRef" :title="$t('home.stats.services')" :description="serviceLis
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ $t('home.stats.kilometers')
-          }}</div>
+            }}</div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.kilometers?.toLocaleString(locale)
             ?? 0 }} <span class="text-sm font-normal text-gray-500">km</span></div>
           <p class="text-xs text-gray-400">
@@ -465,8 +459,7 @@ ref="serviceListRef" :title="$t('home.stats.services')" :description="serviceLis
       </UCard>
 
       <!-- Year in Review Card -->
-      <UCard
-v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
+      <UCard v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
         class="cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all group relative overflow-hidden"
         @click="navigateTo('/wrapped')">
         <!-- Background Decoration -->
