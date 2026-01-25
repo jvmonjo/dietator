@@ -1,3 +1,10 @@
+# [1.34.0](https://github.com/jvmonjo/dietator/compare/v1.33.1...v1.34.0) (2026-01-25)
+
+
+### Features
+
+* moved docs generator to a less prominent place ([d0f0f41](https://github.com/jvmonjo/dietator/commit/d0f0f419ae7115cc339ec340b121ae5beca38ae9))
+
 ## [1.33.1](https://github.com/jvmonjo/dietator/compare/v1.33.0...v1.33.1) (2026-01-22)
 
 
