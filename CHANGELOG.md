@@ -1,3 +1,10 @@
+## [1.34.4](https://github.com/jvmonjo/dietator/compare/v1.34.3...v1.34.4) (2026-01-29)
+
+
+### Bug Fixes
+
+* let's pray to Jesus ([5e04dda](https://github.com/jvmonjo/dietator/commit/5e04ddaa10acc1d8ec2aef8c8331682cbb28590a))
+
 ## [1.34.3](https://github.com/jvmonjo/dietator/compare/v1.34.2...v1.34.3) (2026-01-29)
 
 
