@@ -1,3 +1,11 @@
+# [1.35.0](https://github.com/jvmonjo/dietator/compare/v1.34.4...v1.35.0) (2026-01-29)
+
+
+### Features
+
+* big generate qr button inside form ([475bc90](https://github.com/jvmonjo/dietator/commit/475bc90824f536fcdc14b01f3d98d810c28c6594))
+* enable row selection to open service records and consolidate actions into a dropdown menu; fix: add nullish check for displacements. ([a7287c5](https://github.com/jvmonjo/dietator/commit/a7287c5f9e1d60d7c8bd5f22c51761a419a93daa))
+
 ## [1.34.4](https://github.com/jvmonjo/dietator/compare/v1.34.3...v1.34.4) (2026-01-29)
 
 
