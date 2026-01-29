@@ -1,3 +1,10 @@
+## [1.34.1](https://github.com/jvmonjo/dietator/compare/v1.34.0...v1.34.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* sync calendar gets stuck in loading forerver ([0981ab8](https://github.com/jvmonjo/dietator/commit/0981ab8bb545c11db145c6f19a9da359bfcf350d))
+
 # [1.34.0](https://github.com/jvmonjo/dietator/compare/v1.33.1...v1.34.0) (2026-01-25)
 
 
