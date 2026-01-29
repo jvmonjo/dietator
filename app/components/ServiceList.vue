@@ -266,7 +266,9 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
       </div>
       <div v-else class="space-y-4">
 
-        <UTable :key="page" :data="paginatedData" :columns="columns">
+        <UTable
+:key="page" :data="paginatedData" :columns="columns"
+          @select="(e: any, row: any) => openRecord(row.original)">
           <template #startTime-cell="{ row }">
             <div class="flex items-center gap-2">
               <UTooltip
@@ -296,30 +298,30 @@ v-if="displacement.hasLunch || displacement.hasDinner"
             </div>
           </template>
           <template #actions-cell="{ row }">
-            <div class="flex gap-2">
-              <UTooltip :text="$t('components.service_list.edit')">
-                <UButton
-v-if="props.enableEdit" icon="i-heroicons-pencil-square" size="xs" variant="soft"
-                  @click="openRecord(row.original as ServiceRecord)" />
-              </UTooltip>
-
-              <UTooltip :text="$t('components.service_list.duplicate')">
-                <UButton
-icon="i-heroicons-document-duplicate" size="xs" variant="soft" color="neutral"
-                  @click="duplicateRecord(row.original as ServiceRecord)" />
-              </UTooltip>
-
+            <div class="flex gap-2 items-center" @click.stop>
+              <UDropdownMenu
+:items="[
+                {
+                  label: $t('components.service_list.duplicate'),
+                  icon: 'i-heroicons-document-duplicate',
+                  onSelect: () => duplicateRecord(row.original as ServiceRecord)
+                },
+                {
+                  label: $t('components.service_list.delete'),
+                  icon: 'i-heroicons-trash',
+                  color: 'error',
+                  onSelect: () => confirmDelete((row.original as ServiceRecord).id)
+                }
+              ]">
+                <UButton color="neutral" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
+              </UDropdownMenu>
               <UTooltip :text="$t('components.service_list.qr')">
                 <UButton
 icon="i-heroicons-qr-code" size="xs" variant="soft" color="neutral"
                   @click="openQrCode(row.original as ServiceRecord)" />
               </UTooltip>
 
-              <UTooltip :text="$t('components.service_list.delete')">
-                <UButton
-v-if="props.enableDelete" icon="i-heroicons-trash" size="xs" color="error" variant="ghost"
-                  @click="confirmDelete((row.original as ServiceRecord).id)" />
-              </UTooltip>
+
             </div>
           </template>
         </UTable>

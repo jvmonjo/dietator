@@ -144,7 +144,7 @@ const importHabitualRoute = () => {
 const loadRecord = (record: ServiceRecord) => {
   state.startTime = record.startTime
   state.endTime = record.endTime
-  state.displacements = record.displacements.map(displacement => ({
+  state.displacements = (record.displacements || []).map(displacement => ({
     ...displacement,
     id: props.isDuplicate ? uuidv4() : (displacement.id || uuidv4())
   }))
