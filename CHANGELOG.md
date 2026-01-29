@@ -1,3 +1,10 @@
+## [1.34.2](https://github.com/jvmonjo/dietator/compare/v1.34.1...v1.34.2) (2026-01-29)
+
+
+### Bug Fixes
+
+* ?? sync issues ([e7f57ef](https://github.com/jvmonjo/dietator/commit/e7f57ef34b455a8611e547d3c9f07f24e0ce59fd))
+
 ## [1.34.1](https://github.com/jvmonjo/dietator/compare/v1.34.0...v1.34.1) (2026-01-29)
 
 
