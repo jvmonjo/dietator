@@ -1,4 +1,4 @@
-import { defineStore, type PiniaPluginContext } from 'pinia'
+import { defineStore } from 'pinia'
 import { piniaPluginPersistedstate } from '#imports'
 
 declare global {
@@ -30,7 +30,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
         abortController: null as AbortController | null
     }),
     actions: {
-        async ensureAccessToken(prompt: 'consent' | '' = ''): Promise<string | null> {
+        async ensureAccessToken(prompt: 'consent' | '' = '', signal?: AbortSignal): Promise<string | null> {
             const settings = useSettingsStore()
             const config = useRuntimeConfig()
             const toast = useToast()
@@ -64,12 +64,22 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
 
             try {
                 const tokenResponse: { access_token: string, expires_in?: number, refresh_token?: string } = await new Promise((resolve, reject) => {
+                    if (signal?.aborted) {
+                        return reject(new Error('AbortError'))
+                    }
+
+                    const abortHandler = () => {
+                        reject(new Error('AbortError'))
+                    }
+                    signal?.addEventListener('abort', abortHandler)
+
                     const tokenClient = window.google.accounts.oauth2.initTokenClient({
                         client_id: clientId,
                         scope: 'https://www.googleapis.com/auth/calendar.readonly',
                         prompt,
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         callback: (response: any) => {
+                            signal?.removeEventListener('abort', abortHandler)
                             if (response.error) {
                                 reject(new Error(response.error))
                                 return
@@ -90,6 +100,9 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
 
                 return this.accessToken
             } catch (error) {
+                if (error instanceof Error && error.message === 'AbortError') {
+                    throw error // Propagate abort up
+                }
                 console.error('Google Calendar auth error:', error)
                 toast.add({ title: 'Error d\'autorització amb Google Calendar', color: 'error' })
                 return null
@@ -158,7 +171,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             }, 30000)
 
             try {
-                const accessToken = await this.ensureAccessToken(this.accessToken ? '' : 'consent')
+                const accessToken = await this.ensureAccessToken(this.accessToken ? '' : 'consent', signal)
                 if (!accessToken) return
 
                 if (signal.aborted) return
@@ -338,11 +351,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
     persist: {
         key: 'external-calendar-v2',
         storage: piniaPluginPersistedstate.localStorage(),
-
-        afterRestore: (ctx: PiniaPluginContext) => {
-            ctx.store.isLoading = false
-            ctx.store.abortController = null
-        }
+        paths: ['events', 'calendars', 'lastSync', 'refreshToken', 'accessToken', 'tokenExpiresAt']
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any
 })

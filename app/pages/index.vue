@@ -359,7 +359,7 @@ onMounted(() => {
             </p>
             <p class="text-xs text-gray-400">
               {{ $t('home.documents.kilometers') }}: <strong>{{ selectionTotals.kilometers?.toLocaleString(locale) ?? 0
-              }}
+                }}
                 km</strong>
             </p>
             <p v-if="!hasTemplates" class="text-xs text-red-500 dark:text-red-400">
@@ -445,7 +445,7 @@ onMounted(() => {
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ $t('home.stats.kilometers')
-            }}</div>
+          }}</div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.kilometers?.toLocaleString(locale)
             ?? 0 }} <span class="text-sm font-normal text-gray-500">km</span></div>
           <p class="text-xs text-gray-400">
