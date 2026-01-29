@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore, type PiniaPluginContext } from 'pinia'
 import { piniaPluginPersistedstate } from '#imports'
 
 declare global {
@@ -218,12 +218,17 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
         },
 
         cancelSync(): void {
+            console.log('User cancelled sync')
             if (this.abortController) {
                 this.abortController.abort()
             }
             this.isLoading = false
             this.abortController = null
-            useToast().add({ title: 'Sincronització aturada', color: 'info' })
+            try {
+                useToast().add({ title: 'Sincronització aturada', color: 'info' })
+            } catch (e) {
+                console.error('Toast error', e)
+            }
         },
 
         async fetchCalendars(accessToken: string, signal?: AbortSignal): Promise<void> {
@@ -351,7 +356,11 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
     persist: {
         key: 'external-calendar-v2',
         storage: piniaPluginPersistedstate.localStorage(),
-        paths: ['events', 'calendars', 'lastSync', 'refreshToken', 'accessToken', 'tokenExpiresAt']
+        paths: ['events', 'calendars', 'lastSync', 'refreshToken', 'accessToken', 'tokenExpiresAt'],
+        afterRestore: (ctx: PiniaPluginContext) => {
+            ctx.store.isLoading = false
+            ctx.store.abortController = null
+        }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any
 })
