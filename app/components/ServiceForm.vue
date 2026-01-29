@@ -6,7 +6,7 @@ import type { Displacement, ServiceRecord } from '~/stores/services'
 import { useSettingsStore } from '~/stores/settings'
 import { useDistanceCalculator } from '~/composables/useDistanceCalculator'
 
-import { compressServiceRecord } from '~/utils/qr'
+
 
 
 // Removed custom uuidv4 since we installed uuid package in previously
@@ -272,18 +272,7 @@ const serviceWarnings = computed(() => {
   return getServiceWarnings(state.startTime, state.endTime, state.displacements)
 })
 
-const isQrModalOpen = ref(false)
-const qrData = computed(() => {
-  // Construct a record-like object from current state
-  const rawData = {
-    startTime: state.startTime,
-    endTime: state.endTime,
-    displacements: state.displacements,
-    kilometers: state.kilometers,
-    notes: state.notes
-  }
-  return compressServiceRecord(rawData)
-})
+
 
 const serviceDuration = computed(() => {
   if (!state.startTime || !state.endTime) return '-'
@@ -343,11 +332,6 @@ v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" var
         icon="i-heroicons-arrow-down-tray" class="ml-2" @click="importHabitualRoute">
         {{ $t('components.service_form.import_route') }}
       </UButton>
-      <UButton
-v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-2"
-        @click="isQrModalOpen = true">
-        {{ $t('components.service_form.generate_qr') }}
-      </UButton>
     </div>
 
     <!-- Displacements List -->
@@ -358,9 +342,5 @@ v-if="isEditing" variant="ghost" size="xs" icon="i-heroicons-qr-code" class="ml-
         {{ submitLabel }}
       </UButton>
     </div>
-
-    <QrCodeModal
-v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData"
-      :title="$t('components.qr_modal.share_title')" />
   </UForm>
 </template>

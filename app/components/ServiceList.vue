@@ -358,7 +358,14 @@ v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attri
               {{ modalDescription }}
             </p>
           </div>
-          <UButton icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" @click="closeModal" />
+          <div class="flex items-center gap-2">
+            <UButton
+v-if="selectedRecord && !isDuplicateMode" icon="i-heroicons-qr-code" size="md" color="neutral"
+              variant="soft" @click="openQrCode(selectedRecord)">
+              {{ $t('components.service_form.generate_qr') }}
+            </UButton>
+            <UButton icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" @click="closeModal" />
+          </div>
         </div>
 
         <!-- Body -->
