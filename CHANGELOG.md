@@ -1,3 +1,10 @@
+## [1.34.3](https://github.com/jvmonjo/dietator/compare/v1.34.2...v1.34.3) (2026-01-29)
+
+
+### Bug Fixes
+
+* cancel syc ?? ([8fd66a9](https://github.com/jvmonjo/dietator/commit/8fd66a9de26fa1aae6d2f856048e9ebca12f1dc6))
+
 ## [1.34.2](https://github.com/jvmonjo/dietator/compare/v1.34.1...v1.34.2) (2026-01-29)
 
 
