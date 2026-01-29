@@ -21,6 +21,15 @@ const saveAndSyncCalendar = async () => {
     // Trigger a re-sync with the new calendar ID using the existing Google token (no extra prompts if still valid)
     await externalCalendarStore.syncEvents('events')
 }
+
+const handleCancelOrDisconnect = () => {
+    console.log('Handle cancel/disconnect clicked. isLoading:', externalCalendarStore.isLoading)
+    if (externalCalendarStore.isLoading) {
+        externalCalendarStore.cancelSync()
+    } else {
+        externalCalendarStore.disconnect()
+    }
+}
 </script>
 
 <template>
@@ -91,7 +100,7 @@ v-if="Object.keys(externalCalendarStore.events).length" color="success"
                                 <UButton
                                     v-if="externalCalendarStore.isLoading || Object.keys(externalCalendarStore.events).length"
                                     icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
-                                    @click="externalCalendarStore.isLoading ? externalCalendarStore.cancelSync() : externalCalendarStore.disconnect()">
+                                    @click="handleCancelOrDisconnect">
                                     {{ externalCalendarStore.isLoading ? $t('common.cancel') : $t('common.disconnect')
                                     }}
                                 </UButton>

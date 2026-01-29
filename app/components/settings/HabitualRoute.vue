@@ -42,7 +42,8 @@ const route = computed({
 <template>
     <UCard>
         <template #header>
-            <button type="button" class="flex items-center justify-between w-full text-left"
+            <button
+type="button" class="flex items-center justify-between w-full text-left"
                 @click="isHabitualRouteOpen = !isHabitualRouteOpen">
                 <div class="flex-1 min-w-0 flex items-center gap-3">
                     <div class="p-2 bg-primary-50 dark:bg-primary-900/40 rounded-lg">
@@ -54,13 +55,15 @@ const route = computed({
                         </h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('settings.habitual_route.description')
                             }}</p>
-                        <div v-if="habitualRouteSummary"
+                        <div
+v-if="habitualRouteSummary"
                             class="mt-2 text-sm text-primary-600 dark:text-primary-400 font-medium break-words">
                             {{ habitualRouteSummary }}
                         </div>
                     </div>
                 </div>
-                <UIcon name="i-heroicons-chevron-down" class="w-5 h-5 text-gray-500 transition-transform duration-200"
+                <UIcon
+name="i-heroicons-chevron-down" class="w-5 h-5 text-gray-500 transition-transform duration-200"
                     :class="{ 'rotate-180': isHabitualRouteOpen }" />
             </button>
         </template>
