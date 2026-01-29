@@ -52,7 +52,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
 
             if (this.refreshToken && prompt !== 'consent') {
                 try {
-                    const refreshed = await this.refreshAccessToken(clientId)
+                    const refreshed = await this.refreshAccessToken(clientId, signal)
                     this.accessToken = refreshed.access_token
                     const expiresInSeconds = Number(refreshed.expires_in)
                     this.tokenExpiresAt = Number.isFinite(expiresInSeconds) ? Date.now() + expiresInSeconds * 1000 : null
@@ -109,7 +109,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
             }
         },
 
-        async refreshAccessToken(clientId: string) {
+        async refreshAccessToken(clientId: string, signal?: AbortSignal) {
             if (!this.refreshToken) {
                 throw new Error('Missing refresh token')
             }
@@ -125,7 +125,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: params
+                body: params,
+                signal
             })
 
             if (!response.ok) {
@@ -355,7 +356,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', {
     },
     persist: {
         key: 'external-calendar-v2',
-        storage: localStorage, // Use browser native localStorage directly
+        storage: piniaPluginPersistedstate.localStorage(),
         paths: ['events', 'calendars', 'lastSync', 'refreshToken', 'accessToken', 'tokenExpiresAt'],
         afterRestore: (ctx: PiniaPluginContext) => {
             console.log('Validating state after restore...')
