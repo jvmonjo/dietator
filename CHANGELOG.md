@@ -1,3 +1,10 @@
+# [1.36.0](https://github.com/jvmonjo/dietator/compare/v1.35.0...v1.36.0) (2026-02-02)
+
+
+### Features
+
+* out of beta ([edb3ee0](https://github.com/jvmonjo/dietator/commit/edb3ee0336b418b3f7eac35ffb6c50f2396d861a))
+
 # [1.35.0](https://github.com/jvmonjo/dietator/compare/v1.34.4...v1.35.0) (2026-01-29)
 
 
