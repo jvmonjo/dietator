@@ -1,3 +1,10 @@
+## [1.36.1](https://github.com/jvmonjo/dietator/compare/v1.36.0...v1.36.1) (2026-02-02)
+
+
+### Bug Fixes
+
+* caledar sync Vue warnings fixed ([a173fc6](https://github.com/jvmonjo/dietator/commit/a173fc6649d18c4b9a95059e164ced16b1c04b35))
+
 # [1.36.0](https://github.com/jvmonjo/dietator/compare/v1.35.0...v1.36.0) (2026-02-02)
 
 
