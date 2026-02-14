@@ -80,6 +80,12 @@ const isDuplicateMode = ref(false)
 const isQrModalOpen = ref(false)
 const qrData = ref<ServiceRecord | null>(null)
 const isQrScannerOpen = ref(false)
+const { initAudio } = useScanFeedback()
+
+const handleOpenScanner = () => {
+  initAudio()
+  isQrScannerOpen.value = true
+}
 
 const handleQrImport = (result: string) => {
   try {
@@ -253,7 +259,7 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
           <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="() => openNewService()">
             {{ $t('components.service_list.add') }}
           </UButton>
-          <UButton icon="i-heroicons-qr-code" color="neutral" variant="solid" @click="isQrScannerOpen = true">
+          <UButton icon="i-heroicons-qr-code" color="neutral" variant="solid" @click="handleOpenScanner">
             {{ $t('components.service_list.import') }}
           </UButton>
         </div>

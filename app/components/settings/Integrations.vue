@@ -53,7 +53,8 @@ const handleCancelOrDisconnect = () => {
                 <UInput v-model="googleMapsApiKey" type="password" icon="i-heroicons-key" placeholder="AIza..." />
                 <template #help>
                     {{ $t('settings.api_keys.description') }}
-                    <NuxtLink to="/help/maps"
+                    <NuxtLink
+to="/help/maps"
                         class="text-sm text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 mt-1">
                         <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" /> {{
                             $t('settings.api_keys.help') }}
@@ -76,7 +77,8 @@ const handleCancelOrDisconnect = () => {
                     <div class="flex flex-col gap-2">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             {{ $t('settings.calendar.description') }}
-                            <NuxtLink to="/help/google-calendar"
+                            <NuxtLink
+to="/help/google-calendar"
                                 class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-medium inline-flex items-center gap-1 ml-1">
                                 <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" /> {{
                                     $t('settings.calendar.help') }}
@@ -84,12 +86,14 @@ const handleCancelOrDisconnect = () => {
                         </p>
                         <div class="flex flex-col gap-3">
                             <div class="flex items-center gap-3">
-                                <UButton :loading="externalCalendarStore.isLoading"
+                                <UButton
+:loading="externalCalendarStore.isLoading"
                                     :disabled="!config.public.googleClientId" icon="i-logos-google-icon" color="neutral"
                                     variant="soft" @click="externalCalendarStore.syncEvents('events')">
                                     {{ googleButtonLabel }}
                                 </UButton>
-                                <UBadge v-if="Object.keys(externalCalendarStore.events).length" color="success"
+                                <UBadge
+v-if="Object.keys(externalCalendarStore.events).length" color="success"
                                     variant="subtle">
                                     {{ $t('settings.calendar.connected') }}
                                 </UBadge>
@@ -106,16 +110,19 @@ const handleCancelOrDisconnect = () => {
                             </p>
 
                             <div v-if="Object.keys(externalCalendarStore.events).length">
-                                <UButton v-if="externalCalendarStore.calendars.length === 0"
+                                <UButton
+v-if="externalCalendarStore.calendars.length === 0"
                                     icon="i-heroicons-list-bullet" color="neutral" variant="ghost" size="xs"
                                     :loading="externalCalendarStore.isLoading"
                                     @click="externalCalendarStore.syncEvents('calendars')">
                                     {{ $t('settings.calendar.change_calendar') }}
                                 </UButton>
 
-                                <UFormField v-else :label="$t('settings.calendar.select_calendar')"
+                                <UFormField
+v-else :label="$t('settings.calendar.select_calendar')"
                                     name="calendarSelector">
-                                    <USelect v-model="googleCalendarId" :items="calendarOptions"
+                                    <USelect
+v-model="googleCalendarId" :items="calendarOptions"
                                         placeholder="Selecciona..." style="width: 100%" @change="saveAndSyncCalendar" />
                                 </UFormField>
                             </div>

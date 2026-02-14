@@ -42,9 +42,13 @@ const links = computed(() => [
         </div>
 
         <nav class="hidden md:flex items-center gap-6">
-          <NuxtLink v-for="link in links" :key="link.to" :to="link.to"
+          <NuxtLink
+            v-for="link in links"
+            :key="link.to"
+            :to="link.to"
             class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-            active-class="text-primary-600 dark:text-primary-300">
+            active-class="text-primary-600 dark:text-primary-300"
+          >
             {{ link.label }}
           </NuxtLink>
         </nav>
@@ -52,8 +56,14 @@ const links = computed(() => [
 
       <div class="flex items-center gap-4">
         <ClientOnly>
-          <UButton :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'" color="neutral"
-            variant="ghost" aria-label="Theme" :title="$t('components.header.theme')" @click="isDark = !isDark" />
+          <UButton
+            :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
+            color="neutral"
+            variant="ghost"
+            aria-label="Theme"
+            :title="$t('components.header.theme')"
+            @click="isDark = !isDark"
+          />
         </ClientOnly>
         <!-- <UAvatar
           src="https://avatars.githubusercontent.com/u/739984?v=4"

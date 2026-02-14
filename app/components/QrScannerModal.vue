@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { QrcodeStream } from 'vue-qrcode-reader'
+// useScanFeedback is auto-imported by Nuxt
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -52,6 +53,8 @@ const onError = (err: any) => {
 const onDetect = (detectedCodes: any[]) => {
   if (detectedCodes && detectedCodes.length > 0) {
     const rawValue = detectedCodes[0].rawValue
+    const { triggerFeedback } = useScanFeedback()
+    triggerFeedback()
     emit('detected', rawValue)
     isOpen.value = false
   }
