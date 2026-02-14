@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/jvmonjo/dietator/compare/v1.36.1...v1.37.0) (2026-02-14)
+
+
+### Features
+
+* implemented audio and vibration feedback for success qr code scan ([cc9310f](https://github.com/jvmonjo/dietator/commit/cc9310f28bab03efe691b3ce0d708b2235898dfe))
+
 ## [1.36.1](https://github.com/jvmonjo/dietator/compare/v1.36.0...v1.36.1) (2026-02-02)
 
 
