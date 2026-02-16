@@ -1,3 +1,10 @@
+## [1.37.1](https://github.com/jvmonjo/dietator/compare/v1.37.0...v1.37.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* added translation for luch and dinner abbreviations ([188ef43](https://github.com/jvmonjo/dietator/commit/188ef43df4f9dd4c36cc4fdd2d03278326b5ff18))
+
 # [1.37.0](https://github.com/jvmonjo/dietator/compare/v1.36.1...v1.37.0) (2026-02-14)
 
 
