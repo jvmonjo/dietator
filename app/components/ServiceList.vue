@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ServiceRecord } from '~/stores/services'
+import type { ServiceRecord, Displacement } from '~/stores/services'
 import { v4 as uuidv4 } from 'uuid'
 import { compressServiceRecord, decompressServiceRecord } from '~/utils/qr'
 
@@ -226,6 +226,19 @@ const formatMunicipality = (name: string) => {
   return name.length > 3 ? name.substring(0, 3) : name
 }
 
+const getDietAbbreviation = (displacement: Displacement) => {
+  if (displacement.hasLunch && displacement.hasDinner) {
+    return t('common.lunch_dinner_abbr')
+  }
+  if (displacement.hasLunch) {
+    return t('common.lunch_abbr')
+  }
+  if (displacement.hasDinner) {
+    return t('common.dinner_abbr')
+  }
+  return ''
+}
+
 defineExpose({
   openRecord,
   openNewService
@@ -236,22 +249,19 @@ defineExpose({
   <section class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ displayTitle }} <UBadge
-color="primary"
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ displayTitle }} <UBadge color="primary"
             variant="soft">{{ $t('components.service_list.records_count', { count: recordCount }) }}</UBadge>
         </h2>
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ displayDescription }}</p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-        <UInput
-v-model="searchQuery" :placeholder="$t('components.service_list.search_placeholder')"
+        <UInput v-model="searchQuery" :placeholder="$t('components.service_list.search_placeholder')"
           class="w-full sm:w-64" :ui="{ trailing: 'pointer-events-auto' }">
           <template #leading>
             <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 text-gray-400" />
           </template>
           <template #trailing>
-            <UButton
-v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-solid"
+            <UButton v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-solid"
               :padded="false" @click="searchQuery = ''" />
           </template>
         </UInput>
@@ -272,8 +282,7 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
       </div>
       <div v-else class="space-y-4">
 
-        <UTable
-:key="page" :data="paginatedData" :columns="columns"
+        <UTable :key="page" :data="paginatedData" :columns="columns"
           @select="(e: any, row: any) => openRecord(row.original)">
           <template #startTime-cell="{ row }">
             <div class="flex items-center gap-2">
@@ -290,23 +299,19 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
           </template>
           <template #displacements-cell="{ row }">
             <div class="text-sm text-gray-700 dark:text-gray-300">
-              <span
-v-for="(displacement, index) in (row.original as ServiceRecord).displacements"
+              <span v-for="(displacement, index) in (row.original as ServiceRecord).displacements"
                 :key="displacement.id">
                 {{ formatMunicipality(displacement.municipality) }}
-                <span
-v-if="displacement.hasLunch || displacement.hasDinner"
+                <span v-if="displacement.hasLunch || displacement.hasDinner"
                   class="text-xs text-gray-500 dark:text-gray-400">
-                  ({{ displacement.hasLunch ? 'D' : '' }}{{ displacement.hasLunch && displacement.hasDinner ? '+' : ''
-                  }}{{ displacement.hasDinner ? 'S' : '' }})
+                  ({{ getDietAbbreviation(displacement) }})
                 </span><span v-if="index < (row.original as ServiceRecord).displacements.length - 1">, </span>
               </span>
             </div>
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center" @click.stop>
-              <UDropdownMenu
-:items="[
+              <UDropdownMenu :items="[
                 {
                   label: $t('components.service_list.duplicate'),
                   icon: 'i-heroicons-document-duplicate',
@@ -322,8 +327,7 @@ v-if="displacement.hasLunch || displacement.hasDinner"
                 <UButton color="neutral" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
               </UDropdownMenu>
               <UTooltip :text="$t('components.service_list.qr')">
-                <UButton
-icon="i-heroicons-qr-code" size="xs" variant="soft" color="neutral"
+                <UButton icon="i-heroicons-qr-code" size="xs" variant="soft" color="neutral"
                   @click="openQrCode(row.original as ServiceRecord)" />
               </UTooltip>
 
@@ -332,12 +336,10 @@ icon="i-heroicons-qr-code" size="xs" variant="soft" color="neutral"
           </template>
         </UTable>
 
-        <div
-v-if="recordCount > 5"
+        <div v-if="recordCount > 5"
           class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-200 dark:border-gray-800 pt-4">
           <div class="text-sm text-gray-500 dark:text-gray-400">
-            <USelect
-v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attribute="value"
+            <USelect v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attribute="value"
               size="xs" color="neutral" variant="outline" />
           </div>
 
@@ -365,8 +367,7 @@ v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attri
             </p>
           </div>
           <div class="flex items-center gap-2">
-            <UButton
-v-if="selectedRecord && !isDuplicateMode" icon="i-heroicons-qr-code" size="md" color="neutral"
+            <UButton v-if="selectedRecord && !isDuplicateMode" icon="i-heroicons-qr-code" size="md" color="neutral"
               variant="soft" @click="openQrCode(selectedRecord)">
               {{ $t('components.service_form.generate_qr') }}
             </UButton>
@@ -376,8 +377,7 @@ v-if="selectedRecord && !isDuplicateMode" icon="i-heroicons-qr-code" size="md" c
 
         <!-- Body -->
         <div class="p-6">
-          <ServiceForm
-v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
+          <ServiceForm v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
             :initial-date="selectedDate" :initial-notes="selectedNotes" :initial-start-time="selectedStartTime"
             :initial-end-time="selectedEndTime" :initial-displacements="selectedDisplacements"
             :is-duplicate="isDuplicateMode" @saved="handleSaved" />
