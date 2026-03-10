@@ -1,3 +1,10 @@
+# [1.38.0](https://github.com/jvmonjo/dietator/compare/v1.37.1...v1.38.0) (2026-03-10)
+
+
+### Features
+
+* adaptados los avisos a los nuevos criterios de dieta ([07eec51](https://github.com/jvmonjo/dietator/commit/07eec51f459a776d8da1474fe6902446be9f9d7c))
+
 ## [1.37.1](https://github.com/jvmonjo/dietator/compare/v1.37.0...v1.37.1) (2026-02-16)
 
 
