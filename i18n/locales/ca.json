@@ -28,11 +28,11 @@
         "all_months": "Tots els mesos"
     },
     "warnings": {
-        "late_finish_no_dinner": "Has finalitzat a les 22:30 o més tard i no has marcat sopar. Revisa si et corresponia.",
+        "late_finish_no_dinner": "Has finalitzat més tard de les 21:30 i no has marcat sopar. Si et correspon, marca'l i posa hora de finalització a les 23:30. Si no, canvia l'hora de finalització a les 21:30 o inferior.",
         "no_meals_claimed": "Aquest servei no genera dret a dieta perquè encara no s'ha declarat cap menjada.",
         "duration_over_24h": "📌 La durada supera les 24 hores; comprova que la data final sigui correcta.",
         "check_lunch_right": "Compte. Assegura't de que has dinat i tens dret a dieta",
-        "check_dinner_right": "Compte. Assegura't de que has sopat i tens dret a dieta",
+        "early_finish_with_dinner": "Si has sopat, marca hora de finalització 23:30 o posterior. Si no, posa hora de finalització 21:30 o inferior.",
         "start_after_16_lunch": "Inici del servei posterior a les 16:00. Comprova si realment et correspon dieta de dinar."
     },
     "errors": {
