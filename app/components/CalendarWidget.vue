@@ -117,6 +117,8 @@ const handleSync = async () => {
     await externalCalendar.syncEvents('events', currentViewDate)
 }
 
+const isConnected = computed(() => externalCalendar.lastSync !== null || externalCalendar.calendars.length > 0)
+
 const goToToday = () => {
     const today = new Date()
     placeholder.value = new CalendarDate(today.getFullYear(), today.getMonth() + 1, 1)
@@ -139,7 +141,7 @@ const goToToday = () => {
                         date: new Date(externalCalendar.lastSync).toLocaleString(locale)
                     }) }}
                 </span>
-                <UTooltip v-if="Object.keys(externalCalendar.events).length" :text="$t('components.calendar.sync')">
+                <UTooltip v-if="isConnected" :text="$t('components.calendar.sync')">
                     <UButton
 :loading="externalCalendar.isLoading" icon="i-heroicons-arrow-path" variant="ghost"
                         color="neutral" size="xs" @click="handleSync" />

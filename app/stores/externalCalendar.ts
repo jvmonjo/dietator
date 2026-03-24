@@ -148,7 +148,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
                 throw error // Propagate abort up
             }
             console.error('Google Calendar auth error:', error)
-            toast.add({ title: 'Error d\'autorització amb Google Calendar', color: 'error' })
+            const errorMsg = error instanceof Error ? error.message : String(error)
+            toast.add({ title: 'Error d\'autorització amb Google Calendar', description: errorMsg.substring(0, 150), color: 'error' })
             return null
         }
     }
@@ -179,7 +180,9 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         } catch (error: unknown) {
             if (error instanceof Error && error.name === 'AbortError') throw error
             console.error('Error fetching calendar list:', error)
-            toast.add({ title: 'Error obtenint la llista de calendaris', color: 'error' })
+            const errorMsg = error instanceof Error ? error.message : String(error)
+            toast.add({ title: 'Error obtenint la llista de calendaris', description: errorMsg.substring(0, 150), color: 'error' })
+            throw error
         }
     }
 
@@ -247,7 +250,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             if (error instanceof Error && error.name === 'AbortError') throw error
             console.error('Error fetching events:', error)
             const msg = error instanceof Error ? error.message : 'Error desconegut'
-            toast.add({ title: 'Error obtenint esdeveniments', description: msg.substring(0, 100), color: 'error' })
+            toast.add({ title: 'Error obtenint esdeveniments', description: msg.substring(0, 150), color: 'error' })
+            throw error
         }
     }
 
@@ -300,12 +304,12 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             }
 
         } catch (error: unknown) {
-            const isAbort = (error instanceof Error && error.name === 'AbortError') || error === 'Timeout'
+            const isAbort = (error instanceof Error && (error.name === 'AbortError' || error.message === 'AbortError')) || error === 'Timeout'
             if (isAbort) {
                 toast.add({ title: 'Sincronització cancel·lada o temps d\'espera esgotat', color: 'info' })
             } else {
                 console.error('Google Calendar sync error:', error)
-                toast.add({ title: 'Error al sincronitzar amb Google Calendar', color: 'error' })
+                // Es confia en què els mètodes específics mostrin l'error al usuari
             }
         } finally {
             clearTimeout(timeoutId)

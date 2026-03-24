@@ -10,7 +10,8 @@ const { t } = useI18n()
 const externalCalendarStore = useExternalCalendarStore()
 const config = useRuntimeConfig()
 
-const googleButtonLabel = computed(() => Object.keys(externalCalendarStore.events).length ? t('settings.calendar.sync') : t('settings.calendar.connect'))
+const isConnected = computed(() => externalCalendarStore.lastSync !== null || externalCalendarStore.calendars.length > 0)
+const googleButtonLabel = computed(() => isConnected.value ? t('settings.calendar.sync') : t('settings.calendar.connect'))
 
 const calendarOptions = computed(() => {
     return externalCalendarStore.calendars.map(c => ({ label: c.summary, value: c.id }))
@@ -93,12 +94,12 @@ to="/help/google-calendar"
                                     {{ googleButtonLabel }}
                                 </UButton>
                                 <UBadge
-v-if="Object.keys(externalCalendarStore.events).length" color="success"
+v-if="isConnected" color="success"
                                     variant="subtle">
                                     {{ $t('settings.calendar.connected') }}
                                 </UBadge>
                                 <UButton
-                                    v-if="externalCalendarStore.isLoading || Object.keys(externalCalendarStore.events).length"
+                                    v-if="externalCalendarStore.isLoading || isConnected"
                                     icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
                                     @click="handleCancelOrDisconnect">
                                     {{ externalCalendarStore.isLoading ? $t('common.cancel') : $t('common.disconnect')
@@ -109,7 +110,7 @@ v-if="Object.keys(externalCalendarStore.events).length" color="success"
                                 {{ $t('settings.calendar.client_id_missing') }}
                             </p>
 
-                            <div v-if="Object.keys(externalCalendarStore.events).length">
+                            <div v-if="isConnected">
                                 <UButton
 v-if="externalCalendarStore.calendars.length === 0"
                                     icon="i-heroicons-list-bullet" color="neutral" variant="ghost" size="xs"
