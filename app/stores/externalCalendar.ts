@@ -45,7 +45,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             script.async = true
             script.defer = true
             script.onload = () => resolve()
-            script.onerror = reject
+            script.onerror = (e) => reject(new Error(`Failed to load Google GIS script: ${JSON.stringify(e)}`))
             document.head.appendChild(script)
         })
     }
@@ -124,13 +124,13 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     error_callback: (error: any) => {
                         signal?.removeEventListener('abort', abortHandler)
-                        reject(new Error(error.type || 'Finestra emergent bloquejada (desactiva bloquejadors/obre a Safari)'))
+                        reject(new Error(`Google GIS error_callback: ${JSON.stringify(error)}`))
                     },
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     callback: (response: any) => {
                         signal?.removeEventListener('abort', abortHandler)
                         if (response.error) {
-                            reject(new Error(response.error))
+                            reject(new Error(`Google API: ${typeof response.error === 'string' ? response.error : JSON.stringify(response.error)}`))
                             return
                         }
                         resolve(response)
@@ -153,8 +153,17 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
                 throw error // Propagate abort up
             }
             console.error('Google Calendar auth error:', error)
-            const errorMsg = error instanceof Error ? error.message : String(error)
-            toast.add({ title: 'Error d\'autorització amb Google Calendar', description: errorMsg.substring(0, 150), color: 'error' })
+            
+            let errorMsg = 'Error desconegut'
+            if (error instanceof Error) {
+                errorMsg = error.message
+            } else if (typeof error === 'object' && error !== null) {
+                try { errorMsg = JSON.stringify(error) } catch { errorMsg = String(error) }
+            } else {
+                errorMsg = String(error)
+            }
+            
+            toast.add({ title: 'Error d\'autorització', description: errorMsg, color: 'error', duration: 0 })
             return null
         }
     }
@@ -186,7 +195,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             if (error instanceof Error && error.name === 'AbortError') throw error
             console.error('Error fetching calendar list:', error)
             const errorMsg = error instanceof Error ? error.message : String(error)
-            toast.add({ title: 'Error obtenint la llista de calendaris', description: errorMsg.substring(0, 150), color: 'error' })
+            toast.add({ title: 'Error obtenint la llista de calendaris', description: errorMsg, color: 'error', duration: 0 })
             throw error
         }
     }
@@ -254,8 +263,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         } catch (error: unknown) {
             if (error instanceof Error && error.name === 'AbortError') throw error
             console.error('Error fetching events:', error)
-            const msg = error instanceof Error ? error.message : 'Error desconegut'
-            toast.add({ title: 'Error obtenint esdeveniments', description: msg.substring(0, 150), color: 'error' })
+            const msg = error instanceof Error ? error.message : String(error)
+            toast.add({ title: 'Error obtenint esdeveniments', description: msg, color: 'error', duration: 0 })
             throw error
         }
     }
@@ -315,9 +324,10 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             } else {
                 console.error('Google Calendar sync error:', error)
                 if (error instanceof Error && error.message) {
-                    toast.add({ title: 'Error a la sincronització', description: error.message.substring(0, 150), color: 'error' })
+                    toast.add({ title: 'Error a la sincronització', description: error.message, color: 'error', duration: 0 })
                 } else {
-                    toast.add({ title: 'Error al sincronitzar amb Google Calendar', color: 'error' })
+                    const strError = typeof error === 'object' ? JSON.stringify(error) : String(error)
+                    toast.add({ title: 'Error al sincronitzar amb Google Calendar', description: strError, color: 'error', duration: 0 })
                 }
             }
         } finally {
