@@ -1,3 +1,10 @@
+## [1.38.2](https://github.com/jvmonjo/dietator/compare/v1.38.1...v1.38.2) (2026-03-24)
+
+
+### Bug Fixes
+
+* revoke old calendar tokens ([9c18680](https://github.com/jvmonjo/dietator/commit/9c186805f15be94c62f6ec65608800d50d667e37))
+
 ## [1.38.1](https://github.com/jvmonjo/dietator/compare/v1.38.0...v1.38.1) (2026-03-24)
 
 
