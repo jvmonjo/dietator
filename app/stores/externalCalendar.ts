@@ -343,6 +343,15 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
     }
 
     function disconnect(): void {
+        if (accessToken.value) {
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                window.google?.accounts?.oauth2?.revoke(accessToken.value, () => { })
+            } catch (e) {
+                console.warn('Could not revoke Google token', e)
+            }
+        }
+
         events.value = {}
         calendars.value = []
         lastSync.value = null
