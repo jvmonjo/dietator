@@ -1,3 +1,10 @@
+## [1.38.1](https://github.com/jvmonjo/dietator/compare/v1.38.0...v1.38.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* google calendar success message before actualy grabbing the calendars and improved error handling ([b66753a](https://github.com/jvmonjo/dietator/commit/b66753a513d8eceb7714b6749f9cf611693637ce))
+
 # [1.38.0](https://github.com/jvmonjo/dietator/compare/v1.37.1...v1.38.0) (2026-03-10)
 
 
