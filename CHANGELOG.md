@@ -1,3 +1,10 @@
+## [1.38.3](https://github.com/jvmonjo/dietator/compare/v1.38.2...v1.38.3) (2026-03-24)
+
+
+### Bug Fixes
+
+* restore error toasts in calendar sync ([09763d5](https://github.com/jvmonjo/dietator/commit/09763d514ea356a938388b3f2c0d7ef12197b338))
+
 ## [1.38.2](https://github.com/jvmonjo/dietator/compare/v1.38.1...v1.38.2) (2026-03-24)
 
 
