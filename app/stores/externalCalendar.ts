@@ -122,6 +122,11 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
                     scope: 'https://www.googleapis.com/auth/calendar.readonly',
                     prompt,
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    error_callback: (error: any) => {
+                        signal?.removeEventListener('abort', abortHandler)
+                        reject(new Error(error.type || 'Finestra emergent bloquejada (desactiva bloquejadors/obre a Safari)'))
+                    },
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     callback: (response: any) => {
                         signal?.removeEventListener('abort', abortHandler)
                         if (response.error) {
@@ -309,7 +314,11 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
                 toast.add({ title: 'Sincronització cancel·lada o temps d\'espera esgotat', color: 'info' })
             } else {
                 console.error('Google Calendar sync error:', error)
-                // Es confia en què els mètodes específics mostrin l'error al usuari
+                if (error instanceof Error && error.message) {
+                    toast.add({ title: 'Error a la sincronització', description: error.message.substring(0, 150), color: 'error' })
+                } else {
+                    toast.add({ title: 'Error al sincronitzar amb Google Calendar', color: 'error' })
+                }
             }
         } finally {
             clearTimeout(timeoutId)
