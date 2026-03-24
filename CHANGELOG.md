@@ -1,3 +1,10 @@
+## [1.38.4](https://github.com/jvmonjo/dietator/compare/v1.38.3...v1.38.4) (2026-03-24)
+
+
+### Bug Fixes
+
+* show Google calendar raw error ([dace3b7](https://github.com/jvmonjo/dietator/commit/dace3b75e5237279f41b80d3588e109bdbae0816))
+
 ## [1.38.3](https://github.com/jvmonjo/dietator/compare/v1.38.2...v1.38.3) (2026-03-24)
 
 
