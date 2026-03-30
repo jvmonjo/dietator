@@ -59,20 +59,21 @@ export const useServiceWarnings = () => {
 
             // 3. End < 23:30 && hasDinner
             // 23:30 = 23 * 60 + 30 = 1380 + 30 = 1410
+            // "Compte. Assegura't de que has sopat i tens dret a dieta"
             const hasDinner = displacements.some(d => d.hasDinner)
             if (totalMinutes < 1410 && hasDinner) {
                 warnings.push({
-                    message: t('warnings.early_finish_with_dinner'),
+                    message: t('warnings.check_dinner_right'),
                     type: 'warning'
                 })
             }
 
         }
 
-        // 3.5. End >= 21:30 OR Next Day && !hasDinner
-        // 21:30 = 1290 minutes
+        // 3.5. End >= 22:30 OR Next Day && !hasDinner
+        // 22:30 = 1350 minutes
         const hasDinner = displacements.some(d => d.hasDinner)
-        const isLateFinish = (!isSameDay) || (totalMinutes > 1290)
+        const isLateFinish = (!isSameDay) || (totalMinutes >= 1350)
 
         if (isLateFinish && !hasDinner) {
             warnings.push({

@@ -28,11 +28,11 @@
         "all_months": "Todos los meses"
     },
     "warnings": {
-        "late_finish_no_dinner": "Has finalizado más tarde de las 21:30 y no has marcado cena. Revisa si te correspondía, marcala y cambia la hora de finalización a las 23:30. Si no, cambia la hora de finalización a las 21:30 o anterior.",
+        "late_finish_no_dinner": "Has finalizado a las 22:30 o más tarde y no has marcado cena. Revisa si te correspondía.",
         "no_meals_claimed": "Este servicio no genera derecho a dieta porque no se ha declarado ninguna comida.",
         "duration_over_24h": "📌 La duración supera las 24 horas; comprueba que la fecha final sea correcta.",
         "check_lunch_right": "Cuidado. Asegúrate de que has comido y tienes derecho a dieta.",
-        "early_finish_with_dinner": "Si has cenado, marca hora de finalización 23:30 o posterior. Si no, pon hora de finalización 21:30 o inferior.",
+        "check_dinner_right": "Cuidado. Asegúrate de que has cenado y tienes derecho a dieta.",
         "start_after_16_lunch": "Inicio del servicio posterior a las 16:00. Comprueba si realmente te corresponde dieta de comida."
     },
     "errors": {
