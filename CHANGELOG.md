@@ -1,3 +1,10 @@
+## [1.38.5](https://github.com/jvmonjo/dietator/compare/v1.38.4...v1.38.5) (2026-03-30)
+
+
+### Bug Fixes
+
+* undo warnings for new hours system and revert to old warning system ([5099c2d](https://github.com/jvmonjo/dietator/commit/5099c2d3a57ef6eda0bbe3ace7d6dce0e793c743))
+
 ## [1.38.4](https://github.com/jvmonjo/dietator/compare/v1.38.3...v1.38.4) (2026-03-24)
 
 
