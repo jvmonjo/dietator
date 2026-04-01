@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/jvmonjo/dietator/compare/v1.38.5...v1.39.0) (2026-04-01)
+
+
+### Features
+
+* added conditionals for monthly report ([51c9dcb](https://github.com/jvmonjo/dietator/commit/51c9dcbcd79e864dce2f41f2874c14da8001b6c2))
+
 ## [1.38.5](https://github.com/jvmonjo/dietator/compare/v1.38.4...v1.38.5) (2026-03-30)
 
 
