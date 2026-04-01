@@ -51,7 +51,9 @@ export const serviceVariables = [
     { name: '[service_kilometers]', desc: 'Total de quilòmetres del servei.' },
     { name: '[service_total_allowance]', desc: 'Dietes del servei.' },
     { name: '[service_total_allowance_value]', desc: 'Valor numèric de l\'import total.' },
-    { name: '[service_notes]', desc: 'Notes o observacions opcionals del servei.' }
+    { name: '[service_notes]', desc: 'Notes o observacions opcionals del servei.' },
+    { name: '[if:service_has_lunch] ... [endif:service_has_lunch]', desc: 'Mostra el contingut si almenys un desplaçament té dinar.' },
+    { name: '[if:service_has_dinner] ... [endif:service_has_dinner]', desc: 'Mostra el contingut si almenys un desplaçament té sopar.' }
 ]
 
 export const displacementVariables = [
@@ -64,7 +66,9 @@ export const displacementVariables = [
     { name: '[displacement_has_dinner]', desc: 'Té sopar (Sí/No).' },
     { name: '[displacement_meals]', desc: 'Descripció àpats (Dinar, Sopar, Dinar i sopar, —).' },
     { name: '[displacement_date]', desc: 'Data del desplaçament (igual a l\'inici del servei).' },
-    { name: '[displacement_observations]', desc: 'Observacions específiques del desplaçament.' }
+    { name: '[displacement_observations]', desc: 'Observacions específiques del desplaçament.' },
+    { name: '[if:displacement_has_lunch] ... [endif:displacement_has_lunch]', desc: 'Mostra el contingut si el desplaçament té dinar.' },
+    { name: '[if:displacement_has_dinner] ... [endif:displacement_has_dinner]', desc: 'Mostra el contingut si el desplaçament té sopar.' }
 ]
 
 export const loops = [

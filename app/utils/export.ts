@@ -274,6 +274,8 @@ const buildServiceVariables = (record: ServiceRecord, recordIndex: number, setti
     service_full_diets: fullDiets,
     service_lunches: lunches,
     service_dinners: dinners,
+    service_has_lunch: serviceHasLunch,
+    service_has_dinner: serviceHasDinner,
     service_total_allowance: CURRENCY_FORMATTER.format(allowance || 0),
     service_total_allowance_value: allowance,
     service_kilometers: record.kilometers || 0,
