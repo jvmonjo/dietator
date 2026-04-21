@@ -57,11 +57,11 @@ export const useServiceWarnings = () => {
                 })
             }
 
-            // 3. End < 23:30 && hasDinner
-            // 23:30 = 23 * 60 + 30 = 1380 + 30 = 1410
+            // 3. End < 22:30 && hasDinner
+            // 22:30 = 22 * 60 + 30 = 1320 + 30 = 1350
             // "Compte. Assegura't de que has sopat i tens dret a dieta"
             const hasDinner = displacements.some(d => d.hasDinner)
-            if (totalMinutes < 1410 && hasDinner) {
+            if (totalMinutes < 1350 && hasDinner) {
                 warnings.push({
                     message: t('warnings.check_dinner_right'),
                     type: 'warning'
