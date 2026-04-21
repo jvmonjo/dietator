@@ -1,3 +1,10 @@
+## [1.39.1](https://github.com/jvmonjo/dietator/compare/v1.39.0...v1.39.1) (2026-04-21)
+
+
+### Bug Fixes
+
+* dinner warning if < 22:30 ([ab72b96](https://github.com/jvmonjo/dietator/commit/ab72b96ce61e53dd7ea9f92be00dd2aab49e51b2))
+
 # [1.39.0](https://github.com/jvmonjo/dietator/compare/v1.38.5...v1.39.0) (2026-04-01)
 
 
