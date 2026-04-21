@@ -86,7 +86,10 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             return null
         }
 
-        await loadGoogleScript()
+        // 1. FAST PATH: Check script and internal state first
+        if (!window.google?.accounts?.oauth2) {
+            await loadGoogleScript()
+        }
 
         const now = Date.now()
         const isTokenFresh = accessToken.value && tokenExpiresAt.value && (tokenExpiresAt.value - 60_000) > now
@@ -94,6 +97,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             return accessToken.value
         }
 
+        // 2. REFRESH PATH: Try refreshing without popup
         if (refreshToken.value && prompt !== 'consent') {
             try {
                 const refreshed = await refreshAccessToken(clientId, signal)
@@ -106,38 +110,38 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             }
         }
 
+        // 3. POPUP PATH: This must be as fast as possible to avoid popup blocker
         try {
             const tokenResponse: { access_token: string, expires_in?: number, refresh_token?: string } = await new Promise((resolve, reject) => {
-                if (signal?.aborted) {
-                    return reject(new Error('AbortError'))
-                }
+                if (signal?.aborted) return reject(new Error('AbortError'))
 
-                const abortHandler = () => {
-                    reject(new Error('AbortError'))
-                }
+                const abortHandler = () => reject(new Error('AbortError'))
                 signal?.addEventListener('abort', abortHandler)
 
-                const tokenClient = window.google.accounts.oauth2.initTokenClient({
-                    client_id: clientId,
-                    scope: 'https://www.googleapis.com/auth/calendar.readonly',
-                    prompt,
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    error_callback: (error: any) => {
-                        signal?.removeEventListener('abort', abortHandler)
-                        reject(new Error(`Google GIS error_callback: ${JSON.stringify(error)}`))
-                    },
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    callback: (response: any) => {
-                        signal?.removeEventListener('abort', abortHandler)
-                        if (response.error) {
-                            reject(new Error(`Google API: ${typeof response.error === 'string' ? response.error : JSON.stringify(response.error)}`))
-                            return
+                try {
+                    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+                        client_id: clientId,
+                        scope: 'https://www.googleapis.com/auth/calendar.readonly',
+                        prompt,
+                        error_callback: (error: { message?: string }) => {
+                            signal?.removeEventListener('abort', abortHandler)
+                            reject(new Error(`Google GIS Error: ${error?.message || JSON.stringify(error)}`))
+                        },
+                        callback: (response: { error?: string, error_description?: string, access_token: string, expires_in?: number, refresh_token?: string }) => {
+                            signal?.removeEventListener('abort', abortHandler)
+                            if (response.error) {
+                                reject(new Error(`Google API: ${response.error_description || response.error}`))
+                                return
+                            }
+                            resolve(response)
                         }
-                        resolve(response)
-                    }
-                })
+                    })
 
-                tokenClient.requestAccessToken()
+                    tokenClient.requestAccessToken()
+                } catch (e) {
+                    signal?.removeEventListener('abort', abortHandler)
+                    reject(e)
+                }
             })
 
             accessToken.value = tokenResponse.access_token
@@ -149,20 +153,16 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
 
             return accessToken.value
         } catch (error) {
-            if (error instanceof Error && error.message === 'AbortError') {
-                throw error // Propagate abort up
-            }
+            if (error instanceof Error && error.message === 'AbortError') throw error
             console.error('Google Calendar auth error:', error)
+
+            let errorMsg = error instanceof Error ? error.message : String(error)
             
-            let errorMsg = 'Error desconegut'
-            if (error instanceof Error) {
-                errorMsg = error.message
-            } else if (typeof error === 'object' && error !== null) {
-                try { errorMsg = JSON.stringify(error) } catch { errorMsg = String(error) }
-            } else {
-                errorMsg = String(error)
+            // Special handling for popup blocker
+            if (errorMsg.includes('popup') || errorMsg.includes('denied')) {
+                errorMsg = 'S\'ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta web i torna-ho a provar.'
             }
-            
+
             toast.add({ title: 'Error d\'autorització', description: errorMsg, color: 'error', duration: 0 })
             return null
         }
@@ -183,8 +183,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             if (!response.ok) throw new Error('Failed to fetch calendars')
 
             const data = await response.json()
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            calendars.value = data.items.map((item: any) => ({
+            calendars.value = data.items.map((item: { id: string, summaryOverride?: string, summary: string }) => ({
                 id: item.id,
                 summary: item.summaryOverride || item.summary
             }))
@@ -227,8 +226,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             const data = await response.json()
             const newEvents: Record<string, GoogleEvent[]> = {}
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            data.items.forEach((event: any) => {
+            data.items.forEach((event: { start: { dateTime?: string, date?: string }, end: { dateTime?: string, date?: string }, id: string, summary?: string, location?: string, description?: string }) => {
                 // Only care about start date
                 const startRaw = event.start.dateTime || event.start.date
                 const endRaw = event.end.dateTime || event.end.date
@@ -364,7 +362,6 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
     function disconnect(): void {
         if (accessToken.value) {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 window.google?.accounts?.oauth2?.revoke(accessToken.value, () => { })
             } catch (e) {
                 console.warn('Could not revoke Google token', e)
@@ -380,6 +377,18 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         // Reset selected calendar preference
         settings.googleCalendarId = ''
         toast.add({ title: 'Desconnectat de Google Calendar', color: 'info' })
+    }
+
+    // Pre-load the Google script if a client ID is configured
+    // This prevents "Failed to open popup window" (popup blocker) because the script loading delays the user click context
+    if (import.meta.client) {
+        const clientId = config.public.googleClientId || settings.googleClientId
+        if (clientId && !window.google?.accounts?.oauth2) {
+            // Wait a tiny bit to not block initial render, then load GIS
+            setTimeout(() => {
+                loadGoogleScript().catch(e => console.warn('Preload Google GIS fail', e))
+            }, 500)
+        }
     }
 
     return {
