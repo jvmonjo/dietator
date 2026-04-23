@@ -53,7 +53,7 @@ const showAllMonths = computed(() => selectedMonthValue.value === 0)
 const selectedMonth = computed(() => activeMonth.value) // Alias for compatibility
 
 const selectedRecords = computed(() => {
-  return getRecordsForMonth(activeMonth.value?.value ?? null)
+  return getRecordsForMonth(activeMonth.value?.value ?? null, selectedYear.value)
 })
 
 const selectionTotals = computed(() => calculateTotals(selectedRecords.value))
@@ -481,7 +481,7 @@ v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
             {{ $t('home.wrapped.annual_summary') }}
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors">
-            {{ $t('home.wrapped.your_year', { year: new Date().getFullYear() }) }}
+            {{ $t('home.wrapped.your_year', { year: selectedYear }) }}
           </div>
           <p class="text-xs text-gray-400">
             {{ $t('home.wrapped.discover') }}

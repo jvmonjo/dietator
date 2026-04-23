@@ -24,11 +24,16 @@ const externalCalendar = useExternalCalendarStore()
 const placeholder = ref(new CalendarDate(props.year, props.month === 0 ? new Date().getMonth() + 1 : props.month, 1)) as Ref<DateValue>
 
 watch(() => [props.year, props.month], ([newYear, newMonth]) => {
-    if (!newMonth || newMonth === 0) return // Don't enforce specific month if "All" is selected, let user browse or stay
     const current = placeholder.value
-    // Ensure we have a CalendarDate to compare (DateValue is a union, but we are using CalendarDate)
-    if ('year' in current && (current.year !== newYear || current.month !== newMonth)) {
-        placeholder.value = new CalendarDate(newYear || new Date().getFullYear(), newMonth, 1)
+    if (!('year' in current)) return
+
+    // If month is 0 (All), we keep the current month but update the year if it changed
+    // If month is not 0, we update both
+    const targetMonth = (newMonth && newMonth !== 0) ? newMonth : current.month
+    const targetYear = newYear || current.year
+
+    if (current.year !== targetYear || current.month !== targetMonth) {
+        placeholder.value = new CalendarDate(targetYear, targetMonth, 1)
     }
 })
 

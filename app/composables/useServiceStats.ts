@@ -59,9 +59,17 @@ export const useServiceStats = () => {
     return formatMonthKey(now.getFullYear(), now.getMonth() + 1)
   })
 
-  const getRecordsForMonth = (monthValue?: string | null) => {
+  const getRecordsForMonth = (monthValue?: string | null, year?: number) => {
     const target = parseMonthValue(monthValue)
-    if (!target) return records.value.slice()
+    if (!target) {
+      if (year) {
+        return records.value.filter((record) => {
+          const date = new Date(record.startTime)
+          return !Number.isNaN(date.getTime()) && date.getFullYear() === year
+        })
+      }
+      return records.value.slice()
+    }
 
     return records.value.filter((record) => {
       const date = new Date(record.startTime)

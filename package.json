@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "cross-env NODE_OPTIONS='--no-experimental-warnings' eslint .",
+    "lint": "cross-env eslint .",
     "typecheck": "cross-env NODE_OPTIONS='--max-old-space-size=8192' nuxt typecheck",
     "generate-icons": "npx pwa-asset-generator public/icon.svg public/ --opaque false --icon-only --favicon --mstile --type png",
     "prepare": "husky"
