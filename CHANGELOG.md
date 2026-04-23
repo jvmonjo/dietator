@@ -1,3 +1,10 @@
+## [1.39.2](https://github.com/jvmonjo/dietator/compare/v1.39.1...v1.39.2) (2026-04-23)
+
+
+### Bug Fixes
+
+* all months selected and changing year not working ([4cb8b34](https://github.com/jvmonjo/dietator/commit/4cb8b344b0abf0106086025e7899f0528ffff729))
+
 ## [1.39.1](https://github.com/jvmonjo/dietator/compare/v1.39.0...v1.39.1) (2026-04-21)
 
 
