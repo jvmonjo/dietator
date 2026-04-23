@@ -1,3 +1,10 @@
+## [1.39.3](https://github.com/jvmonjo/dietator/compare/v1.39.2...v1.39.3) (2026-04-23)
+
+
+### Bug Fixes
+
+* weekly average calculation for a whole year ([17918b5](https://github.com/jvmonjo/dietator/commit/17918b5a5befa99e5ec417e2a68b4ca56fc85d19))
+
 ## [1.39.2](https://github.com/jvmonjo/dietator/compare/v1.39.1...v1.39.2) (2026-04-23)
 
 
