@@ -100,7 +100,20 @@ const totalHoursWorked = computed(() => {
   return totalMs * HOURS_PER_MS
 })
 
-const weeksInSelectedMonth = computed(() => getWeeksInMonth(activeMonth.value?.value ?? currentMonthValue.value))
+const weeksInSelectedMonth = computed(() => {
+  if (showAllMonths.value) {
+    const now = new Date()
+    const isCurrentYear = selectedYear.value === now.getFullYear()
+    const lastMonth = isCurrentYear ? now.getMonth() + 1 : 12
+
+    let totalWeeks = 0
+    for (let m = 1; m <= lastMonth; m++) {
+      totalWeeks += getWeeksInMonth(`${selectedYear.value}-${String(m).padStart(2, '0')}`)
+    }
+    return Math.max(1, totalWeeks)
+  }
+  return getWeeksInMonth(activeMonth.value?.value ?? currentMonthValue.value)
+})
 const averageWeeklyHours = computed(() => {
   if (weeksInSelectedMonth.value <= 0) return 0
   return totalHoursWorked.value / weeksInSelectedMonth.value
