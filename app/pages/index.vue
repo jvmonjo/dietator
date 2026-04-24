@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import type { MonthOption } from '~/composables/useServiceStats'
 import type { ServiceRecord } from '~/stores/services'
 import { generateWordReport } from '~/utils/export'
 
 const settingsStore = useSettingsStore()
+const serviceStore = useServiceStore()
 const externalCalendar = useExternalCalendarStore()
 const toast = useToast()
 const { t, locale } = useI18n()
+const { records } = storeToRefs(serviceStore)
 const { calculateTotals, currentMonthValue, monthOptions, getRecordsForMonth } = useServiceStats()
 
 
@@ -53,7 +56,15 @@ const showAllMonths = computed(() => selectedMonthValue.value === 0)
 const selectedMonth = computed(() => activeMonth.value) // Alias for compatibility
 
 const selectedRecords = computed(() => {
-  return getRecordsForMonth(activeMonth.value?.value ?? null, selectedYear.value)
+  const monthValue = activeMonth.value?.value ?? null
+  if (monthValue) {
+    return getRecordsForMonth(monthValue)
+  }
+  // All months selected, filter by the current selectedYear
+  return records.value.filter((record) => {
+    const date = new Date(record.startTime)
+    return !isNaN(date.getTime()) && date.getFullYear() === selectedYear.value
+  })
 })
 
 const selectionTotals = computed(() => calculateTotals(selectedRecords.value))
@@ -101,18 +112,29 @@ const totalHoursWorked = computed(() => {
 })
 
 const weeksInSelectedMonth = computed(() => {
-  if (showAllMonths.value) {
-    const now = new Date()
-    const isCurrentYear = selectedYear.value === now.getFullYear()
-    const lastMonth = isCurrentYear ? now.getMonth() + 1 : 12
-
-    let totalWeeks = 0
-    for (let m = 1; m <= lastMonth; m++) {
-      totalWeeks += getWeeksInMonth(`${selectedYear.value}-${String(m).padStart(2, '0')}`)
-    }
-    return Math.max(1, totalWeeks)
+  if (selectedRecords.value.length === 0) {
+    // If no records, fallback to standard weeks in month for display, or 1 for year
+    return getWeeksInMonth(activeMonth.value?.value ?? currentMonthValue.value)
   }
-  return getWeeksInMonth(activeMonth.value?.value ?? currentMonthValue.value)
+
+  const weeks = new Set<string>()
+  selectedRecords.value.forEach((record) => {
+    const d = new Date(record.startTime)
+    if (Number.isNaN(d.getTime())) return
+
+    // Monday of the week as unique identifier
+    const date = new Date(d.getTime())
+    const day = date.getDay()
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1)
+    date.setDate(diff)
+    date.setHours(0, 0, 0, 0)
+    const isoDate = date.toISOString().split('T')[0]
+    if (isoDate) {
+      weeks.add(isoDate)
+    }
+  })
+  
+  return weeks.size
 })
 const averageWeeklyHours = computed(() => {
   if (weeksInSelectedMonth.value <= 0) return 0
@@ -377,7 +399,7 @@ ref="serviceListRef" :title="$t('home.stats.services')" :description="serviceLis
             </p>
             <p class="text-xs text-gray-400">
               {{ $t('home.documents.kilometers') }}: <strong>{{ selectionTotals.kilometers?.toLocaleString(locale) ?? 0
-                }}
+              }}
                 km</strong>
             </p>
             <p v-if="!hasTemplates" class="text-xs text-red-500 dark:text-red-400">
@@ -465,7 +487,7 @@ icon="i-heroicons-share" color="primary" :disabled="!canExportReport"
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ $t('home.stats.kilometers')
-          }}</div>
+            }}</div>
           <div class="text-3xl font-bold text-primary-500 mt-2">{{ selectionTotals.kilometers?.toLocaleString(locale)
             ?? 0 }} <span class="text-sm font-normal text-gray-500">km</span></div>
           <p class="text-xs text-gray-400">
