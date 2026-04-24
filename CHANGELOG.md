@@ -1,3 +1,10 @@
+## [1.39.4](https://github.com/jvmonjo/dietator/compare/v1.39.3...v1.39.4) (2026-04-24)
+
+
+### Bug Fixes
+
+* updated calculated weekly average ([41e56d9](https://github.com/jvmonjo/dietator/commit/41e56d92c1286088639bb8076286b5587560cb30))
+
 ## [1.39.3](https://github.com/jvmonjo/dietator/compare/v1.39.2...v1.39.3) (2026-04-23)
 
 
