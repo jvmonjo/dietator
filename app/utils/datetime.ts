@@ -23,3 +23,26 @@ export const localInputToUtc = (local?: string | null): string => {
   if (Number.isNaN(date.getTime())) return ''
   return date.toISOString()
 }
+
+// Local calendar day (YYYY-MM-DD) of a timestamp, regardless of whether it is
+// stored as a UTC ISO string or a naive local datetime string.
+export const localDateKey = (value?: string | null): string => {
+  return utcToLocalInput(value).split('T')[0] ?? ''
+}
+
+// A "naive" local datetime string carries no time zone, e.g. "2026-06-13T09:00"
+// (the value produced by <input type="datetime-local">). UTC ISO strings end
+// with "Z" or carry an explicit offset, so they are excluded.
+const NAIVE_DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/
+
+export const isNaiveLocalDateTime = (value?: string | null): boolean => {
+  return typeof value === 'string' && NAIVE_DATETIME_RE.test(value)
+}
+
+// Normalise a timestamp to UTC. Naive local datetimes are interpreted in the
+// browser's local time zone and converted; values that already carry time zone
+// information (or are empty) are returned untouched. Idempotent.
+export const ensureUtc = (value?: string | null): string => {
+  if (!value) return value ?? ''
+  return isNaiveLocalDateTime(value) ? localInputToUtc(value) : value
+}

@@ -1,3 +1,5 @@
+import { localDateKey } from '~/utils/datetime'
+
 export const useWrappedStats = () => {
     const serviceStore = useServiceStore()
     const settingsStore = useSettingsStore()
@@ -88,7 +90,7 @@ export const useWrappedStats = () => {
         const kmMap = new Map<string, { km: number, route: string[] }>()
 
         records.forEach(r => {
-            const date = r.startTime.split('T')[0]
+            const date = localDateKey(r.startTime)
             if (date) {
                 const current = kmMap.get(date) || { km: 0, route: [] }
                 // Extract unique municipalities for the day (preserving order roughly)
