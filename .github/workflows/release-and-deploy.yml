@@ -14,8 +14,11 @@ permissions:
   pages: write
   id-token: write
 
+# Scope concurrency per workflow + ref so runs on different branches/PRs do
+# not cancel each other. Without this, the single static "pages" group caused
+# a new PR's run to cancel another open PR's in-progress CI.
 concurrency:
-  group: pages
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -53,6 +56,10 @@ jobs:
     if: needs.release.outputs.released == 'true'
     runs-on: ubuntu-latest
     environment: github-pages
+    # Serialize actual Pages deployments without cancelling an in-flight one.
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 
