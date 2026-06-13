@@ -1,3 +1,10 @@
+# [1.40.0](https://github.com/jvmonjo/dietator/compare/v1.39.4...v1.40.0) (2026-06-13)
+
+
+### Features
+
+* add expenses management with daily and net earnings stats ([33148ae](https://github.com/jvmonjo/dietator/commit/33148ae8bd1d9dd46f3d92ea6613be93312d3b3a))
+
 ## [1.39.4](https://github.com/jvmonjo/dietator/compare/v1.39.3...v1.39.4) (2026-04-24)
 
 
