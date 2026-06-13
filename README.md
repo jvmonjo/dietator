@@ -91,4 +91,20 @@ npm run typecheck
 
 # Executar linter
 npm run lint
+
+# Executar els tests unitaris (Vitest)
+npm test
+
+# Tests en mode watch
+npm run test:watch
+
+# Tests amb informe de cobertura
+npm run test:coverage
 ```
+
+Els tests unitaris (`test/`) cobreixen la lògica de domini principal: xifratge
+de backups, generació de recordatoris de calendari, emmagatzematge segur, el
+store de serveis i les advertències de validació de serveis. S'executen amb
+[Vitest](https://vitest.dev/) sense necessitat d'arrencar Nuxt, de manera que
+són ràpids i deterministes. S'executen automàticament al *hook* de pre-commit i
+a la CI (GitHub Actions).
