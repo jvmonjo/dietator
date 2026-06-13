@@ -10,9 +10,9 @@
     "postinstall": "nuxt prepare",
     "lint": "cross-env eslint .",
     "typecheck": "cross-env NODE_OPTIONS='--max-old-space-size=8192' nuxt typecheck",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "cross-env TZ=Europe/Madrid vitest run",
+    "test:watch": "cross-env TZ=Europe/Madrid vitest",
+    "test:coverage": "cross-env TZ=Europe/Madrid vitest run --coverage",
     "generate-icons": "npx pwa-asset-generator public/icon.svg public/ --opaque false --icon-only --favicon --mstile --type png",
     "prepare": "husky"
   },
