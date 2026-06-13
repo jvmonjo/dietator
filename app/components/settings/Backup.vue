@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { encryptBackup, decryptBackup, isEncryptedBackup, type BackupPayload } from '~/utils/secureBackup'
 import type { ServiceRecord } from '~/stores/services'
+import type { ExpenseRecord } from '~/stores/expenses'
 
 const emit = defineEmits<{
     (e: 'imported'): void
@@ -10,6 +11,7 @@ const { t, locale, setLocale } = useI18n()
 const toast = useToast()
 const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
+const expenseStore = useExpenseStore()
 const distancesStore = useDistancesStore()
 const externalCalendarStore = useExternalCalendarStore()
 
@@ -88,6 +90,21 @@ const filteredServices = computed(() => {
     return records
 })
 
+// Expenses store UTC timestamps; filter by local date to match the UI grouping.
+const filteredExpenses = computed(() => {
+    let expenses = expenseStore.expenses
+
+    if (exportState.selectedYear !== 0) {
+        expenses = expenses.filter(e => new Date(e.timestamp).getFullYear() === exportState.selectedYear)
+    }
+
+    if (exportState.selectedMonth !== 0) {
+        expenses = expenses.filter(e => new Date(e.timestamp).getMonth() + 1 === exportState.selectedMonth)
+    }
+
+    return expenses
+})
+
 watch(() => exportState.selectedYear, (newYear) => {
     if (newYear === 0) {
         exportState.selectedMonth = 0
@@ -153,6 +170,7 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
             payload.meta = { type: 'config' }
         } else {
             payload.services = JSON.parse(JSON.stringify(filteredServices.value)) as ServiceRecord[]
+            payload.expenses = JSON.parse(JSON.stringify(filteredExpenses.value)) as ExpenseRecord[]
 
             const metaMonth = (exportState.selectedYear !== 0 && exportState.selectedMonth !== 0)
                 ? `${exportState.selectedYear}-${String(exportState.selectedMonth).padStart(2, '0')}`
@@ -164,7 +182,7 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
                 year: exportState.selectedYear !== 0 ? exportState.selectedYear : undefined
             }
 
-            if (!payload.services || payload.services.length === 0) {
+            if (payload.services.length === 0 && payload.expenses.length === 0) {
                 toast.add({ title: t('common.error'), description: 'No hi ha dades per exportar', color: 'warning' })
                 return
             }
@@ -257,12 +275,13 @@ type ImportPayload = BackupPayload & {
 
 const processImport = async (payload: ImportPayload) => {
     const services = Array.isArray(payload?.services) ? payload.services : undefined
+    const expenses = Array.isArray(payload?.expenses) ? payload.expenses : undefined
     const settings = payload?.settings
 
-    if (services) {
-        const importMonth = payload.meta?.month ?? 'all'
-        const importYear = payload.detectedYear
+    const importMonth = payload.meta?.month ?? 'all'
+    const importYear = payload.detectedYear
 
+    if (services) {
         if (importMonth !== 'all') {
             // Monthly import (highest priority specificity)
             const targetPrefix = `${importMonth}-`
@@ -278,6 +297,27 @@ const processImport = async (payload: ImportPayload) => {
         } else {
             // Full overwrite
             serviceStore.setRecords(services)
+        }
+    }
+
+    if (expenses) {
+        // Expenses store UTC timestamps; compare by local date to match export grouping.
+        if (importMonth !== 'all') {
+            const [yearStr, monthStr] = importMonth.split('-')
+            const targetYear = Number(yearStr)
+            const targetMonth = Number(monthStr)
+            const preserved = expenseStore.expenses.filter(expense => {
+                const date = new Date(expense.timestamp)
+                return !(date.getFullYear() === targetYear && date.getMonth() + 1 === targetMonth)
+            })
+            expenseStore.setExpenses([...preserved, ...expenses])
+        } else if (importYear) {
+            const preserved = expenseStore.expenses.filter(expense => {
+                return new Date(expense.timestamp).getFullYear() !== importYear
+            })
+            expenseStore.setExpenses([...preserved, ...expenses])
+        } else {
+            expenseStore.setExpenses(expenses)
         }
     }
 

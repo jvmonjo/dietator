@@ -1,4 +1,5 @@
 import type { Displacement, ServiceRecord } from '~/stores/services'
+import type { ExpenseRecord } from '~/stores/expenses'
 import type { TemplateFile } from '~/stores/settings'
 import type { GoogleEvent } from '~/stores/externalCalendar'
 
@@ -31,6 +32,7 @@ export interface ExternalCalendarSnapshot {
 
 export interface BackupPayload {
   services?: ServiceRecord[]
+  expenses?: ExpenseRecord[]
   settings?: SettingsSnapshot
   distancesCache?: Record<string, number>
   externalCalendar?: ExternalCalendarSnapshot
