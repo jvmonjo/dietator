@@ -19,6 +19,10 @@ const links = computed(() => [
     to: '/'
   },
   {
+    label: t('components.header.expenses'),
+    to: '/expenses'
+  },
+  {
     label: t('components.header.settings'),
     to: '/settings'
   },

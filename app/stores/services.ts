@@ -12,8 +12,8 @@ export interface Displacement {
 
 export interface ServiceRecord {
     id: string
-    startTime: string // ISO string
-    endTime: string // ISO string
+    startTime: string // ISO string (UTC)
+    endTime: string // ISO string (UTC)
     displacements: Displacement[]
     kilometers?: number
     notes?: string

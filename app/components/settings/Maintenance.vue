@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
+const expenseStore = useExpenseStore()
 const distancesStore = useDistancesStore()
 
 const maintenanceState = reactive({
@@ -78,8 +79,10 @@ const confirmDelete = () => {
     confirmModal.action = async () => {
         if (month) {
             serviceStore.deleteRecordsByMonth(year, month)
+            expenseStore.deleteExpensesByMonth(year, month)
         } else {
             serviceStore.deleteRecordsByYear(year)
+            expenseStore.deleteExpensesByYear(year)
         }
         toast.add({ title: t('settings.maintenance.data_deleted'), color: 'success' })
         maintenanceState.selectedYear = undefined

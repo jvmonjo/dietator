@@ -5,6 +5,7 @@ import type { FormSubmitEvent } from '#ui/types'
 import type { Displacement, ServiceRecord } from '~/stores/services'
 import { useSettingsStore } from '~/stores/settings'
 import { useDistanceCalculator } from '~/composables/useDistanceCalculator'
+import { utcToLocalInput, localInputToUtc, localDateKey } from '~/utils/datetime'
 
 
 
@@ -142,8 +143,9 @@ const importHabitualRoute = () => {
 }
 
 const loadRecord = (record: ServiceRecord) => {
-  state.startTime = record.startTime
-  state.endTime = record.endTime
+  // Stored timestamps are UTC; the datetime-local input works in local time.
+  state.startTime = utcToLocalInput(record.startTime)
+  state.endTime = utcToLocalInput(record.endTime)
   state.displacements = (record.displacements || []).map(displacement => ({
     ...displacement,
     id: props.isDuplicate ? uuidv4() : (displacement.id || uuidv4())
@@ -220,10 +222,10 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       }
     }
 
-    // Check for duplicate start date (ignoring time)
+    // Check for duplicate start date (ignoring time), comparing local calendar days.
     const targetDate = event.data.startTime.split('T')[0]
     const isDuplicateDate = serviceStore.records.some(record => {
-      const recordDate = record.startTime ? record.startTime.split('T')[0] : ''
+      const recordDate = localDateKey(record.startTime)
       return recordDate === targetDate &&
         (!props.initialData || props.isDuplicate || record.id !== props.initialData.id)
     })
@@ -235,8 +237,9 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 
     const baseRecord: ServiceRecord = {
       id: (props.initialData?.id && !props.isDuplicate) ? props.initialData.id : uuidv4(),
-      startTime: event.data.startTime,
-      endTime: event.data.endTime,
+      // Inputs hold local time; persist in UTC.
+      startTime: localInputToUtc(event.data.startTime),
+      endTime: localInputToUtc(event.data.endTime),
       displacements: state.displacements.map(displacement => ({
         ...displacement,
         id: displacement.id || uuidv4()

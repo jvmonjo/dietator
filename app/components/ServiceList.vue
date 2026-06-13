@@ -2,6 +2,7 @@
 import type { ServiceRecord, Displacement } from '~/stores/services'
 import { v4 as uuidv4 } from 'uuid'
 import { compressServiceRecord, decompressServiceRecord } from '~/utils/qr'
+import { ensureUtc } from '~/utils/datetime'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -100,8 +101,9 @@ const handleQrImport = (result: string) => {
     // Create new record with new IDs
     const newRecord: ServiceRecord = {
       id: uuidv4(),
-      startTime: decompressed.startTime,
-      endTime: decompressed.endTime,
+      // Normalise legacy (naive local) QR payloads to UTC.
+      startTime: ensureUtc(decompressed.startTime),
+      endTime: ensureUtc(decompressed.endTime),
       notes: decompressed.notes || '',
       kilometers: decompressed.kilometers,
       displacements: (decompressed.displacements || []).map((d) => ({

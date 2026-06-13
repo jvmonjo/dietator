@@ -353,6 +353,7 @@
             "title": "Dietator",
             "beta": "Beta",
             "home": "Inicio",
+            "expenses": "Gastos",
             "settings": "Configuración",
             "help": "Ayuda",
             "theme": "Tema"
@@ -488,6 +489,50 @@
             "select_municipality": "Selecciona municipio",
             "search_province": "Buscar provincia...",
             "select_province": "Selecciona provincia"
+        },
+        "expense_form": {
+            "description": "Descripción",
+            "description_placeholder": "Ej: Comida, peaje, combustible...",
+            "date": "Fecha y hora",
+            "amount": "Importe (€)",
+            "save": "Guardar gasto",
+            "update": "Actualizar gasto",
+            "validation": {
+                "description_required": "La descripción es obligatoria",
+                "date_required": "La fecha es obligatoria",
+                "amount_required": "El importe es obligatorio",
+                "amount_positive": "El importe debe ser superior a 0"
+            },
+            "alerts": {
+                "saved": "Gasto guardado correctamente",
+                "updated": "Gasto actualizado correctamente",
+                "save_error": "Error al guardar el gasto"
+            }
+        },
+        "expense_list": {
+            "title": "Gastos registrados",
+            "records_count": "{count} registros",
+            "description": "Consulta, edita o elimina los gastos existentes.",
+            "search_placeholder": "Buscar por descripción...",
+            "add": "Añadir gasto",
+            "empty": "Todavía no hay gastos registrados.",
+            "per_page": "{count} por página",
+            "all": "Todos",
+            "actions": "Acciones",
+            "date": "Fecha y hora",
+            "description_col": "Descripción",
+            "amount": "Importe",
+            "edit": "Editar",
+            "delete": "Eliminar",
+            "modals": {
+                "edit_title": "Editar gasto",
+                "edit_desc": "Actualiza los datos del gasto seleccionado",
+                "new_title": "Nuevo gasto",
+                "new_desc": "Rellena los datos del gasto",
+                "delete_title": "Eliminar gasto",
+                "delete_desc": "¿Seguro que quieres eliminar este gasto? Esta acción no se puede deshacer.",
+                "deleted": "Gasto eliminado"
+            }
         }
     },
     "help": {
@@ -588,6 +633,20 @@
             "download_success": "PDF descargado correctamente",
             "share_error": "Error compartiendo el PDF",
             "generate_error": "Error generando el PDF"
+        }
+    },
+    "expenses": {
+        "title": "Gastos",
+        "subtitle": "Gestiona tus gastos y consulta las ganancias netas.",
+        "list_title": "Gastos",
+        "list_description": "Gastos de {month}",
+        "stats": {
+            "total": "Gastos totales",
+            "count": "{count} gastos",
+            "daily_average": "Media diaria",
+            "daily_average_subtitle": "Repartido en {days} días con gastos",
+            "net_earnings": "Ganancias netas",
+            "net_earnings_subtitle": "Dietas ({diet}) − gastos"
         }
     }
 }

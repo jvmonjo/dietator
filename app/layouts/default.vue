@@ -7,6 +7,11 @@ const links = computed(() => [
     to: '/'
   },
   {
+    label: t('components.header.expenses'),
+    icon: 'i-heroicons-banknotes',
+    to: '/expenses'
+  },
+  {
     label: t('components.header.settings'),
     icon: 'i-heroicons-cog-6-tooth',
     to: '/settings'

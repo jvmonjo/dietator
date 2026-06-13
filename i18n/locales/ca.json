@@ -351,6 +351,7 @@
             "title": "Dietator",
             "beta": "Beta",
             "home": "Inici",
+            "expenses": "Despeses",
             "settings": "Configuració",
             "help": "Ajuda",
             "theme": "Tema"
@@ -486,6 +487,50 @@
             "select_municipality": "Selecciona municipi",
             "search_province": "Buscar província...",
             "select_province": "Selecciona província"
+        },
+        "expense_form": {
+            "description": "Descripció",
+            "description_placeholder": "Ex: Dinar, peatge, combustible...",
+            "date": "Data i hora",
+            "amount": "Import (€)",
+            "save": "Desar despesa",
+            "update": "Actualitzar despesa",
+            "validation": {
+                "description_required": "La descripció és obligatòria",
+                "date_required": "La data és obligatòria",
+                "amount_required": "L'import és obligatori",
+                "amount_positive": "L'import ha de ser superior a 0"
+            },
+            "alerts": {
+                "saved": "Despesa desada correctament",
+                "updated": "Despesa actualitzada correctament",
+                "save_error": "Error desant la despesa"
+            }
+        },
+        "expense_list": {
+            "title": "Despeses registrades",
+            "records_count": "{count} registres",
+            "description": "Consulta, edita o esborra les despeses existents.",
+            "search_placeholder": "Buscar per descripció...",
+            "add": "Afegir despesa",
+            "empty": "Encara no hi ha despeses registrades.",
+            "per_page": "{count} per pàgina",
+            "all": "Totes",
+            "actions": "Accions",
+            "date": "Data i hora",
+            "description_col": "Descripció",
+            "amount": "Import",
+            "edit": "Editar",
+            "delete": "Eliminar",
+            "modals": {
+                "edit_title": "Editar despesa",
+                "edit_desc": "Actualitza les dades de la despesa seleccionada",
+                "new_title": "Nova despesa",
+                "new_desc": "Ompli les dades de la despesa",
+                "delete_title": "Eliminar despesa",
+                "delete_desc": "Estàs segur que vols eliminar aquesta despesa? Aquesta acció no es pot desfer.",
+                "deleted": "Despesa eliminada"
+            }
         }
     },
     "help": {
@@ -586,6 +631,20 @@
             "download_success": "PDF descarregat correctament",
             "share_error": "Error compartint el PDF",
             "generate_error": "Error generant el PDF"
+        }
+    },
+    "expenses": {
+        "title": "Despeses",
+        "subtitle": "Gestiona les teves despeses i consulta els guanys nets.",
+        "list_title": "Despeses",
+        "list_description": "Despeses de {month}",
+        "stats": {
+            "total": "Despeses totals",
+            "count": "{count} despeses",
+            "daily_average": "Mitjana diària",
+            "daily_average_subtitle": "Repartit en {days} dies amb despeses",
+            "net_earnings": "Guanys nets",
+            "net_earnings_subtitle": "Dietes ({diet}) − despeses"
         }
     }
 }

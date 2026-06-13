@@ -4,6 +4,7 @@ import type { MonthOption, ServiceTotals } from '~/composables/useServiceStats'
 import type { ServiceRecord } from '~/stores/services'
 import type { TemplateFile } from '~/stores/settings'
 import { generateStatsPdf } from './pdfGenerator'
+import { utcToLocalInput } from './datetime'
 
 type TemplateValue = string | number | boolean | Date | null | undefined
 
@@ -266,8 +267,9 @@ const buildServiceVariables = (record: ServiceRecord, recordIndex: number, setti
     service_end_date: endDateDisplay,
     service_start_time: startTime,
     service_end_time: endTime,
-    service_start_iso: record.startTime,
-    service_end_iso: record.endTime,
+    // Local wall-clock ISO (without time zone), matching what the user entered.
+    service_start_iso: utcToLocalInput(record.startTime),
+    service_end_iso: utcToLocalInput(record.endTime),
     service_duration_hours: durationHours,
     service_displacement_count: record.displacements.length,
     service_half_diets: halfDiets,
