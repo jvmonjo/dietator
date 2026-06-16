@@ -1,3 +1,10 @@
+# [1.49.0](https://github.com/jvmonjo/dietator/compare/v1.48.0...v1.49.0) (2026-06-16)
+
+
+### Features
+
+* OCR autofill for PDF tickets and cross-month date ranges ([a69c3ce](https://github.com/jvmonjo/dietator/commit/a69c3ceaaac96669aec664c7e8288eea248adb0d))
+
 # [1.48.0](https://github.com/jvmonjo/dietator/compare/v1.47.0...v1.48.0) (2026-06-16)
 
 
