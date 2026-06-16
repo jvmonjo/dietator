@@ -8,6 +8,7 @@ import {
   compressImageToDataUrl, processDocumentFile, fileToDataUrl, isImageFile,
   TicketProcessingError, MAX_TICKET_BYTES
 } from '~/utils/ticket'
+import { EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY, resolveExpenseCategory, type ExpenseCategory } from '~/utils/expenseCategories'
 
 const props = withDefaults(defineProps<{
   initialData?: ExpenseRecord | null
@@ -35,10 +36,14 @@ const state = reactive({
   ticket: undefined as string | undefined,
   ticketName: undefined as string | undefined,
   ticketType: undefined as string | undefined,
-  // Whether the expense counts toward the diet net balance (food). Non-food
-  // expenses (parking, fuel) are tracked but excluded from the balance.
-  countsTowardDiet: true
+  // Expense category; only "diet" counts toward the net balance.
+  category: DEFAULT_EXPENSE_CATEGORY as ExpenseCategory
 })
+
+const categoryItems = computed(() => EXPENSE_CATEGORIES.map(value => ({
+  value,
+  label: t(`expenses.categories.${value}`)
+})))
 
 // Two hidden inputs: a plain file picker and a camera capture (mobile).
 const uploadInput = ref<HTMLInputElement | null>(null)
@@ -169,7 +174,7 @@ const resetState = () => {
     state.ticket = props.initialData.ticket
     state.ticketName = props.initialData.ticketName
     state.ticketType = props.initialData.ticketType
-    state.countsTowardDiet = !props.initialData.excludeFromBalance
+    state.category = resolveExpenseCategory(props.initialData)
   } else {
     state.description = ''
     state.dateTime = formatLocalNow()
@@ -177,7 +182,7 @@ const resetState = () => {
     state.ticket = undefined
     state.ticketName = undefined
     state.ticketType = undefined
-    state.countsTowardDiet = true
+    state.category = DEFAULT_EXPENSE_CATEGORY
   }
 }
 
@@ -194,10 +199,10 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       description: event.data.description.trim(),
       timestamp: localInputToUtc(event.data.dateTime),
       amount: event.data.amount,
+      category: state.category,
       ...(state.ticket
         ? { ticket: state.ticket, ticketName: state.ticketName, ticketType: state.ticketType }
-        : {}),
-      ...(state.countsTowardDiet ? {} : { excludeFromBalance: true })
+        : {})
     }
 
     if (isEditing.value) {
@@ -243,15 +248,12 @@ const submitLabel = computed(() => isEditing.value
       </UFormField>
     </div>
 
-    <div class="flex items-start gap-3 rounded-lg border border-gray-200 dark:border-gray-800 p-3">
-      <USwitch v-model="state.countsTowardDiet" class="mt-0.5" />
-      <div class="min-w-0">
-        <p class="text-sm font-medium text-gray-900 dark:text-white">
-          {{ $t('components.expense_form.counts_toward_diet') }}
-        </p>
-        <p class="text-xs text-gray-400">{{ $t('components.expense_form.counts_toward_diet_hint') }}</p>
-      </div>
-    </div>
+    <UFormField :label="$t('components.expense_form.category')" name="category">
+      <USelect
+        v-model="state.category" :items="categoryItems" option-attribute="label" value-attribute="value"
+        icon="i-heroicons-tag" class="w-full" />
+      <template #help>{{ $t('components.expense_form.category_hint') }}</template>
+    </UFormField>
 
     <UFormField :label="$t('components.expense_form.ticket')" name="ticket">
       <p class="text-xs text-gray-400 mb-2">{{ $t('components.expense_form.ticket_hint') }}</p>

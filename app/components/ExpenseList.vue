@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ExpenseRecord } from '~/stores/expenses'
+import { resolveExpenseCategory, CATEGORY_COLORS } from '~/utils/expenseCategories'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -17,6 +18,13 @@ const toast = useToast()
 
 const displayTitle = computed(() => props.title || t('components.expense_list.title'))
 const displayDescription = computed(() => props.description || t('components.expense_list.description'))
+
+// Category badge shown for non-diet expenses (diet is the implied default).
+const categoryBadge = (expense: ExpenseRecord) => {
+  const category = resolveExpenseCategory(expense)
+  if (category === 'diet') return null
+  return { label: t(`expenses.categories.${category}`), color: CATEGORY_COLORS[category] }
+}
 
 const page = ref(1)
 const itemsPerPage = ref(10)
@@ -213,8 +221,9 @@ defineExpose({
             <div class="flex items-center gap-2">
               <span class="text-sm text-gray-700 dark:text-gray-300">{{ (row.original as ExpenseRecord).description }}</span>
               <UBadge
-                v-if="(row.original as ExpenseRecord).excludeFromBalance" color="neutral" variant="soft" size="xs">
-                {{ $t('components.expense_list.non_diet_badge') }}
+                v-if="categoryBadge(row.original as ExpenseRecord)" :color="categoryBadge(row.original as ExpenseRecord)!.color"
+                variant="soft" size="xs">
+                {{ categoryBadge(row.original as ExpenseRecord)!.label }}
               </UBadge>
               <UIcon
                 v-if="(row.original as ExpenseRecord).ticket" name="i-heroicons-paper-clip"

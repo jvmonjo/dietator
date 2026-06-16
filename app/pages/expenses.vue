@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import {
+  EXPENSE_CATEGORIES, CATEGORY_COLORS, resolveExpenseCategory, categoryCountsTowardBalance
+} from '~/utils/expenseCategories'
 
 const expenseStore = useExpenseStore()
 const { expenses } = storeToRefs(expenseStore)
@@ -37,6 +40,17 @@ const availableYears = computed(() => {
 
 const showAllMonths = computed(() => selectedMonthValue.value === 0)
 
+// Day selected on the calendar; filters the expense list to a single day.
+const selectedDay = ref<Date | null>(null)
+
+// Reset the day filter whenever the month/year selection changes.
+watch([selectedYear, selectedMonthValue], () => {
+  selectedDay.value = null
+})
+
+const dayKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+
 // Timestamps are stored in UTC; new Date() converts to local time for filtering,
 // so months/days line up with what the user sees in the UI.
 const selectedExpenses = computed(() => {
@@ -49,6 +63,46 @@ const selectedExpenses = computed(() => {
   })
 })
 
+// Days (within the selected month) that have at least one expense, for the calendar.
+const markedDays = computed(() => {
+  const keys = new Set<string>()
+  selectedExpenses.value.forEach(expense => {
+    const date = new Date(expense.timestamp)
+    if (!Number.isNaN(date.getTime())) keys.add(dayKey(date))
+  })
+  return Array.from(keys)
+})
+
+// The list respects the calendar day filter when one is set.
+const listExpenses = computed(() => {
+  if (!selectedDay.value) return selectedExpenses.value
+  const key = dayKey(selectedDay.value)
+  return selectedExpenses.value.filter(expense => {
+    const date = new Date(expense.timestamp)
+    return !Number.isNaN(date.getTime()) && dayKey(date) === key
+  })
+})
+
+// Per-category totals for the selected period (only categories with expenses).
+const categoryTotals = computed(() => {
+  const totals = new Map<string, { total: number, count: number }>()
+  selectedExpenses.value.forEach(expense => {
+    const category = resolveExpenseCategory(expense)
+    const entry = totals.get(category) || { total: 0, count: 0 }
+    entry.total += expense.amount || 0
+    entry.count += 1
+    totals.set(category, entry)
+  })
+  return EXPENSE_CATEGORIES
+    .filter(category => totals.has(category))
+    .map(category => ({
+      category,
+      color: CATEGORY_COLORS[category],
+      label: t(`expenses.categories.${category}`),
+      ...totals.get(category)!
+    }))
+})
+
 const selectedMonthLabel = computed(() => {
   if (showAllMonths.value) return `${t('common.all_months')} ${selectedYear.value}`
   const monthLabel = months.value.find(m => m.value === selectedMonthValue.value)?.label
@@ -58,11 +112,11 @@ const selectedMonthLabel = computed(() => {
 const totalExpenses = computed(() =>
   selectedExpenses.value.reduce((sum, expense) => sum + (expense.amount || 0), 0))
 
-// Only diet-eligible (food) expenses reduce the net balance; non-food expenses
-// like parking or fuel are tracked but excluded.
+// Only diet-category expenses reduce the net balance; other categories
+// (parking, fuel, tolls…) are tracked but excluded.
 const dietExpenses = computed(() =>
   selectedExpenses.value.reduce(
-    (sum, expense) => sum + (expense.excludeFromBalance ? 0 : (expense.amount || 0)), 0))
+    (sum, expense) => sum + (categoryCountsTowardBalance(resolveExpenseCategory(expense)) ? (expense.amount || 0) : 0), 0))
 
 // Number of distinct local days that have at least one expense.
 const expenseDays = computed(() => {
@@ -98,8 +152,16 @@ const netBalance = computed(() => dietAllowance.value - dietExpenses.value)
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }).format(value || 0)
 
-const expenseListDescription = computed(() =>
-  t('expenses.list_description', { month: selectedMonthLabel.value }))
+const expenseListDescription = computed(() => {
+  if (selectedDay.value) {
+    return t('expenses.list_description_day', { day: selectedDay.value.toLocaleDateString(locale.value) })
+  }
+  return t('expenses.list_description', { month: selectedMonthLabel.value })
+})
+
+// The calendar navigates a concrete month; fall back to the current month when
+// "all months" is selected. Navigating it narrows the selection to that month.
+const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth() + 1 : selectedMonthValue.value)
 </script>
 
 <template>
@@ -161,11 +223,39 @@ const expenseListDescription = computed(() =>
       </UCard>
     </section>
 
+    <!-- Per-category breakdown -->
+    <section v-if="categoryTotals.length">
+      <UCard>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4">
+          {{ $t('expenses.stats.by_category') }}
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div
+            v-for="entry in categoryTotals" :key="entry.category"
+            class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+            <div class="flex items-center gap-2 min-w-0">
+              <UBadge :color="entry.color" variant="soft" size="xs">{{ entry.label }}</UBadge>
+              <span class="text-xs text-gray-400">{{ $t('expenses.stats.count', { count: entry.count }) }}</span>
+            </div>
+            <span class="font-semibold text-gray-900 dark:text-white whitespace-nowrap">{{ formatCurrency(entry.total) }}</span>
+          </div>
+        </div>
+      </UCard>
+    </section>
+
+    <!-- Calendar -->
+    <section>
+      <MonthCalendar
+        v-model="selectedDay" :title="$t('expenses.calendar_title')" :marked-days="markedDays"
+        :year="selectedYear" :month="calendarMonth"
+        @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event" />
+    </section>
+
     <!-- Expense List -->
     <section>
       <ExpenseList
         :title="$t('expenses.list_title')" :description="expenseListDescription"
-        :expenses="selectedExpenses" />
+        :expenses="listExpenses" />
     </section>
   </div>
 </template>

@@ -372,6 +372,9 @@
             "configure": "Configurar",
             "last_sync": "Última sinc: {date}"
         },
+        "month_calendar": {
+            "clear_day": "Veure tot el mes"
+        },
         "service_list": {
             "title": "Serveis registrats",
             "records_count": "{count} registres",
@@ -502,8 +505,8 @@
             "description_placeholder": "Ex: Dinar, peatge, combustible...",
             "date": "Data i hora",
             "amount": "Import (€)",
-            "counts_toward_diet": "Compta per a la dieta",
-            "counts_toward_diet_hint": "Desactiva-ho per a despeses com pàrquing o benzina: es registren però no descompten del balanç de la dieta.",
+            "category": "Categoria",
+            "category_hint": "Només les despeses de Dieta descompten del balanç; la resta es registren a part.",
             "ticket": "Tiquet (opcional)",
             "ticket_hint": "Adjunta una foto o un fitxer del comprovant",
             "ticket_upload": "Pujar fitxer",
@@ -550,7 +553,6 @@
             "delete": "Eliminar",
             "view_ticket": "Veure tiquet",
             "ticket_badge": "Tiquet adjunt",
-            "non_diet_badge": "No dieta",
             "modals": {
                 "edit_title": "Editar despesa",
                 "edit_desc": "Actualitza les dades de la despesa seleccionada",
@@ -667,13 +669,23 @@
         "subtitle": "Gestiona les teves despeses i consulta el balanç net.",
         "list_title": "Despeses",
         "list_description": "Despeses de {month}",
+        "list_description_day": "Despeses del {day}",
+        "calendar_title": "Calendari de despeses",
+        "categories": {
+            "diet": "Dieta",
+            "parking": "Pàrquing",
+            "gas": "Benzina",
+            "tolls": "Peatges",
+            "other": "Altres"
+        },
         "stats": {
             "total": "Despeses totals",
             "count": "{count} despeses",
             "daily_average": "Mitjana diària",
             "daily_average_subtitle": "Repartit en {days} dies amb despeses",
             "net_balance": "Balanç net",
-            "net_balance_subtitle": "Dietes ({diet}) − despeses de dieta ({food})"
+            "net_balance_subtitle": "Dietes ({diet}) − despeses de dieta ({food})",
+            "by_category": "Per categoria"
         }
     }
 }
