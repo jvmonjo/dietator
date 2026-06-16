@@ -1,3 +1,10 @@
+# [1.47.0](https://github.com/jvmonjo/dietator/compare/v1.46.0...v1.47.0) (2026-06-16)
+
+
+### Features
+
+* reorder expenses page, add category filter and visible QR action ([b683012](https://github.com/jvmonjo/dietator/commit/b6830127ca97123b62de766faba1671e39f6836c))
+
 # [1.46.0](https://github.com/jvmonjo/dietator/compare/v1.45.0...v1.46.0) (2026-06-16)
 
 
