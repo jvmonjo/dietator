@@ -4,6 +4,7 @@ import type { ExpenseRecord } from '~/stores/expenses'
 import { resolveExpenseCategory, CATEGORY_COLORS } from '~/utils/expenseCategories'
 import { compressExpenseRecord, decompressExpenseRecord } from '~/utils/qr'
 import { ensureUtc } from '~/utils/datetime'
+import { shareExpenses } from '~/utils/expenseShare'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -80,12 +81,69 @@ const modalDescription = computed(() => selectedExpense.value
   : t('components.expense_list.modals.new_desc'))
 
 const columns = computed(() => [
+  { accessorKey: 'select', id: 'select', header: '' },
   { accessorKey: 'actions', id: 'actions', header: t('components.expense_list.actions') },
   { accessorKey: 'timestamp', id: 'timestamp', header: t('components.expense_list.date') },
   { accessorKey: 'description', id: 'description', header: t('components.expense_list.description_col') },
   { accessorKey: 'amount', id: 'amount', header: t('components.expense_list.amount') }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as any[])
+
+// Bulk selection: ids of the expenses ticked in the list. Selection persists
+// across pages and is pruned whenever the underlying list changes.
+const selectedIds = ref<Set<string>>(new Set())
+const isSelected = (id: string) => selectedIds.value.has(id)
+const toggleSelected = (id: string, value?: boolean) => {
+  const next = new Set(selectedIds.value)
+  const shouldSelect = value ?? !next.has(id)
+  if (shouldSelect) next.add(id)
+  else next.delete(id)
+  selectedIds.value = next
+}
+
+const selectedCount = computed(() => selectedIds.value.size)
+const selectedExpenses = computed(() => filteredExpenses.value.filter(e => selectedIds.value.has(e.id)))
+
+// Header checkbox reflects/controls selection over the whole filtered list.
+const allSelected = computed(() =>
+  filteredExpenses.value.length > 0 && filteredExpenses.value.every(e => selectedIds.value.has(e.id)))
+const someSelected = computed(() => selectedCount.value > 0 && !allSelected.value)
+const toggleSelectAll = (value: boolean) => {
+  selectedIds.value = value ? new Set(filteredExpenses.value.map(e => e.id)) : new Set()
+}
+const clearSelection = () => {
+  selectedIds.value = new Set()
+}
+
+// Drop selected ids that are no longer part of the visible list (e.g. after a
+// filter or date-range change).
+watch(filteredExpenses, (expenses) => {
+  if (selectedIds.value.size === 0) return
+  const present = new Set(expenses.map(e => e.id))
+  const next = new Set([...selectedIds.value].filter(id => present.has(id)))
+  if (next.size !== selectedIds.value.size) selectedIds.value = next
+})
+
+const isSharing = ref(false)
+const shareSelected = async () => {
+  if (isSharing.value || selectedExpenses.value.length === 0) return
+  isSharing.value = true
+  try {
+    const outcome = await shareExpenses(selectedExpenses.value, {
+      locale: locale.value,
+      categoryLabel: (category: string) => t(`expenses.categories.${category}`),
+      title: t('components.expense_list.share_selected_title', { count: selectedExpenses.value.length })
+    })
+    if (outcome === 'shared' || outcome === 'downloaded') {
+      toast.add({ title: t('components.expense_list.share_success'), color: 'success' })
+    }
+  } catch (error) {
+    console.error('Error sharing expenses', error)
+    toast.add({ title: t('components.expense_list.share_error'), color: 'error' })
+  } finally {
+    isSharing.value = false
+  }
+}
 
 const openExpense = (expense: ExpenseRecord) => {
   selectedExpense.value = expense
@@ -254,6 +312,27 @@ defineExpose({
       </div>
     </div>
 
+    <!-- Bulk selection bar: appears once at least one row is selected. -->
+    <div
+      v-if="selectedCount > 0"
+      class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary-200 dark:border-primary-900 bg-primary-50 dark:bg-primary-950/40 px-4 py-2">
+      <span class="text-sm font-medium text-primary-700 dark:text-primary-300">
+        {{ $t('components.expense_list.selected_count', { count: selectedCount }) }}
+      </span>
+      <div class="flex items-center gap-2">
+        <UButton
+          icon="i-heroicons-arrow-up-tray" color="primary" variant="soft" size="sm"
+          :loading="isSharing" @click="shareSelected">
+          {{ $t('components.expense_list.share_selected') }}
+        </UButton>
+        <UButton
+          icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" size="sm"
+          @click="clearSelection">
+          {{ $t('components.expense_list.clear_selection') }}
+        </UButton>
+      </div>
+    </div>
+
     <UCard>
       <div v-if="!hasRecords" class="py-10 text-center text-gray-500 dark:text-gray-400">
         {{ $t('components.expense_list.empty') }}
@@ -262,6 +341,19 @@ defineExpose({
         <UTable
           :key="page" :data="paginatedData" :columns="columns"
           @select="(e: any, row: any) => openExpense(row.original)">
+          <template #select-header>
+            <UCheckbox
+              :model-value="allSelected ? true : (someSelected ? 'indeterminate' : false)"
+              :aria-label="$t('components.expense_list.select_all')"
+              @update:model-value="toggleSelectAll(Boolean($event))" @click.stop />
+          </template>
+          <template #select-cell="{ row }">
+            <UCheckbox
+              :model-value="isSelected((row.original as ExpenseRecord).id)"
+              :aria-label="$t('components.expense_list.select_row')"
+              @update:model-value="toggleSelected((row.original as ExpenseRecord).id, Boolean($event))"
+              @click.stop />
+          </template>
           <template #timestamp-cell="{ row }">
             {{ formatDate((row.original as ExpenseRecord).timestamp) }}
           </template>

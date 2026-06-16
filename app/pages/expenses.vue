@@ -41,20 +41,20 @@ const availableYears = computed(() => {
 
 const showAllMonths = computed(() => selectedMonthValue.value === 0)
 
-// Category filter for the calendar + list ("all" shows every category). The
-// statistics always summarise the whole month regardless of this filter.
-const categoryFilter = ref<'all' | ExpenseCategory>('all')
-const categoryFilterItems = computed(() => [
-  { value: 'all' as const, label: t('expenses.all_categories') },
-  ...EXPENSE_CATEGORIES.map(value => ({ value, label: t(`expenses.categories.${value}`) }))
-])
+// Category filter for the calendar + list. An empty selection shows every
+// category; otherwise only the chosen ones. The statistics always summarise the
+// whole month regardless of this filter.
+const categoryFilter = ref<ExpenseCategory[]>([])
+const categoryFilterItems = computed(() =>
+  EXPENSE_CATEGORIES.map(value => ({ value, label: t(`expenses.categories.${value}`) })))
 
-// Day selected on the calendar; filters the expense list to a single day.
-const selectedDay = ref<Date | null>(null)
+// Range of days selected on the calendar; filters the expense list. While only
+// the start is set (end null) the list narrows to that single day.
+const selectedRange = ref<{ start: Date | null, end: Date | null } | null>(null)
 
-// Reset the day filter whenever the month/year selection changes.
+// Reset the range filter whenever the month/year selection changes.
 watch([selectedYear, selectedMonthValue], () => {
-  selectedDay.value = null
+  selectedRange.value = null
 })
 
 const dayKey = (date: Date) =>
@@ -74,8 +74,9 @@ const selectedExpenses = computed(() => {
 
 // Expenses narrowed by the category filter; drives the calendar marks and list.
 const filteredExpenses = computed(() => {
-  if (categoryFilter.value === 'all') return selectedExpenses.value
-  return selectedExpenses.value.filter(e => resolveExpenseCategory(e) === categoryFilter.value)
+  if (categoryFilter.value.length === 0) return selectedExpenses.value
+  const selected = new Set(categoryFilter.value)
+  return selectedExpenses.value.filter(e => selected.has(resolveExpenseCategory(e)))
 })
 
 // Days (within the selected month) that have at least one matching expense.
@@ -88,13 +89,18 @@ const markedDays = computed(() => {
   return Array.from(keys)
 })
 
-// The list respects both the category filter and the calendar day filter.
+// The list respects both the category filter and the calendar range filter.
 const listExpenses = computed(() => {
-  if (!selectedDay.value) return filteredExpenses.value
-  const key = dayKey(selectedDay.value)
+  const range = selectedRange.value
+  if (!range || !range.start) return filteredExpenses.value
+  // YYYY-MM-DD keys sort lexicographically in chronological order.
+  const startKey = dayKey(range.start)
+  const endKey = dayKey(range.end ?? range.start)
   return filteredExpenses.value.filter(expense => {
     const date = new Date(expense.timestamp)
-    return !Number.isNaN(date.getTime()) && dayKey(date) === key
+    if (Number.isNaN(date.getTime())) return false
+    const key = dayKey(date)
+    return key >= startKey && key <= endKey
   })
 })
 
@@ -172,8 +178,16 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }).format(value || 0)
 
 const expenseListDescription = computed(() => {
-  if (selectedDay.value) {
-    return t('expenses.list_description_day', { day: selectedDay.value.toLocaleDateString(locale.value) })
+  const range = selectedRange.value
+  if (range?.start) {
+    const startLabel = range.start.toLocaleDateString(locale.value)
+    if (!range.end || range.end.getTime() === range.start.getTime()) {
+      return t('expenses.list_description_day', { day: startLabel })
+    }
+    return t('expenses.list_description_range', {
+      start: startLabel,
+      end: range.end.toLocaleDateString(locale.value)
+    })
   }
   return t('expenses.list_description', { month: selectedMonthLabel.value })
 })
@@ -196,9 +210,11 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
             v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
             class="w-full sm:min-w-[140px]" />
           <USelect v-model="selectedYear" :items="availableYears" class="w-full sm:w-[100px]" />
-          <USelect
-            v-model="categoryFilter" :items="categoryFilterItems" option-attribute="label" value-attribute="value"
-            icon="i-heroicons-tag" class="w-full col-span-2 sm:col-span-1 sm:min-w-[150px]" />
+          <USelectMenu
+            v-model="categoryFilter" :items="categoryFilterItems" multiple
+            label-key="label" value-key="value" icon="i-heroicons-tag"
+            :placeholder="$t('expenses.all_categories')"
+            class="w-full col-span-2 sm:col-span-1 sm:min-w-[150px]" />
         </div>
       </div>
     </section>
@@ -206,8 +222,8 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
     <!-- Calendar (mimics the services view: on top, filled with expenses) -->
     <section>
       <MonthCalendar
-        v-model="selectedDay" :title="$t('expenses.calendar_title')" :marked-days="markedDays"
-        :year="selectedYear" :month="calendarMonth"
+        v-model:range-value="selectedRange" range :title="$t('expenses.calendar_title')"
+        :marked-days="markedDays" :year="selectedYear" :month="calendarMonth"
         @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event" />
     </section>
 

@@ -8,6 +8,7 @@ import {
   compressImageToDataUrl, processDocumentFile, fileToDataUrl, isImageFile,
   TicketProcessingError, MAX_TICKET_BYTES
 } from '~/utils/ticket'
+import { recognizeText, parseReceiptText } from '~/utils/ocr'
 import { EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY, resolveExpenseCategory, type ExpenseCategory } from '~/utils/expenseCategories'
 
 const props = withDefaults(defineProps<{
@@ -44,6 +45,30 @@ const categoryItems = computed(() => EXPENSE_CATEGORIES.map(value => ({
   value,
   label: t(`expenses.categories.${value}`)
 })))
+
+// The amount is edited as free text (so trailing decimals like "1.0" or "1,"
+// are not swallowed by numeric coercion) and mirrored into state.amount as a
+// number for validation and saving. Both '.' and ',' are accepted as the
+// decimal separator.
+const amountInput = ref('')
+watch(amountInput, (raw) => {
+  // Keep only digits and a single decimal separator (first one wins).
+  let cleaned = raw.replace(/[^0-9.,]/g, '')
+  const firstSep = cleaned.search(/[.,]/)
+  if (firstSep !== -1) {
+    cleaned = cleaned.slice(0, firstSep + 1) + cleaned.slice(firstSep + 1).replace(/[.,]/g, '')
+  }
+  if (cleaned !== raw) {
+    amountInput.value = cleaned // Re-runs the watcher with the sanitised value.
+    return
+  }
+  if (cleaned === '') {
+    state.amount = undefined
+    return
+  }
+  const parsed = Number.parseFloat(cleaned.replace(',', '.'))
+  state.amount = Number.isFinite(parsed) ? parsed : undefined
+})
 
 // Two hidden inputs: a plain file picker and a camera capture (mobile).
 const uploadInput = ref<HTMLInputElement | null>(null)
@@ -157,6 +182,51 @@ const viewTicket = () => {
   if (state.ticket) isViewerOpen.value = true
 }
 
+// OCR: read the attached image ticket locally and prefill empty fields. The
+// engine (tesseract.js) and its language model are loaded on demand.
+const isExtracting = ref(false)
+const extractProgress = ref(0)
+
+async function extractFromTicket() {
+  if (isExtracting.value || !state.ticket || !ticketIsImage.value) return
+  isExtracting.value = true
+  extractProgress.value = 0
+  try {
+    const text = await recognizeText(state.ticket, (p) => { extractProgress.value = Math.round(p * 100) })
+    const parsed = parseReceiptText(text)
+
+    const filled: string[] = []
+    if (parsed.description && !state.description.trim()) {
+      state.description = parsed.description
+      filled.push(t('components.expense_form.description'))
+    }
+    if (parsed.amount != null && state.amount == null) {
+      amountInput.value = String(parsed.amount)
+      filled.push(t('components.expense_form.amount'))
+    }
+    // Only override the date for a brand-new expense (it defaults to "now").
+    if (parsed.dateTime && !isEditing.value) {
+      state.dateTime = parsed.dateTime
+      filled.push(t('components.expense_form.date'))
+    }
+
+    if (filled.length > 0) {
+      toast.add({
+        title: t('components.expense_form.alerts.ocr_success'),
+        description: filled.join(', '),
+        color: 'success'
+      })
+    } else {
+      toast.add({ title: t('components.expense_form.alerts.ocr_empty'), color: 'warning' })
+    }
+  } catch (error) {
+    console.error('OCR extraction failed', error)
+    toast.add({ title: t('components.expense_form.alerts.ocr_error'), color: 'error' })
+  } finally {
+    isExtracting.value = false
+  }
+}
+
 const schema = computed(() => z.object({
   description: z.string().min(1, t('components.expense_form.validation.description_required')),
   dateTime: z.string().min(1, t('components.expense_form.validation.date_required')),
@@ -171,6 +241,7 @@ const resetState = () => {
     state.description = props.initialData.description
     state.dateTime = utcToLocalInput(props.initialData.timestamp)
     state.amount = props.initialData.amount
+    amountInput.value = props.initialData.amount != null ? String(props.initialData.amount) : ''
     state.ticket = props.initialData.ticket
     state.ticketName = props.initialData.ticketName
     state.ticketType = props.initialData.ticketType
@@ -179,6 +250,7 @@ const resetState = () => {
     state.description = ''
     state.dateTime = formatLocalNow()
     state.amount = undefined
+    amountInput.value = ''
     state.ticket = undefined
     state.ticketName = undefined
     state.ticketType = undefined
@@ -243,7 +315,7 @@ const submitLabel = computed(() => isEditing.value
 
       <UFormField :label="$t('components.expense_form.amount')" name="amount" required>
         <UInput
-          v-model="state.amount" type="number" step="0.01" min="0"
+          v-model="amountInput" type="text" inputmode="decimal"
           icon="i-heroicons-banknotes" placeholder="0.00" class="w-full" />
       </UFormField>
     </div>
@@ -302,6 +374,18 @@ const submitLabel = computed(() => isEditing.value
         <UButton
           icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
           :aria-label="$t('components.expense_form.ticket_remove')" @click="removeTicket" />
+      </div>
+
+      <!-- OCR: extract the expense fields from the attached image. -->
+      <div v-if="state.ticket && ticketIsImage" class="mt-3">
+        <UButton
+          icon="i-heroicons-sparkles" color="primary" variant="soft" size="sm"
+          :loading="isExtracting" @click="extractFromTicket">
+          {{ isExtracting && extractProgress > 0
+            ? $t('components.expense_form.ticket_extract_progress', { progress: extractProgress })
+            : $t('components.expense_form.ticket_extract') }}
+        </UButton>
+        <p class="text-xs text-gray-400 mt-1">{{ $t('components.expense_form.ticket_extract_hint') }}</p>
       </div>
     </UFormField>
 
