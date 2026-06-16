@@ -1,3 +1,10 @@
+# [1.41.0](https://github.com/jvmonjo/dietator/compare/v1.40.0...v1.41.0) (2026-06-16)
+
+
+### Features
+
+* add expense ticket attachments and rename net earnings to net balance ([b5ee98a](https://github.com/jvmonjo/dietator/commit/b5ee98a75803e0fa5a5a65d2364ab6ef3dbb0c4e)), closes [#4](https://github.com/jvmonjo/dietator/issues/4)
+
 # [1.40.0](https://github.com/jvmonjo/dietator/compare/v1.39.4...v1.40.0) (2026-06-13)
 
 
