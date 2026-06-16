@@ -502,6 +502,8 @@
             "description_placeholder": "Ex: Dinar, peatge, combustible...",
             "date": "Data i hora",
             "amount": "Import (€)",
+            "counts_toward_diet": "Compta per a la dieta",
+            "counts_toward_diet_hint": "Desactiva-ho per a despeses com pàrquing o benzina: es registren però no descompten del balanç de la dieta.",
             "ticket": "Tiquet (opcional)",
             "ticket_hint": "Adjunta una foto o un fitxer del comprovant",
             "ticket_upload": "Pujar fitxer",
@@ -548,6 +550,7 @@
             "delete": "Eliminar",
             "view_ticket": "Veure tiquet",
             "ticket_badge": "Tiquet adjunt",
+            "non_diet_badge": "No dieta",
             "modals": {
                 "edit_title": "Editar despesa",
                 "edit_desc": "Actualitza les dades de la despesa seleccionada",
@@ -670,7 +673,7 @@
             "daily_average": "Mitjana diària",
             "daily_average_subtitle": "Repartit en {days} dies amb despeses",
             "net_balance": "Balanç net",
-            "net_balance_subtitle": "Dietes ({diet}) − despeses"
+            "net_balance_subtitle": "Dietes ({diet}) − despeses de dieta ({food})"
         }
     }
 }
