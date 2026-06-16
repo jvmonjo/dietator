@@ -13,6 +13,14 @@ export interface ExpenseRecord {
     ticketType?: string
 }
 
+// Return a copy of the expense with its ticket attachment removed, keeping the
+// expense record itself intact.
+const stripTicket = (expense: ExpenseRecord): ExpenseRecord => {
+    if (!expense.ticket && !expense.ticketName && !expense.ticketType) return expense
+    const { ticket: _t, ticketName: _n, ticketType: _y, ...rest } = expense
+    return rest
+}
+
 export const useExpenseStore = defineStore('expenses', {
     state: () => ({
         expenses: [] as ExpenseRecord[]
@@ -43,6 +51,37 @@ export const useExpenseStore = defineStore('expenses', {
             this.expenses = this.expenses.filter(expense => {
                 const date = new Date(expense.timestamp)
                 return !(date.getFullYear() === year && date.getMonth() + 1 === month)
+            })
+        },
+        // Approximate storage taken by attached tickets (data URL + metadata),
+        // and how many expenses carry one.
+        getTicketStats(): { count: number, bytes: number } {
+            let count = 0
+            let bytes = 0
+            this.expenses.forEach(expense => {
+                if (!expense.ticket) return
+                count++
+                bytes += expense.ticket.length
+                    + (expense.ticketName?.length || 0)
+                    + (expense.ticketType?.length || 0)
+            })
+            return { count, bytes }
+        },
+        // Strip ticket attachments to free space while keeping the expenses.
+        removeAllTickets() {
+            this.expenses = this.expenses.map(stripTicket)
+        },
+        removeTicketsByYear(year: number) {
+            this.expenses = this.expenses.map(expense =>
+                new Date(expense.timestamp).getFullYear() === year ? stripTicket(expense) : expense)
+        },
+        removeTicketsByMonth(year: number, month: number) {
+            // month is 1-12
+            this.expenses = this.expenses.map(expense => {
+                const date = new Date(expense.timestamp)
+                return date.getFullYear() === year && date.getMonth() + 1 === month
+                    ? stripTicket(expense)
+                    : expense
             })
         }
     },

@@ -200,7 +200,16 @@
             "data_deleted": "Dades eliminades",
             "confirm_clear_cache_title": "Netejar caché?",
             "confirm_clear_cache_description": "Perdràs les distàncies guardades i s'hauran de tornar a calcular. Això pot consumir quota d'API.",
-            "cache_cleared": "Caché de kilòmetres netejada"
+            "cache_cleared": "Caché de kilòmetres netejada",
+            "tickets_title": "Tiquets adjunts",
+            "tickets_description": "Imatges i fitxers adjunts a les despeses.",
+            "tickets_count": "{count} tiquets",
+            "remove_tickets": "Eliminar tiquets",
+            "remove_tickets_for_selection": "Eliminar només els tiquets del període seleccionat",
+            "tickets_removed": "Tiquets eliminats",
+            "confirm_remove_tickets_title": "Eliminar els tiquets?",
+            "confirm_remove_tickets_all_desc": "S'eliminaran tots els fitxers adjunts a les despeses per alliberar espai. Les despeses es mantindran. Aquesta acció no es pot desfer.",
+            "confirm_remove_tickets_selection_desc": "S'eliminaran els tiquets adjunts del període seleccionat. Les despeses es mantindran. Aquesta acció no es pot desfer."
         }
     },
     "home": {
@@ -503,6 +512,8 @@
             "ticket_crop_title": "Retalla el tiquet",
             "ticket_crop_hint": "Ajusta l'enquadrament del comprovant abans de desar-lo",
             "ticket_crop_confirm": "Aplicar",
+            "ticket_grayscale": "Escala de grisos",
+            "ticket_download": "Descarregar",
             "save": "Desar despesa",
             "update": "Actualitzar despesa",
             "validation": {

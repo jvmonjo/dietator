@@ -130,8 +130,12 @@ const formatCurrency = (value: number) => {
   return new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }).format(value || 0)
 }
 
+const isViewerOpen = ref(false)
+const viewerTicket = ref<ExpenseRecord | null>(null)
 const viewTicket = (expense: ExpenseRecord) => {
-  if (expense.ticket) window.open(expense.ticket, '_blank')
+  if (!expense.ticket) return
+  viewerTicket.value = expense
+  isViewerOpen.value = true
 }
 
 const rowActions = (expense: ExpenseRecord) => {
@@ -267,5 +271,9 @@ defineExpose({
         <UButton color="error" @click="handleConfirmDelete">{{ $t('common.delete') }}</UButton>
       </template>
     </UModal>
+
+    <TicketViewerModal
+      v-model:open="isViewerOpen" :src="viewerTicket?.ticket || null"
+      :name="viewerTicket?.ticketName" :type="viewerTicket?.ticketType" />
   </section>
 </template>

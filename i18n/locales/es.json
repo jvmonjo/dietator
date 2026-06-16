@@ -200,7 +200,16 @@
             "data_deleted": "Datos eliminados",
             "confirm_clear_cache_title": "¿Limpiar caché?",
             "confirm_clear_cache_description": "Perderás las distancias guardadas y tendrán que volver a calcularse. Esto puede consumir cuota de API.",
-            "cache_cleared": "Caché de kilómetros limpiada"
+            "cache_cleared": "Caché de kilómetros limpiada",
+            "tickets_title": "Tickets adjuntos",
+            "tickets_description": "Imágenes y archivos adjuntos a los gastos.",
+            "tickets_count": "{count} tickets",
+            "remove_tickets": "Eliminar tickets",
+            "remove_tickets_for_selection": "Eliminar solo los tickets del periodo seleccionado",
+            "tickets_removed": "Tickets eliminados",
+            "confirm_remove_tickets_title": "¿Eliminar los tickets?",
+            "confirm_remove_tickets_all_desc": "Se eliminarán todos los archivos adjuntos a los gastos para liberar espacio. Los gastos se mantendrán. Esta acción no se puede deshacer.",
+            "confirm_remove_tickets_selection_desc": "Se eliminarán los tickets adjuntos del periodo seleccionado. Los gastos se mantendrán. Esta acción no se puede deshacer."
         }
     },
     "home": {
@@ -505,6 +514,8 @@
             "ticket_crop_title": "Recorta el ticket",
             "ticket_crop_hint": "Ajusta el encuadre del comprobante antes de guardarlo",
             "ticket_crop_confirm": "Aplicar",
+            "ticket_grayscale": "Escala de grises",
+            "ticket_download": "Descargar",
             "save": "Guardar gasto",
             "update": "Actualizar gasto",
             "validation": {

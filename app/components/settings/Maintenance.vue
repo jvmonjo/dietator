@@ -93,6 +93,42 @@ const confirmDelete = () => {
     confirmModal.isOpen = true
 }
 
+const ticketStats = computed(() => expenseStore.getTicketStats())
+
+const confirmRemoveAllTickets = () => {
+    confirmModal.title = t('settings.maintenance.confirm_remove_tickets_title')
+    confirmModal.description = t('settings.maintenance.confirm_remove_tickets_all_desc')
+    confirmModal.action = async () => {
+        expenseStore.removeAllTickets()
+        toast.add({ title: t('settings.maintenance.tickets_removed'), color: 'success' })
+    }
+    confirmModal.confirmLabel = t('settings.maintenance.remove_tickets')
+    confirmModal.confirmColor = 'error'
+    confirmModal.isOpen = true
+}
+
+// Strip ticket attachments for the year/month picked in the delete section,
+// keeping the expense records themselves.
+const confirmRemoveTicketsForSelection = () => {
+    if (!maintenanceState.selectedYear) return
+    const year = maintenanceState.selectedYear
+    const month = maintenanceState.selectedMonth
+
+    confirmModal.title = t('settings.maintenance.confirm_remove_tickets_title')
+    confirmModal.description = t('settings.maintenance.confirm_remove_tickets_selection_desc')
+    confirmModal.action = async () => {
+        if (month) {
+            expenseStore.removeTicketsByMonth(year, month)
+        } else {
+            expenseStore.removeTicketsByYear(year)
+        }
+        toast.add({ title: t('settings.maintenance.tickets_removed'), color: 'success' })
+    }
+    confirmModal.confirmLabel = t('settings.maintenance.remove_tickets')
+    confirmModal.confirmColor = 'error'
+    confirmModal.isOpen = true
+}
+
 const confirmClearCache = () => {
     confirmModal.title = t('settings.maintenance.confirm_clear_cache_title')
     confirmModal.description = t('settings.maintenance.confirm_clear_cache_description')
@@ -178,6 +214,30 @@ color="error" variant="ghost" icon="i-heroicons-trash" size="xs"
                     </div>
                 </div>
 
+                <div
+                    class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{
+                            $t('settings.maintenance.tickets_title') }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{
+                            $t('settings.maintenance.tickets_description') }}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{
+                                formatBytes(ticketStats.bytes) }}</p>
+                            <p class="text-xs text-gray-500">{{ $t('settings.maintenance.tickets_count', {
+                                count: ticketStats.count }) }}</p>
+                        </div>
+                        <UButton
+                            color="error" variant="ghost" icon="i-heroicons-trash" size="xs"
+                            :disabled="ticketStats.count === 0" @click="confirmRemoveAllTickets">
+                            {{ $t('settings.maintenance.remove_tickets') }}
+                        </UButton>
+                    </div>
+                </div>
+
                 <section class="space-y-4">
                     <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{
                         $t('settings.maintenance.delete_data')
@@ -201,6 +261,12 @@ v-model="maintenanceState.selectedMonth" :items="availableMonthsForYear"
 block color="error" variant="soft" icon="i-heroicons-trash"
                         :disabled="!maintenanceState.selectedYear" @click="confirmDelete">
                         {{ deleteButtonLabel }}
+                    </UButton>
+
+                    <UButton
+block color="warning" variant="ghost" icon="i-heroicons-paper-clip"
+                        :disabled="!maintenanceState.selectedYear" @click="confirmRemoveTicketsForSelection">
+                        {{ $t('settings.maintenance.remove_tickets_for_selection') }}
                     </UButton>
                 </section>
             </div>
