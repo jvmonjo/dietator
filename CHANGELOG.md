@@ -1,3 +1,10 @@
+# [1.46.0](https://github.com/jvmonjo/dietator/compare/v1.45.0...v1.46.0) (2026-06-16)
+
+
+### Features
+
+* reorder expenses view, split totals, and add QR expense sharing ([182c960](https://github.com/jvmonjo/dietator/commit/182c960a7f4d7b8fb42e679d9952b3dab1adef32))
+
 # [1.45.0](https://github.com/jvmonjo/dietator/compare/v1.44.0...v1.45.0) (2026-06-16)
 
 
