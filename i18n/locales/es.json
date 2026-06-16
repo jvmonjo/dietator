@@ -679,6 +679,7 @@
         "list_description": "Gastos de {month}",
         "list_description_day": "Gastos del {day}",
         "calendar_title": "Calendario de gastos",
+        "all_categories": "Todas las categorías",
         "categories": {
             "diet": "Dieta",
             "parking": "Parking",

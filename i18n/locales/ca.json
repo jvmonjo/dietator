@@ -677,6 +677,7 @@
         "list_description": "Despeses de {month}",
         "list_description_day": "Despeses del {day}",
         "calendar_title": "Calendari de despeses",
+        "all_categories": "Totes les categories",
         "categories": {
             "diet": "Dieta",
             "parking": "Pàrquing",
