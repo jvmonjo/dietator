@@ -25,6 +25,7 @@
     "@pinia/nuxt": "^0.11.3",
     "@vite-pwa/nuxt": "^1.1.0",
     "@vueuse/integrations": "^14.1.0",
+    "browser-image-compression": "^2.0.2",
     "file-saver": "^2.0.5",
     "jspdf": "^3.0.4",
     "jszip": "^3.10.1",
@@ -36,6 +37,7 @@
     "spain-id": "^1.1.13",
     "uuid": "^13.0.0",
     "vue": "^3.5.25",
+    "vue-advanced-cropper": "^2.8.9",
     "vue-qrcode-reader": "^5.7.3",
     "vue-router": "^4.6.3",
     "zod": "^4.1.13"

@@ -499,6 +499,10 @@
             "ticket_camera": "Fer foto",
             "ticket_remove": "Treure el tiquet",
             "ticket_view": "Veure tiquet",
+            "ticket_edit": "Retallar",
+            "ticket_crop_title": "Retalla el tiquet",
+            "ticket_crop_hint": "Ajusta l'enquadrament del comprovant abans de desar-lo",
+            "ticket_crop_confirm": "Aplicar",
             "save": "Desar despesa",
             "update": "Actualitzar despesa",
             "validation": {
