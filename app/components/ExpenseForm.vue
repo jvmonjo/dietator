@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { FormSubmitEvent } from '#ui/types'
 import type { ExpenseRecord } from '~/stores/expenses'
 import { utcToLocalInput, localInputToUtc } from '~/utils/datetime'
+import { processTicketFile, TicketProcessingError, MAX_TICKET_BYTES } from '~/utils/ticket'
 
 const props = withDefaults(defineProps<{
   initialData?: ExpenseRecord | null
@@ -27,8 +28,58 @@ const isLoading = ref(false)
 const state = reactive({
   description: '',
   dateTime: '',
-  amount: undefined as number | undefined
+  amount: undefined as number | undefined,
+  ticket: undefined as string | undefined,
+  ticketName: undefined as string | undefined,
+  ticketType: undefined as string | undefined
 })
+
+// Two hidden inputs: a plain file picker and a camera capture (mobile).
+const uploadInput = ref<HTMLInputElement | null>(null)
+const cameraInput = ref<HTMLInputElement | null>(null)
+const isProcessingTicket = ref(false)
+
+const ticketIsImage = computed(() => Boolean(state.ticketType?.startsWith('image/')))
+
+const triggerUpload = () => uploadInput.value?.click()
+const triggerCamera = () => cameraInput.value?.click()
+
+async function onTicketSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  // Allow re-selecting the same file later.
+  input.value = ''
+  if (!file) return
+
+  isProcessingTicket.value = true
+  try {
+    const ticket = await processTicketFile(file)
+    state.ticket = ticket.dataUrl
+    state.ticketName = ticket.name
+    state.ticketType = ticket.type
+  } catch (error) {
+    const reason = error instanceof TicketProcessingError ? error.reason : 'error'
+    const maxMb = Math.round(MAX_TICKET_BYTES / (1024 * 1024))
+    const messages: Record<string, string> = {
+      too_large: t('components.expense_form.alerts.ticket_too_large', { size: maxMb }),
+      invalid: t('components.expense_form.alerts.ticket_invalid'),
+      error: t('components.expense_form.alerts.ticket_error')
+    }
+    toast.add({ title: messages[reason] || messages.error, color: 'error' })
+  } finally {
+    isProcessingTicket.value = false
+  }
+}
+
+const removeTicket = () => {
+  state.ticket = undefined
+  state.ticketName = undefined
+  state.ticketType = undefined
+}
+
+const viewTicket = () => {
+  if (state.ticket) window.open(state.ticket, '_blank')
+}
 
 const schema = computed(() => z.object({
   description: z.string().min(1, t('components.expense_form.validation.description_required')),
@@ -44,10 +95,16 @@ const resetState = () => {
     state.description = props.initialData.description
     state.dateTime = utcToLocalInput(props.initialData.timestamp)
     state.amount = props.initialData.amount
+    state.ticket = props.initialData.ticket
+    state.ticketName = props.initialData.ticketName
+    state.ticketType = props.initialData.ticketType
   } else {
     state.description = ''
     state.dateTime = formatLocalNow()
     state.amount = undefined
+    state.ticket = undefined
+    state.ticketName = undefined
+    state.ticketType = undefined
   }
 }
 
@@ -63,7 +120,10 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       id: props.initialData?.id || uuidv4(),
       description: event.data.description.trim(),
       timestamp: localInputToUtc(event.data.dateTime),
-      amount: event.data.amount
+      amount: event.data.amount,
+      ...(state.ticket
+        ? { ticket: state.ticket, ticketName: state.ticketName, ticketType: state.ticketType }
+        : {})
     }
 
     if (isEditing.value) {
@@ -108,6 +168,50 @@ const submitLabel = computed(() => isEditing.value
           icon="i-heroicons-banknotes" placeholder="0.00" class="w-full" />
       </UFormField>
     </div>
+
+    <UFormField :label="$t('components.expense_form.ticket')" name="ticket">
+      <p class="text-xs text-gray-400 mb-2">{{ $t('components.expense_form.ticket_hint') }}</p>
+
+      <!-- Hidden native inputs drive both the file picker and the camera. -->
+      <input
+        ref="uploadInput" type="file" accept="image/*,application/pdf" class="hidden"
+        @change="onTicketSelected">
+      <input
+        ref="cameraInput" type="file" accept="image/*" capture="environment" class="hidden"
+        @change="onTicketSelected">
+
+      <div v-if="!state.ticket" class="flex flex-wrap gap-3">
+        <UButton
+          icon="i-heroicons-arrow-up-tray" color="neutral" variant="outline"
+          :loading="isProcessingTicket" @click="triggerUpload">
+          {{ $t('components.expense_form.ticket_upload') }}
+        </UButton>
+        <UButton
+          icon="i-heroicons-camera" color="neutral" variant="outline"
+          :loading="isProcessingTicket" @click="triggerCamera">
+          {{ $t('components.expense_form.ticket_camera') }}
+        </UButton>
+      </div>
+
+      <div
+        v-else
+        class="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+        <img
+          v-if="ticketIsImage" :src="state.ticket" alt="ticket"
+          class="h-16 w-16 rounded object-cover cursor-pointer" @click="viewTicket">
+        <UIcon v-else name="i-heroicons-document" class="h-10 w-10 text-gray-400" />
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm text-gray-700 dark:text-gray-300">{{ state.ticketName }}</p>
+          <button
+            type="button" class="text-xs text-primary-500 hover:underline" @click="viewTicket">
+            {{ $t('components.expense_form.ticket_view') }}
+          </button>
+        </div>
+        <UButton
+          icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
+          :aria-label="$t('components.expense_form.ticket_remove')" @click="removeTicket" />
+      </div>
+    </UFormField>
 
     <div class="pt-2">
       <UButton type="submit" block size="xl" :loading="isLoading">

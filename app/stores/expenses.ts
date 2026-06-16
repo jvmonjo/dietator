@@ -6,6 +6,11 @@ export interface ExpenseRecord {
     description: string
     timestamp: string // ISO string, always stored in UTC
     amount: number
+    // Optional receipt/ticket stored locally as a data URL (image or PDF).
+    ticket?: string
+    // Original file name and MIME type, kept for display and download.
+    ticketName?: string
+    ticketType?: string
 }
 
 export const useExpenseStore = defineStore('expenses', {

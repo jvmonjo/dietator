@@ -130,6 +130,35 @@ const formatCurrency = (value: number) => {
   return new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }).format(value || 0)
 }
 
+const viewTicket = (expense: ExpenseRecord) => {
+  if (expense.ticket) window.open(expense.ticket, '_blank')
+}
+
+const rowActions = (expense: ExpenseRecord) => {
+  const items = [
+    {
+      label: t('components.expense_list.edit'),
+      icon: 'i-heroicons-pencil-square',
+      onSelect: () => openExpense(expense)
+    }
+  ]
+  if (expense.ticket) {
+    items.push({
+      label: t('components.expense_list.view_ticket'),
+      icon: 'i-heroicons-paper-clip',
+      onSelect: () => viewTicket(expense)
+    })
+  }
+  items.push({
+    label: t('components.expense_list.delete'),
+    icon: 'i-heroicons-trash',
+    color: 'error',
+    onSelect: () => confirmDelete(expense.id)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any)
+  return items
+}
+
 defineExpose({
   openExpense,
   openNewExpense
@@ -177,27 +206,21 @@ defineExpose({
             {{ formatDate((row.original as ExpenseRecord).timestamp) }}
           </template>
           <template #description-cell="{ row }">
-            <span class="text-sm text-gray-700 dark:text-gray-300">{{ (row.original as ExpenseRecord).description }}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ (row.original as ExpenseRecord).description }}</span>
+              <UIcon
+                v-if="(row.original as ExpenseRecord).ticket" name="i-heroicons-paper-clip"
+                class="h-4 w-4 shrink-0 text-gray-400 cursor-pointer"
+                :title="$t('components.expense_list.ticket_badge')"
+                @click.stop="viewTicket(row.original as ExpenseRecord)" />
+            </div>
           </template>
           <template #amount-cell="{ row }">
             <span class="font-medium text-gray-900 dark:text-white">{{ formatCurrency((row.original as ExpenseRecord).amount) }}</span>
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center" @click.stop>
-              <UDropdownMenu
-                :items="[
-                  {
-                    label: $t('components.expense_list.edit'),
-                    icon: 'i-heroicons-pencil-square',
-                    onSelect: () => openExpense(row.original as ExpenseRecord)
-                  },
-                  {
-                    label: $t('components.expense_list.delete'),
-                    icon: 'i-heroicons-trash',
-                    color: 'error',
-                    onSelect: () => confirmDelete((row.original as ExpenseRecord).id)
-                  }
-                ]">
+              <UDropdownMenu :items="rowActions(row.original as ExpenseRecord)">
                 <UButton color="neutral" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
               </UDropdownMenu>
             </div>

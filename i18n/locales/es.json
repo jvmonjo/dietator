@@ -495,6 +495,12 @@
             "description_placeholder": "Ej: Comida, peaje, combustible...",
             "date": "Fecha y hora",
             "amount": "Importe (€)",
+            "ticket": "Ticket (opcional)",
+            "ticket_hint": "Adjunta una foto o un archivo del comprobante",
+            "ticket_upload": "Subir archivo",
+            "ticket_camera": "Hacer foto",
+            "ticket_remove": "Quitar el ticket",
+            "ticket_view": "Ver ticket",
             "save": "Guardar gasto",
             "update": "Actualizar gasto",
             "validation": {
@@ -506,7 +512,10 @@
             "alerts": {
                 "saved": "Gasto guardado correctamente",
                 "updated": "Gasto actualizado correctamente",
-                "save_error": "Error al guardar el gasto"
+                "save_error": "Error al guardar el gasto",
+                "ticket_too_large": "El ticket es demasiado grande (máximo {size} MB)",
+                "ticket_invalid": "Formato de archivo no válido",
+                "ticket_error": "No se ha podido cargar el ticket"
             }
         },
         "expense_list": {
@@ -524,6 +533,8 @@
             "amount": "Importe",
             "edit": "Editar",
             "delete": "Eliminar",
+            "view_ticket": "Ver ticket",
+            "ticket_badge": "Ticket adjunto",
             "modals": {
                 "edit_title": "Editar gasto",
                 "edit_desc": "Actualiza los datos del gasto seleccionado",
@@ -637,7 +648,7 @@
     },
     "expenses": {
         "title": "Gastos",
-        "subtitle": "Gestiona tus gastos y consulta las ganancias netas.",
+        "subtitle": "Gestiona tus gastos y consulta el balance neto.",
         "list_title": "Gastos",
         "list_description": "Gastos de {month}",
         "stats": {
@@ -645,8 +656,8 @@
             "count": "{count} gastos",
             "daily_average": "Media diaria",
             "daily_average_subtitle": "Repartido en {days} días con gastos",
-            "net_earnings": "Ganancias netas",
-            "net_earnings_subtitle": "Dietas ({diet}) − gastos"
+            "net_balance": "Balance neto",
+            "net_balance_subtitle": "Dietas ({diet}) − gastos"
         }
     }
 }

@@ -74,7 +74,8 @@ const averageDailyExpense = computed(() => {
   return totalExpenses.value / expenseDays.value
 })
 
-// Diet allowance earned during the same period, to compute net earnings.
+// Diet allowance accrued during the same period, used to compute the net balance.
+// A diet is not meant to earn money, only to offset expenses, so this is a balance.
 const dietAllowance = computed(() => {
   let records
   if (showAllMonths.value) {
@@ -86,7 +87,7 @@ const dietAllowance = computed(() => {
   return calculateTotals(records).allowance
 })
 
-const netEarnings = computed(() => dietAllowance.value - totalExpenses.value)
+const netBalance = computed(() => dietAllowance.value - totalExpenses.value)
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }).format(value || 0)
@@ -139,15 +140,15 @@ const expenseListDescription = computed(() =>
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-            {{ $t('expenses.stats.net_earnings') }}
+            {{ $t('expenses.stats.net_balance') }}
           </div>
           <div
             class="text-3xl font-bold mt-2"
-            :class="netEarnings >= 0 ? 'text-green-500' : 'text-red-500'">
-            {{ formatCurrency(netEarnings) }}
+            :class="netBalance >= 0 ? 'text-green-500' : 'text-red-500'">
+            {{ formatCurrency(netBalance) }}
           </div>
           <p class="text-xs text-gray-400">
-            {{ $t('expenses.stats.net_earnings_subtitle', { diet: formatCurrency(dietAllowance) }) }}
+            {{ $t('expenses.stats.net_balance_subtitle', { diet: formatCurrency(dietAllowance) }) }}
           </p>
         </div>
       </UCard>
