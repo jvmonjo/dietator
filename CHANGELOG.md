@@ -1,3 +1,10 @@
+# [1.42.0](https://github.com/jvmonjo/dietator/compare/v1.41.0...v1.42.0) (2026-06-16)
+
+
+### Features
+
+* crop and aggressively compress expense ticket images ([8939bf5](https://github.com/jvmonjo/dietator/commit/8939bf5d190b048d33a4409d307248b65e2e9f4c))
+
 # [1.41.0](https://github.com/jvmonjo/dietator/compare/v1.40.0...v1.41.0) (2026-06-16)
 
 
