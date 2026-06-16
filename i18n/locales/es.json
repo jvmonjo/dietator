@@ -374,6 +374,9 @@
             "configure": "Configurar",
             "last_sync": "Última sinc: {date}"
         },
+        "month_calendar": {
+            "clear_day": "Ver todo el mes"
+        },
         "service_list": {
             "title": "Servicios registrados",
             "records_count": "{count} registros",
@@ -504,8 +507,8 @@
             "description_placeholder": "Ej: Comida, peaje, combustible...",
             "date": "Fecha y hora",
             "amount": "Importe (€)",
-            "counts_toward_diet": "Cuenta para la dieta",
-            "counts_toward_diet_hint": "Desactívalo para gastos como parking o gasolina: se registran pero no descuentan del balance de la dieta.",
+            "category": "Categoría",
+            "category_hint": "Solo los gastos de Dieta descuentan del balance; el resto se registran aparte.",
             "ticket": "Ticket (opcional)",
             "ticket_hint": "Adjunta una foto o un archivo del comprobante",
             "ticket_upload": "Subir archivo",
@@ -552,7 +555,6 @@
             "delete": "Eliminar",
             "view_ticket": "Ver ticket",
             "ticket_badge": "Ticket adjunto",
-            "non_diet_badge": "No dieta",
             "modals": {
                 "edit_title": "Editar gasto",
                 "edit_desc": "Actualiza los datos del gasto seleccionado",
@@ -669,13 +671,23 @@
         "subtitle": "Gestiona tus gastos y consulta el balance neto.",
         "list_title": "Gastos",
         "list_description": "Gastos de {month}",
+        "list_description_day": "Gastos del {day}",
+        "calendar_title": "Calendario de gastos",
+        "categories": {
+            "diet": "Dieta",
+            "parking": "Parking",
+            "gas": "Gasolina",
+            "tolls": "Peajes",
+            "other": "Otros"
+        },
         "stats": {
             "total": "Gastos totales",
             "count": "{count} gastos",
             "daily_average": "Media diaria",
             "daily_average_subtitle": "Repartido en {days} días con gastos",
             "net_balance": "Balance neto",
-            "net_balance_subtitle": "Dietas ({diet}) − gastos de dieta ({food})"
+            "net_balance_subtitle": "Dietas ({diet}) − gastos de dieta ({food})",
+            "by_category": "Por categoría"
         }
     }
 }

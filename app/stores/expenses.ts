@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { createSafeStorage } from '~/utils/storage'
+import type { ExpenseCategory } from '~/utils/expenseCategories'
 
 export interface ExpenseRecord {
     id: string
@@ -11,8 +12,12 @@ export interface ExpenseRecord {
     // Original file name and MIME type, kept for display and download.
     ticketName?: string
     ticketType?: string
-    // When true, this expense is tracked but NOT subtracted from the diet net
-    // balance (e.g. parking, fuel). Absent/false means it counts (food).
+    // Expense category (diet, parking, gas, tolls, other). Only "diet" counts
+    // toward the net balance. Absent on older records — resolved via
+    // resolveExpenseCategory(), which also honours the legacy flag below.
+    category?: ExpenseCategory
+    // @deprecated Superseded by `category`. Kept so older records still resolve
+    // correctly (true meant "don't count toward the balance").
     excludeFromBalance?: boolean
 }
 
