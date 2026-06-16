@@ -16,26 +16,44 @@ export interface ParsedReceipt {
   description?: string
 }
 
-// Recognise the raw text of an image. `image` may be a data URL, a blob or any
-// source tesseract.js accepts. `onProgress` receives 0..1 during recognition.
-export async function recognizeText(
-  image: string | Blob,
+// Recognise the combined text of one or more images, reusing a single worker.
+// Each image may be a data URL, a blob or any source tesseract.js accepts.
+// `onProgress` receives 0..1 across all images.
+export async function recognizeImages(
+  images: (string | Blob)[],
   onProgress?: (progress: number) => void
 ): Promise<string> {
+  if (images.length === 0) return ''
   const { createWorker } = await import('tesseract.js')
+  let pageIndex = 0
   const worker = await createWorker(OCR_LANGS, 1, {
     logger: onProgress
       ? (m: { status: string, progress: number }) => {
-          if (m.status === 'recognizing text') onProgress(m.progress)
+          if (m.status === 'recognizing text') {
+            onProgress((pageIndex + m.progress) / images.length)
+          }
         }
       : undefined
   })
   try {
-    const { data } = await worker.recognize(image)
-    return data.text || ''
+    const texts: string[] = []
+    for (let i = 0; i < images.length; i++) {
+      pageIndex = i
+      const { data } = await worker.recognize(images[i]!)
+      texts.push(data.text || '')
+    }
+    return texts.join('\n')
   } finally {
     await worker.terminate()
   }
+}
+
+// Recognise the raw text of a single image (convenience wrapper).
+export async function recognizeText(
+  image: string | Blob,
+  onProgress?: (progress: number) => void
+): Promise<string> {
+  return recognizeImages([image], onProgress)
 }
 
 // Matches a monetary value like 12,34 / 1.234,56 / 12.34 / 1,234.56 with two

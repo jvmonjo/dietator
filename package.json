@@ -30,6 +30,7 @@
     "jspdf": "^3.0.4",
     "jszip": "^3.10.1",
     "nuxt": "^4.2.1",
+    "pdfjs-dist": "^4.10.38",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "qrcode": "^1.5.4",

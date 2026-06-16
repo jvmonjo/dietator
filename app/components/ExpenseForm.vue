@@ -8,7 +8,8 @@ import {
   compressImageToDataUrl, processDocumentFile, fileToDataUrl, isImageFile,
   TicketProcessingError, MAX_TICKET_BYTES
 } from '~/utils/ticket'
-import { recognizeText, parseReceiptText } from '~/utils/ocr'
+import { recognizeImages, parseReceiptText } from '~/utils/ocr'
+import { renderPdfToImages } from '~/utils/pdf'
 import { EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY, resolveExpenseCategory, type ExpenseCategory } from '~/utils/expenseCategories'
 
 const props = withDefaults(defineProps<{
@@ -81,6 +82,7 @@ const cropSrc = ref<string | null>(null)
 const pendingTicketName = ref('ticket.jpg')
 
 const ticketIsImage = computed(() => Boolean(state.ticketType?.startsWith('image/')))
+const ticketIsPdf = computed(() => state.ticketType === 'application/pdf')
 
 const formatBytes = (bytes: number) => {
   if (bytes <= 0) return '0 B'
@@ -188,11 +190,17 @@ const isExtracting = ref(false)
 const extractProgress = ref(0)
 
 async function extractFromTicket() {
-  if (isExtracting.value || !state.ticket || !ticketIsImage.value) return
+  if (isExtracting.value || !state.ticket || (!ticketIsImage.value && !ticketIsPdf.value)) return
   isExtracting.value = true
   extractProgress.value = 0
   try {
-    const text = await recognizeText(state.ticket, (p) => { extractProgress.value = Math.round(p * 100) })
+    // PDFs are rasterised first (OCR only reads images); images go straight in.
+    const images = ticketIsPdf.value
+      ? await renderPdfToImages(state.ticket)
+      : [state.ticket]
+    if (images.length === 0) throw new Error('no_pages')
+
+    const text = await recognizeImages(images, (p) => { extractProgress.value = Math.round(p * 100) })
     const parsed = parseReceiptText(text)
 
     const filled: string[] = []
@@ -376,8 +384,8 @@ const submitLabel = computed(() => isEditing.value
           :aria-label="$t('components.expense_form.ticket_remove')" @click="removeTicket" />
       </div>
 
-      <!-- OCR: extract the expense fields from the attached image. -->
-      <div v-if="state.ticket && ticketIsImage" class="mt-3">
+      <!-- OCR: extract the expense fields from the attached image or PDF. -->
+      <div v-if="state.ticket && (ticketIsImage || ticketIsPdf)" class="mt-3">
         <UButton
           icon="i-heroicons-sparkles" color="primary" variant="soft" size="sm"
           :loading="isExtracting" @click="extractFromTicket">
