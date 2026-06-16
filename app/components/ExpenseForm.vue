@@ -4,7 +4,10 @@ import { v4 as uuidv4 } from 'uuid'
 import type { FormSubmitEvent } from '#ui/types'
 import type { ExpenseRecord } from '~/stores/expenses'
 import { utcToLocalInput, localInputToUtc } from '~/utils/datetime'
-import { processTicketFile, TicketProcessingError, MAX_TICKET_BYTES } from '~/utils/ticket'
+import {
+  compressImageToDataUrl, processDocumentFile, fileToDataUrl, isImageFile,
+  TicketProcessingError, MAX_TICKET_BYTES
+} from '~/utils/ticket'
 
 const props = withDefaults(defineProps<{
   initialData?: ExpenseRecord | null
@@ -39,10 +42,26 @@ const uploadInput = ref<HTMLInputElement | null>(null)
 const cameraInput = ref<HTMLInputElement | null>(null)
 const isProcessingTicket = ref(false)
 
+// Crop step: images are routed through the cropper before compression.
+const isCropOpen = ref(false)
+const cropSrc = ref<string | null>(null)
+const pendingTicketName = ref('ticket.jpg')
+
 const ticketIsImage = computed(() => Boolean(state.ticketType?.startsWith('image/')))
 
 const triggerUpload = () => uploadInput.value?.click()
 const triggerCamera = () => cameraInput.value?.click()
+
+const notifyTicketError = (error: unknown) => {
+  const reason = error instanceof TicketProcessingError ? error.reason : 'error'
+  const maxMb = Math.round(MAX_TICKET_BYTES / (1024 * 1024))
+  const messages: Record<string, string> = {
+    too_large: t('components.expense_form.alerts.ticket_too_large', { size: maxMb }),
+    invalid: t('components.expense_form.alerts.ticket_invalid'),
+    error: t('components.expense_form.alerts.ticket_error')
+  }
+  toast.add({ title: messages[reason] || messages.error, color: 'error' })
+}
 
 async function onTicketSelected(event: Event) {
   const input = event.target as HTMLInputElement
@@ -51,24 +70,56 @@ async function onTicketSelected(event: Event) {
   input.value = ''
   if (!file) return
 
+  // Images go through the crop step first; PDFs are stored directly.
+  if (isImageFile(file)) {
+    try {
+      cropSrc.value = await fileToDataUrl(file)
+      pendingTicketName.value = file.name || 'ticket.jpg'
+      isCropOpen.value = true
+    } catch (error) {
+      notifyTicketError(error)
+    }
+    return
+  }
+
   isProcessingTicket.value = true
   try {
-    const ticket = await processTicketFile(file)
+    const ticket = await processDocumentFile(file)
     state.ticket = ticket.dataUrl
     state.ticketName = ticket.name
     state.ticketType = ticket.type
   } catch (error) {
-    const reason = error instanceof TicketProcessingError ? error.reason : 'error'
-    const maxMb = Math.round(MAX_TICKET_BYTES / (1024 * 1024))
-    const messages: Record<string, string> = {
-      too_large: t('components.expense_form.alerts.ticket_too_large', { size: maxMb }),
-      invalid: t('components.expense_form.alerts.ticket_invalid'),
-      error: t('components.expense_form.alerts.ticket_error')
-    }
-    toast.add({ title: messages[reason] || messages.error, color: 'error' })
+    notifyTicketError(error)
   } finally {
     isProcessingTicket.value = false
   }
+}
+
+async function onCropConfirm(blob: Blob) {
+  isProcessingTicket.value = true
+  try {
+    const ticket = await compressImageToDataUrl(blob, pendingTicketName.value)
+    state.ticket = ticket.dataUrl
+    state.ticketName = ticket.name
+    state.ticketType = ticket.type
+  } catch (error) {
+    notifyTicketError(error)
+  } finally {
+    isProcessingTicket.value = false
+    cropSrc.value = null
+  }
+}
+
+const onCropCancel = () => {
+  cropSrc.value = null
+}
+
+// Re-open the cropper to adjust an image ticket that was already attached.
+const editTicket = () => {
+  if (!state.ticket || !ticketIsImage.value) return
+  cropSrc.value = state.ticket
+  pendingTicketName.value = state.ticketName || 'ticket.jpg'
+  isCropOpen.value = true
 }
 
 const removeTicket = () => {
@@ -208,10 +259,17 @@ const submitLabel = computed(() => isEditing.value
           </button>
         </div>
         <UButton
+          v-if="ticketIsImage" icon="i-heroicons-scissors" color="neutral" variant="ghost" size="xs"
+          :aria-label="$t('components.expense_form.ticket_edit')" @click="editTicket" />
+        <UButton
           icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
           :aria-label="$t('components.expense_form.ticket_remove')" @click="removeTicket" />
       </div>
     </UFormField>
+
+    <TicketCropperModal
+      v-model:open="isCropOpen" :src="cropSrc"
+      @confirm="onCropConfirm" @cancel="onCropCancel" />
 
     <div class="pt-2">
       <UButton type="submit" block size="xl" :loading="isLoading">

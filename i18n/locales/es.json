@@ -501,6 +501,10 @@
             "ticket_camera": "Hacer foto",
             "ticket_remove": "Quitar el ticket",
             "ticket_view": "Ver ticket",
+            "ticket_edit": "Recortar",
+            "ticket_crop_title": "Recorta el ticket",
+            "ticket_crop_hint": "Ajusta el encuadre del comprobante antes de guardarlo",
+            "ticket_crop_confirm": "Aplicar",
             "save": "Guardar gasto",
             "update": "Actualizar gasto",
             "validation": {

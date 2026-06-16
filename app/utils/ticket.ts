@@ -1,11 +1,22 @@
-// Helpers to turn an uploaded/captured receipt ("ticket") into a data URL that
-// can be persisted locally alongside the expense. Images are downscaled and
-// re-encoded to keep localStorage usage reasonable; other files (e.g. PDFs) are
-// stored as-is but capped in size.
+// Helpers to turn an uploaded/captured/cropped receipt ("ticket") into a data
+// URL that can be persisted locally alongside the expense. Images are
+// aggressively compressed with browser-image-compression (web worker, JPEG,
+// size-targeted) to keep localStorage usage low; PDFs are stored as-is but
+// capped in size.
+import imageCompression from 'browser-image-compression'
 
-export const MAX_TICKET_BYTES = 3 * 1024 * 1024 // 3 MB after processing
-const MAX_IMAGE_DIMENSION = 1600 // px, longest side
-const IMAGE_QUALITY = 0.7
+export const MAX_TICKET_BYTES = 3 * 1024 * 1024 // 3 MB hard cap after processing
+
+// Receipts are mostly text, so we target a small file while keeping enough
+// resolution to stay legible. browser-image-compression iterates quality/scale
+// until it reaches maxSizeMB (or gives its best effort).
+const IMAGE_COMPRESSION_OPTIONS = {
+    maxSizeMB: 0.3,
+    maxWidthOrHeight: 1600,
+    useWebWorker: true,
+    fileType: 'image/jpeg',
+    initialQuality: 0.6
+}
 
 export interface ProcessedTicket {
     dataUrl: string
@@ -23,13 +34,7 @@ export class TicketProcessingError extends Error {
     }
 }
 
-const readFileAsDataUrl = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = () => reject(new TicketProcessingError('error'))
-        reader.readAsDataURL(file)
-    })
+export const isImageFile = (file: File | Blob): boolean => file.type.startsWith('image/')
 
 // Approximate decoded byte size of a base64 data URL without allocating a Blob.
 const dataUrlByteSize = (dataUrl: string): number => {
@@ -38,61 +43,58 @@ const dataUrlByteSize = (dataUrl: string): number => {
     return Math.floor((base64.length * 3) / 4) - padding
 }
 
-const compressImage = (dataUrl: string, type: string): Promise<string> =>
+const readFileAsDataUrl = (file: Blob): Promise<string> =>
     new Promise((resolve, reject) => {
-        const img = new Image()
-        img.onload = () => {
-            const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(img.width, img.height))
-            const width = Math.round(img.width * scale)
-            const height = Math.round(img.height * scale)
-
-            const canvas = document.createElement('canvas')
-            canvas.width = width
-            canvas.height = height
-            const ctx = canvas.getContext('2d')
-            if (!ctx) {
-                // Canvas unsupported: fall back to the original data URL.
-                resolve(dataUrl)
-                return
-            }
-            ctx.drawImage(img, 0, 0, width, height)
-            // PNG screenshots compress far better as JPEG; keep transparency-free output.
-            const outputType = type === 'image/png' ? 'image/jpeg' : type
-            resolve(canvas.toDataURL(outputType, IMAGE_QUALITY))
-        }
-        img.onerror = () => reject(new TicketProcessingError('error'))
-        img.src = dataUrl
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = () => reject(new TicketProcessingError('error'))
+        reader.readAsDataURL(file)
     })
 
-export async function processTicketFile(file: File): Promise<ProcessedTicket> {
-    const isImage = file.type.startsWith('image/')
-    const isPdf = file.type === 'application/pdf'
-    if (!isImage && !isPdf) {
-        throw new TicketProcessingError('invalid')
-    }
+// Read any selected file as a data URL so it can be shown in the cropper.
+export const fileToDataUrl = (file: Blob): Promise<string> => readFileAsDataUrl(file)
 
-    const original = await readFileAsDataUrl(file)
-    let dataUrl = original
+const withJpgExtension = (name: string): string => {
+    const base = name.replace(/\.[^.]+$/, '')
+    return `${base || 'ticket'}.jpg`
+}
 
-    if (isImage) {
-        try {
-            dataUrl = await compressImage(original, file.type)
-            // Keep whichever encoding is smaller (compression can grow tiny images).
-            if (dataUrlByteSize(dataUrl) > dataUrlByteSize(original)) {
-                dataUrl = original
-            }
-        } catch {
-            dataUrl = original
-        }
+// Compress an image blob/file (e.g. a cropped canvas blob) into a data URL.
+export async function compressImageToDataUrl(input: Blob, name = 'ticket.jpg'): Promise<ProcessedTicket> {
+    const file = input instanceof File
+        ? input
+        : new File([input], name, { type: input.type || 'image/jpeg' })
+
+    let dataUrl: string
+    try {
+        const compressed = await imageCompression(file, IMAGE_COMPRESSION_OPTIONS)
+        dataUrl = await imageCompression.getDataUrlFromFile(compressed)
+    } catch {
+        throw new TicketProcessingError('error')
     }
 
     if (dataUrlByteSize(dataUrl) > MAX_TICKET_BYTES) {
         throw new TicketProcessingError('too_large')
     }
 
-    return {
-        dataUrl,
-        name: file.name || 'ticket',
-        type: isImage ? (file.type === 'image/png' ? 'image/jpeg' : file.type) : file.type
+    return { dataUrl, name: withJpgExtension(name), type: 'image/jpeg' }
+}
+
+// Non-image tickets (currently PDFs) are stored as-is, capped in size.
+export async function processDocumentFile(file: File): Promise<ProcessedTicket> {
+    if (file.type !== 'application/pdf') {
+        throw new TicketProcessingError('invalid')
     }
+    const dataUrl = await readFileAsDataUrl(file)
+    if (dataUrlByteSize(dataUrl) > MAX_TICKET_BYTES) {
+        throw new TicketProcessingError('too_large')
+    }
+    return { dataUrl, name: file.name || 'ticket.pdf', type: file.type }
+}
+
+// Process a selected file without an explicit crop step: images are compressed,
+// other supported files (PDF) are stored as-is.
+export async function processTicketFile(file: File): Promise<ProcessedTicket> {
+    if (isImageFile(file)) return compressImageToDataUrl(file, file.name)
+    return processDocumentFile(file)
 }
