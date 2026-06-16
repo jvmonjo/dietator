@@ -34,7 +34,10 @@ const state = reactive({
   amount: undefined as number | undefined,
   ticket: undefined as string | undefined,
   ticketName: undefined as string | undefined,
-  ticketType: undefined as string | undefined
+  ticketType: undefined as string | undefined,
+  // Whether the expense counts toward the diet net balance (food). Non-food
+  // expenses (parking, fuel) are tracked but excluded from the balance.
+  countsTowardDiet: true
 })
 
 // Two hidden inputs: a plain file picker and a camera capture (mobile).
@@ -166,6 +169,7 @@ const resetState = () => {
     state.ticket = props.initialData.ticket
     state.ticketName = props.initialData.ticketName
     state.ticketType = props.initialData.ticketType
+    state.countsTowardDiet = !props.initialData.excludeFromBalance
   } else {
     state.description = ''
     state.dateTime = formatLocalNow()
@@ -173,6 +177,7 @@ const resetState = () => {
     state.ticket = undefined
     state.ticketName = undefined
     state.ticketType = undefined
+    state.countsTowardDiet = true
   }
 }
 
@@ -191,7 +196,8 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       amount: event.data.amount,
       ...(state.ticket
         ? { ticket: state.ticket, ticketName: state.ticketName, ticketType: state.ticketType }
-        : {})
+        : {}),
+      ...(state.countsTowardDiet ? {} : { excludeFromBalance: true })
     }
 
     if (isEditing.value) {
@@ -235,6 +241,16 @@ const submitLabel = computed(() => isEditing.value
           v-model="state.amount" type="number" step="0.01" min="0"
           icon="i-heroicons-banknotes" placeholder="0.00" class="w-full" />
       </UFormField>
+    </div>
+
+    <div class="flex items-start gap-3 rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+      <USwitch v-model="state.countsTowardDiet" class="mt-0.5" />
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-gray-900 dark:text-white">
+          {{ $t('components.expense_form.counts_toward_diet') }}
+        </p>
+        <p class="text-xs text-gray-400">{{ $t('components.expense_form.counts_toward_diet_hint') }}</p>
+      </div>
     </div>
 
     <UFormField :label="$t('components.expense_form.ticket')" name="ticket">

@@ -58,6 +58,12 @@ const selectedMonthLabel = computed(() => {
 const totalExpenses = computed(() =>
   selectedExpenses.value.reduce((sum, expense) => sum + (expense.amount || 0), 0))
 
+// Only diet-eligible (food) expenses reduce the net balance; non-food expenses
+// like parking or fuel are tracked but excluded.
+const dietExpenses = computed(() =>
+  selectedExpenses.value.reduce(
+    (sum, expense) => sum + (expense.excludeFromBalance ? 0 : (expense.amount || 0)), 0))
+
 // Number of distinct local days that have at least one expense.
 const expenseDays = computed(() => {
   const days = new Set<string>()
@@ -87,7 +93,7 @@ const dietAllowance = computed(() => {
   return calculateTotals(records).allowance
 })
 
-const netBalance = computed(() => dietAllowance.value - totalExpenses.value)
+const netBalance = computed(() => dietAllowance.value - dietExpenses.value)
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }).format(value || 0)
@@ -148,7 +154,8 @@ const expenseListDescription = computed(() =>
             {{ formatCurrency(netBalance) }}
           </div>
           <p class="text-xs text-gray-400">
-            {{ $t('expenses.stats.net_balance_subtitle', { diet: formatCurrency(dietAllowance) }) }}
+            {{ $t('expenses.stats.net_balance_subtitle', {
+              diet: formatCurrency(dietAllowance), food: formatCurrency(dietExpenses) }) }}
           </p>
         </div>
       </UCard>

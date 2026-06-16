@@ -212,6 +212,10 @@ defineExpose({
           <template #description-cell="{ row }">
             <div class="flex items-center gap-2">
               <span class="text-sm text-gray-700 dark:text-gray-300">{{ (row.original as ExpenseRecord).description }}</span>
+              <UBadge
+                v-if="(row.original as ExpenseRecord).excludeFromBalance" color="neutral" variant="soft" size="xs">
+                {{ $t('components.expense_list.non_diet_badge') }}
+              </UBadge>
               <UIcon
                 v-if="(row.original as ExpenseRecord).ticket" name="i-heroicons-paper-clip"
                 class="h-4 w-4 shrink-0 text-gray-400 cursor-pointer"

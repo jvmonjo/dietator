@@ -11,6 +11,9 @@ export interface ExpenseRecord {
     // Original file name and MIME type, kept for display and download.
     ticketName?: string
     ticketType?: string
+    // When true, this expense is tracked but NOT subtracted from the diet net
+    // balance (e.g. parking, fuel). Absent/false means it counts (food).
+    excludeFromBalance?: boolean
 }
 
 // Return a copy of the expense with its ticket attachment removed, keeping the
