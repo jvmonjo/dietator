@@ -1,3 +1,15 @@
+# [1.44.0](https://github.com/jvmonjo/dietator/compare/v1.43.0...v1.44.0) (2026-06-16)
+
+
+### Bug Fixes
+
+* keep ticket crop/view modal controls above the bottom nav ([e7bf14e](https://github.com/jvmonjo/dietator/commit/e7bf14e0fe1e2576fa37f1599e53e6c8846199a4))
+
+
+### Features
+
+* let expenses opt out of the diet net balance ([9755ef5](https://github.com/jvmonjo/dietator/commit/9755ef54a4d050f04e92945716ab44710a6159fa))
+
 # [1.43.0](https://github.com/jvmonjo/dietator/compare/v1.42.0...v1.43.0) (2026-06-16)
 
 
