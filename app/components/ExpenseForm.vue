@@ -49,6 +49,22 @@ const pendingTicketName = ref('ticket.jpg')
 
 const ticketIsImage = computed(() => Boolean(state.ticketType?.startsWith('image/')))
 
+const formatBytes = (bytes: number) => {
+  if (bytes <= 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)))
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
+}
+
+// Decoded byte size of the stored ticket data URL, shown next to the file name.
+const ticketSize = computed(() => {
+  if (!state.ticket) return null
+  const base64 = state.ticket.slice(state.ticket.indexOf(',') + 1)
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0
+  return formatBytes(Math.floor((base64.length * 3) / 4) - padding)
+})
+
 const triggerUpload = () => uploadInput.value?.click()
 const triggerCamera = () => cameraInput.value?.click()
 
@@ -95,10 +111,10 @@ async function onTicketSelected(event: Event) {
   }
 }
 
-async function onCropConfirm(blob: Blob) {
+async function onCropConfirm(blob: Blob, grayscale: boolean) {
   isProcessingTicket.value = true
   try {
-    const ticket = await compressImageToDataUrl(blob, pendingTicketName.value)
+    const ticket = await compressImageToDataUrl(blob, pendingTicketName.value, { grayscale })
     state.ticket = ticket.dataUrl
     state.ticketName = ticket.name
     state.ticketType = ticket.type
@@ -128,8 +144,9 @@ const removeTicket = () => {
   state.ticketType = undefined
 }
 
+const isViewerOpen = ref(false)
 const viewTicket = () => {
-  if (state.ticket) window.open(state.ticket, '_blank')
+  if (state.ticket) isViewerOpen.value = true
 }
 
 const schema = computed(() => z.object({
@@ -253,10 +270,13 @@ const submitLabel = computed(() => isEditing.value
         <UIcon v-else name="i-heroicons-document" class="h-10 w-10 text-gray-400" />
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm text-gray-700 dark:text-gray-300">{{ state.ticketName }}</p>
-          <button
-            type="button" class="text-xs text-primary-500 hover:underline" @click="viewTicket">
-            {{ $t('components.expense_form.ticket_view') }}
-          </button>
+          <div class="flex items-center gap-2 text-xs">
+            <span v-if="ticketSize" class="text-gray-400">{{ ticketSize }}</span>
+            <button
+              type="button" class="text-primary-500 hover:underline" @click="viewTicket">
+              {{ $t('components.expense_form.ticket_view') }}
+            </button>
+          </div>
         </div>
         <UButton
           v-if="ticketIsImage" icon="i-heroicons-scissors" color="neutral" variant="ghost" size="xs"
@@ -270,6 +290,10 @@ const submitLabel = computed(() => isEditing.value
     <TicketCropperModal
       v-model:open="isCropOpen" :src="cropSrc"
       @confirm="onCropConfirm" @cancel="onCropCancel" />
+
+    <TicketViewerModal
+      v-model:open="isViewerOpen" :src="state.ticket || null"
+      :name="state.ticketName" :type="state.ticketType" />
 
     <div class="pt-2">
       <UButton type="submit" block size="xl" :loading="isLoading">

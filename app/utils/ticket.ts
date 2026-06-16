@@ -59,11 +59,64 @@ const withJpgExtension = (name: string): string => {
     return `${base || 'ticket'}.jpg`
 }
 
+// Convert an image blob to a grayscale, contrast-boosted "document scan" look.
+// Grayscale JPEGs are both cleaner and noticeably smaller than colour photos.
+const applyGrayscale = (input: Blob): Promise<Blob> =>
+    new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(input)
+        const img = new Image()
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            canvas.width = img.naturalWidth
+            canvas.height = img.naturalHeight
+            const ctx = canvas.getContext('2d')
+            if (!ctx) {
+                URL.revokeObjectURL(url)
+                resolve(input)
+                return
+            }
+            ctx.drawImage(img, 0, 0)
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            const data = imageData.data
+            // Luminance + mild contrast so text pops, mimicking a scanner.
+            const contrast = 1.2
+            const intercept = 128 * (1 - contrast)
+            for (let i = 0; i < data.length; i += 4) {
+                const lum = 0.299 * data[i]! + 0.587 * data[i + 1]! + 0.114 * data[i + 2]!
+                const v = Math.max(0, Math.min(255, contrast * lum + intercept))
+                data[i] = data[i + 1] = data[i + 2] = v
+            }
+            ctx.putImageData(imageData, 0, 0)
+            URL.revokeObjectURL(url)
+            canvas.toBlob(out => resolve(out || input), 'image/jpeg', 0.9)
+        }
+        img.onerror = () => {
+            URL.revokeObjectURL(url)
+            reject(new TicketProcessingError('error'))
+        }
+        img.src = url
+    })
+
+interface CompressOptions {
+    grayscale?: boolean
+}
+
 // Compress an image blob/file (e.g. a cropped canvas blob) into a data URL.
-export async function compressImageToDataUrl(input: Blob, name = 'ticket.jpg'): Promise<ProcessedTicket> {
-    const file = input instanceof File
-        ? input
-        : new File([input], name, { type: input.type || 'image/jpeg' })
+export async function compressImageToDataUrl(
+    input: Blob, name = 'ticket.jpg', options: CompressOptions = {}
+): Promise<ProcessedTicket> {
+    let source = input
+    if (options.grayscale) {
+        try {
+            source = await applyGrayscale(input)
+        } catch {
+            source = input // Fall back to the original on any canvas failure.
+        }
+    }
+
+    const file = source instanceof File
+        ? source
+        : new File([source], name, { type: source.type || 'image/jpeg' })
 
     let dataUrl: string
     try {
