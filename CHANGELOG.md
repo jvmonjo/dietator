@@ -1,3 +1,10 @@
+# [1.48.0](https://github.com/jvmonjo/dietator/compare/v1.47.0...v1.48.0) (2026-06-16)
+
+
+### Features
+
+* expense date-range selection, bulk share, OCR autofill and multi-category filter ([2a3ce9c](https://github.com/jvmonjo/dietator/commit/2a3ce9cf32baa74bf557eff71e96dc2b93630002))
+
 # [1.47.0](https://github.com/jvmonjo/dietator/compare/v1.46.0...v1.47.0) (2026-06-16)
 
 
