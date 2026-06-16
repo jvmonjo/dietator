@@ -1,3 +1,10 @@
+# [1.43.0](https://github.com/jvmonjo/dietator/compare/v1.42.0...v1.43.0) (2026-06-16)
+
+
+### Features
+
+* improve ticket cropping, viewing and storage management ([fd60d6d](https://github.com/jvmonjo/dietator/commit/fd60d6d8268f288df56de686584e14fdb77806e9))
+
 # [1.42.0](https://github.com/jvmonjo/dietator/compare/v1.41.0...v1.42.0) (2026-06-16)
 
 
