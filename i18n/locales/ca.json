@@ -493,6 +493,12 @@
             "description_placeholder": "Ex: Dinar, peatge, combustible...",
             "date": "Data i hora",
             "amount": "Import (€)",
+            "ticket": "Tiquet (opcional)",
+            "ticket_hint": "Adjunta una foto o un fitxer del comprovant",
+            "ticket_upload": "Pujar fitxer",
+            "ticket_camera": "Fer foto",
+            "ticket_remove": "Treure el tiquet",
+            "ticket_view": "Veure tiquet",
             "save": "Desar despesa",
             "update": "Actualitzar despesa",
             "validation": {
@@ -504,7 +510,10 @@
             "alerts": {
                 "saved": "Despesa desada correctament",
                 "updated": "Despesa actualitzada correctament",
-                "save_error": "Error desant la despesa"
+                "save_error": "Error desant la despesa",
+                "ticket_too_large": "El tiquet és massa gran (màxim {size} MB)",
+                "ticket_invalid": "Format de fitxer no vàlid",
+                "ticket_error": "No s'ha pogut carregar el tiquet"
             }
         },
         "expense_list": {
@@ -522,6 +531,8 @@
             "amount": "Import",
             "edit": "Editar",
             "delete": "Eliminar",
+            "view_ticket": "Veure tiquet",
+            "ticket_badge": "Tiquet adjunt",
             "modals": {
                 "edit_title": "Editar despesa",
                 "edit_desc": "Actualitza les dades de la despesa seleccionada",
@@ -635,7 +646,7 @@
     },
     "expenses": {
         "title": "Despeses",
-        "subtitle": "Gestiona les teves despeses i consulta els guanys nets.",
+        "subtitle": "Gestiona les teves despeses i consulta el balanç net.",
         "list_title": "Despeses",
         "list_description": "Despeses de {month}",
         "stats": {
@@ -643,8 +654,8 @@
             "count": "{count} despeses",
             "daily_average": "Mitjana diària",
             "daily_average_subtitle": "Repartit en {days} dies amb despeses",
-            "net_earnings": "Guanys nets",
-            "net_earnings_subtitle": "Dietes ({diet}) − despeses"
+            "net_balance": "Balanç net",
+            "net_balance_subtitle": "Dietes ({diet}) − despeses"
         }
     }
 }
