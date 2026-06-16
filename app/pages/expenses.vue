@@ -52,11 +52,6 @@ const categoryFilterItems = computed(() =>
 // the start is set (end null) the list narrows to that single day.
 const selectedRange = ref<{ start: Date | null, end: Date | null } | null>(null)
 
-// Reset the range filter whenever the month/year selection changes.
-watch([selectedYear, selectedMonthValue], () => {
-  selectedRange.value = null
-})
-
 const dayKey = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
@@ -90,15 +85,19 @@ const markedDays = computed(() => {
 })
 
 // The list respects both the category filter and the calendar range filter.
+// A range may span several months, so when one is active the list is built from
+// every expense (across months/years) instead of the currently viewed month.
 const listExpenses = computed(() => {
   const range = selectedRange.value
   if (!range || !range.start) return filteredExpenses.value
   // YYYY-MM-DD keys sort lexicographically in chronological order.
   const startKey = dayKey(range.start)
   const endKey = dayKey(range.end ?? range.start)
-  return filteredExpenses.value.filter(expense => {
+  const categories = categoryFilter.value.length ? new Set(categoryFilter.value) : null
+  return expenses.value.filter(expense => {
     const date = new Date(expense.timestamp)
     if (Number.isNaN(date.getTime())) return false
+    if (categories && !categories.has(resolveExpenseCategory(expense))) return false
     const key = dayKey(date)
     return key >= startKey && key <= endKey
   })
