@@ -553,6 +553,9 @@
             "delete": "Eliminar",
             "view_ticket": "Veure tiquet",
             "ticket_badge": "Tiquet adjunt",
+            "import": "Importar",
+            "share_qr": "Compartir QR",
+            "qr_title": "Compartir despesa",
             "modals": {
                 "edit_title": "Editar despesa",
                 "edit_desc": "Actualitza les dades de la despesa seleccionada",
@@ -560,7 +563,10 @@
                 "new_desc": "Ompli les dades de la despesa",
                 "delete_title": "Eliminar despesa",
                 "delete_desc": "Estàs segur que vols eliminar aquesta despesa? Aquesta acció no es pot desfer.",
-                "deleted": "Despesa eliminada"
+                "deleted": "Despesa eliminada",
+                "import_success": "Despesa importada correctament",
+                "import_error_title": "Error en la importació",
+                "import_error": "El codi QR no conté una despesa vàlida."
             }
         }
     },
@@ -679,10 +685,12 @@
             "other": "Altres"
         },
         "stats": {
-            "total": "Despeses totals",
             "count": "{count} despeses",
-            "daily_average": "Mitjana diària",
-            "daily_average_subtitle": "Repartit en {days} dies amb despeses",
+            "diet_total": "Despeses de dieta",
+            "other_total": "Altres despeses",
+            "other_total_subtitle": "{count} despeses · compte a part",
+            "daily_average": "Mitjana diària (dieta)",
+            "daily_average_subtitle": "Repartit en {days} dies amb dieta",
             "net_balance": "Balanç net",
             "net_balance_subtitle": "Dietes ({diet}) − despeses de dieta ({food})",
             "by_category": "Per categoria"

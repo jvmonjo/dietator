@@ -109,29 +109,33 @@ const selectedMonthLabel = computed(() => {
   return `${monthLabel} ${selectedYear.value}`
 })
 
-const totalExpenses = computed(() =>
-  selectedExpenses.value.reduce((sum, expense) => sum + (expense.amount || 0), 0))
+// Diet and non-diet expenses are kept separate: diet ones are offset by the
+// per-diem, the rest go to a different account, so the totals are never merged.
+const dietItems = computed(() =>
+  selectedExpenses.value.filter(e => categoryCountsTowardBalance(resolveExpenseCategory(e))))
+const otherItems = computed(() =>
+  selectedExpenses.value.filter(e => !categoryCountsTowardBalance(resolveExpenseCategory(e))))
 
-// Only diet-category expenses reduce the net balance; other categories
-// (parking, fuel, tolls…) are tracked but excluded.
-const dietExpenses = computed(() =>
-  selectedExpenses.value.reduce(
-    (sum, expense) => sum + (categoryCountsTowardBalance(resolveExpenseCategory(expense)) ? (expense.amount || 0) : 0), 0))
+const sumAmount = (items: { amount?: number }[]) =>
+  items.reduce((sum, e) => sum + (e.amount || 0), 0)
 
-// Number of distinct local days that have at least one expense.
-const expenseDays = computed(() => {
+const dietExpenses = computed(() => sumAmount(dietItems.value))
+const otherExpenses = computed(() => sumAmount(otherItems.value))
+
+// Distinct local days that have at least one diet expense (the daily average is
+// about diet spending only).
+const dietExpenseDays = computed(() => {
   const days = new Set<string>()
-  selectedExpenses.value.forEach(expense => {
+  dietItems.value.forEach(expense => {
     const date = new Date(expense.timestamp)
-    if (Number.isNaN(date.getTime())) return
-    days.add(`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
+    if (!Number.isNaN(date.getTime())) days.add(dayKey(date))
   })
   return days.size
 })
 
-const averageDailyExpense = computed(() => {
-  if (expenseDays.value === 0) return 0
-  return totalExpenses.value / expenseDays.value
+const averageDailyDiet = computed(() => {
+  if (dietExpenseDays.value === 0) return 0
+  return dietExpenses.value / dietExpenseDays.value
 })
 
 // Diet allowance accrued during the same period, used to compute the net balance.
@@ -181,16 +185,35 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
       </div>
     </section>
 
+    <!-- Calendar (mimics the services view: on top, filled with expenses) -->
+    <section>
+      <MonthCalendar
+        v-model="selectedDay" :title="$t('expenses.calendar_title')" :marked-days="markedDays"
+        :year="selectedYear" :month="calendarMonth"
+        @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event" />
+    </section>
+
     <!-- Statistics -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <UCard>
         <div class="text-center space-y-1">
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-            {{ $t('expenses.stats.total') }}
+            {{ $t('expenses.stats.diet_total') }}
           </div>
-          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(totalExpenses) }}</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(dietExpenses) }}</div>
           <p class="text-xs text-gray-400">
-            {{ $t('expenses.stats.count', { count: selectedExpenses.length }) }}
+            {{ $t('expenses.stats.count', { count: dietItems.length }) }}
+          </p>
+        </div>
+      </UCard>
+      <UCard>
+        <div class="text-center space-y-1">
+          <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            {{ $t('expenses.stats.other_total') }}
+          </div>
+          <div class="text-3xl font-bold text-gray-700 dark:text-gray-200 mt-2">{{ formatCurrency(otherExpenses) }}</div>
+          <p class="text-xs text-gray-400">
+            {{ $t('expenses.stats.other_total_subtitle', { count: otherItems.length }) }}
           </p>
         </div>
       </UCard>
@@ -199,9 +222,9 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
           <div class="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             {{ $t('expenses.stats.daily_average') }}
           </div>
-          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(averageDailyExpense) }}</div>
+          <div class="text-3xl font-bold text-primary-500 mt-2">{{ formatCurrency(averageDailyDiet) }}</div>
           <p class="text-xs text-gray-400">
-            {{ $t('expenses.stats.daily_average_subtitle', { days: expenseDays }) }}
+            {{ $t('expenses.stats.daily_average_subtitle', { days: dietExpenseDays }) }}
           </p>
         </div>
       </UCard>
@@ -241,14 +264,6 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
           </div>
         </div>
       </UCard>
-    </section>
-
-    <!-- Calendar -->
-    <section>
-      <MonthCalendar
-        v-model="selectedDay" :title="$t('expenses.calendar_title')" :marked-days="markedDays"
-        :year="selectedYear" :month="calendarMonth"
-        @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event" />
     </section>
 
     <!-- Expense List -->

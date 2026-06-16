@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { v4 as uuidv4 } from 'uuid'
 import type { ExpenseRecord } from '~/stores/expenses'
 import { resolveExpenseCategory, CATEGORY_COLORS } from '~/utils/expenseCategories'
+import { compressExpenseRecord, decompressExpenseRecord } from '~/utils/qr'
+import { ensureUtc } from '~/utils/datetime'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -146,12 +149,59 @@ const viewTicket = (expense: ExpenseRecord) => {
   isViewerOpen.value = true
 }
 
+// QR sharing: export one expense to a QR code, or scan one to import it onto
+// another device. Tickets are not included (too large for a QR).
+const isQrModalOpen = ref(false)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const qrData = ref<any>(null)
+const isQrScannerOpen = ref(false)
+const { initAudio } = useScanFeedback()
+
+const openQrCode = (expense: ExpenseRecord) => {
+  qrData.value = compressExpenseRecord(expense)
+  isQrModalOpen.value = true
+}
+
+const handleOpenScanner = () => {
+  initAudio()
+  isQrScannerOpen.value = true
+}
+
+const handleQrImport = (result: string) => {
+  try {
+    const decompressed = decompressExpenseRecord(JSON.parse(result))
+    if (!decompressed.description || !decompressed.timestamp || typeof decompressed.amount !== 'number') {
+      throw new Error('invalid')
+    }
+    expenseStore.addExpense({
+      id: uuidv4(),
+      description: decompressed.description,
+      timestamp: ensureUtc(decompressed.timestamp),
+      amount: decompressed.amount,
+      ...(decompressed.category ? { category: decompressed.category } : {})
+    })
+    toast.add({ title: t('components.expense_list.modals.import_success'), color: 'success' })
+  } catch (e) {
+    console.error(e)
+    toast.add({
+      title: t('components.expense_list.modals.import_error_title'),
+      description: t('components.expense_list.modals.import_error'),
+      color: 'error'
+    })
+  }
+}
+
 const rowActions = (expense: ExpenseRecord) => {
   const items = [
     {
       label: t('components.expense_list.edit'),
       icon: 'i-heroicons-pencil-square',
       onSelect: () => openExpense(expense)
+    },
+    {
+      label: t('components.expense_list.share_qr'),
+      icon: 'i-heroicons-qr-code',
+      onSelect: () => openQrCode(expense)
     }
   ]
   if (expense.ticket) {
@@ -202,6 +252,9 @@ defineExpose({
         </UInput>
         <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="openNewExpense">
           {{ $t('components.expense_list.add') }}
+        </UButton>
+        <UButton icon="i-heroicons-qr-code" color="neutral" variant="solid" @click="handleOpenScanner">
+          {{ $t('components.expense_list.import') }}
         </UButton>
       </div>
     </div>
@@ -288,5 +341,10 @@ defineExpose({
     <TicketViewerModal
       v-model:open="isViewerOpen" :src="viewerTicket?.ticket || null"
       :name="viewerTicket?.ticketName" :type="viewerTicket?.ticketType" />
+
+    <QrCodeModal
+      v-if="isQrModalOpen" v-model:open="isQrModalOpen" :data="qrData || {}"
+      :title="$t('components.expense_list.qr_title')" />
+    <QrScannerModal v-if="isQrScannerOpen" v-model:open="isQrScannerOpen" @detected="handleQrImport" />
   </section>
 </template>
