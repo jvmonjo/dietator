@@ -1,3 +1,10 @@
+# [1.45.0](https://github.com/jvmonjo/dietator/compare/v1.44.0...v1.45.0) (2026-06-16)
+
+
+### Features
+
+* expense categories with per-category stats and a day calendar ([f785cee](https://github.com/jvmonjo/dietator/commit/f785cee3189c55167e8e01f5d6dd3e52cfacaaa7))
+
 # [1.44.0](https://github.com/jvmonjo/dietator/compare/v1.43.0...v1.44.0) (2026-06-16)
 
 
