@@ -555,6 +555,9 @@
             "delete": "Eliminar",
             "view_ticket": "Ver ticket",
             "ticket_badge": "Ticket adjunto",
+            "import": "Importar",
+            "share_qr": "Compartir QR",
+            "qr_title": "Compartir gasto",
             "modals": {
                 "edit_title": "Editar gasto",
                 "edit_desc": "Actualiza los datos del gasto seleccionado",
@@ -562,7 +565,10 @@
                 "new_desc": "Rellena los datos del gasto",
                 "delete_title": "Eliminar gasto",
                 "delete_desc": "¿Seguro que quieres eliminar este gasto? Esta acción no se puede deshacer.",
-                "deleted": "Gasto eliminado"
+                "deleted": "Gasto eliminado",
+                "import_success": "Gasto importado correctamente",
+                "import_error_title": "Error en la importación",
+                "import_error": "El código QR no contiene un gasto válido."
             }
         }
     },
@@ -681,10 +687,12 @@
             "other": "Otros"
         },
         "stats": {
-            "total": "Gastos totales",
             "count": "{count} gastos",
-            "daily_average": "Media diaria",
-            "daily_average_subtitle": "Repartido en {days} días con gastos",
+            "diet_total": "Gastos de dieta",
+            "other_total": "Otros gastos",
+            "other_total_subtitle": "{count} gastos · cuenta aparte",
+            "daily_average": "Media diaria (dieta)",
+            "daily_average_subtitle": "Repartido en {days} días con dieta",
             "net_balance": "Balance neto",
             "net_balance_subtitle": "Dietas ({diet}) − gastos de dieta ({food})",
             "by_category": "Por categoría"

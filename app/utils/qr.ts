@@ -1,5 +1,7 @@
 import { isProxy, toRaw } from 'vue'
 import type { ServiceRecord, Displacement } from '~/stores/services'
+import type { ExpenseRecord } from '~/stores/expenses'
+import type { ExpenseCategory } from '~/utils/expenseCategories'
 
 // Minified interfaces for QR payload
 interface MinifiedDisplacement {
@@ -72,5 +74,54 @@ export const decompressServiceRecord = (data: any): Partial<ServiceRecord> => {
             hasDinner: md.d === 1,
             observations: md.o || ''
         })) : []
+    }
+}
+
+// Minified expense payload for QR. The ticket attachment is intentionally
+// omitted — receipt images are far too large to fit in a QR code.
+interface MinifiedExpense {
+    d: string // description
+    a: number // amount
+    t: string // timestamp (UTC ISO)
+    c?: ExpenseCategory // category
+}
+
+/**
+ * Compresses an ExpenseRecord into a minified object for QR code generation.
+ * Drops the id and any attached ticket.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const compressExpenseRecord = (record: any): MinifiedExpense => {
+    const src = isProxy(record) ? toRaw(record) : record
+    return {
+        d: src.description,
+        a: src.amount,
+        t: src.timestamp,
+        c: src.category || undefined
+    }
+}
+
+/**
+ * Decompresses a minified object (or legacy full object) into a partial
+ * ExpenseRecord. The id is NOT generated here.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const decompressExpenseRecord = (data: any): Partial<ExpenseRecord> => {
+    // Legacy/full format carries the long property names.
+    if (data.description !== undefined && data.timestamp !== undefined) {
+        return {
+            description: data.description,
+            amount: data.amount,
+            timestamp: data.timestamp,
+            category: data.category
+        }
+    }
+
+    const minified = data as MinifiedExpense
+    return {
+        description: minified.d,
+        amount: minified.a,
+        timestamp: minified.t,
+        category: minified.c
     }
 }
