@@ -197,11 +197,6 @@ const rowActions = (expense: ExpenseRecord) => {
       label: t('components.expense_list.edit'),
       icon: 'i-heroicons-pencil-square',
       onSelect: () => openExpense(expense)
-    },
-    {
-      label: t('components.expense_list.share_qr'),
-      icon: 'i-heroicons-qr-code',
-      onSelect: () => openQrCode(expense)
     }
   ]
   if (expense.ticket) {
@@ -290,6 +285,11 @@ defineExpose({
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center" @click.stop>
+              <UTooltip :text="$t('components.expense_list.share_qr')">
+                <UButton
+                  icon="i-heroicons-qr-code" size="xs" variant="soft" color="neutral"
+                  @click="openQrCode(row.original as ExpenseRecord)" />
+              </UTooltip>
               <UDropdownMenu :items="rowActions(row.original as ExpenseRecord)">
                 <UButton color="neutral" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
               </UDropdownMenu>

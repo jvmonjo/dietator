@@ -8,6 +8,13 @@
 - **Càlcul Automàtic de KM**: Integració amb Google Maps API (Distance Matrix) per calcular distàncies entre municipis.
     - Sistema de *caching* local per reduir costos de l'API.
     - Suport per a rutes complexes amb múltiples parades.
+- **Gestió de Despeses**: Registre de les despeses vinculades a les dietes.
+    - **Categories**: Dieta, Pàrquing, Benzina, Peatges i Altres. Només les de *Dieta* descompten del balanç; la resta es comptabilitzen a part (compte diferent).
+    - **Tiquets**: Adjunta el comprovant des de la galeria o la càmera, amb pas de retall i mode escala de grisos per reduir-ne la mida. Es poden previsualitzar i descarregar dins l'app.
+    - **Balanç i estadístiques**: Totals separats de despeses de dieta i altres, mitjana diària de dieta, balanç net (dietes − despeses de dieta) i desglossament per categoria.
+    - **Calendari**: Navega pels mesos, marca els dies amb despeses i filtra la llista per dia; filtre addicional per categoria.
+    - **Compartir per QR**: Genera un codi QR d'una despesa i importa-la a un altre dispositiu amb la càmera (el tiquet no s'hi inclou).
+    - **Manteniment**: Consulta l'espai ocupat pels tiquets i elimina'ls (tots o per període) des de Configuració, sense perdre les despeses.
 - **Generació de Documents**:
     - **Informes Word**: Generació de documents mensuals o per servei utilitzant plantilles `.docx` personalitzables.
     - **Estadístiques PDF**: Resums visuals de les dietes, serveis i imports totals.

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import {
-  EXPENSE_CATEGORIES, CATEGORY_COLORS, resolveExpenseCategory, categoryCountsTowardBalance
+  EXPENSE_CATEGORIES, CATEGORY_COLORS, resolveExpenseCategory, categoryCountsTowardBalance,
+  type ExpenseCategory
 } from '~/utils/expenseCategories'
 
 const expenseStore = useExpenseStore()
@@ -40,6 +41,14 @@ const availableYears = computed(() => {
 
 const showAllMonths = computed(() => selectedMonthValue.value === 0)
 
+// Category filter for the calendar + list ("all" shows every category). The
+// statistics always summarise the whole month regardless of this filter.
+const categoryFilter = ref<'all' | ExpenseCategory>('all')
+const categoryFilterItems = computed(() => [
+  { value: 'all' as const, label: t('expenses.all_categories') },
+  ...EXPENSE_CATEGORIES.map(value => ({ value, label: t(`expenses.categories.${value}`) }))
+])
+
 // Day selected on the calendar; filters the expense list to a single day.
 const selectedDay = ref<Date | null>(null)
 
@@ -63,21 +72,27 @@ const selectedExpenses = computed(() => {
   })
 })
 
-// Days (within the selected month) that have at least one expense, for the calendar.
+// Expenses narrowed by the category filter; drives the calendar marks and list.
+const filteredExpenses = computed(() => {
+  if (categoryFilter.value === 'all') return selectedExpenses.value
+  return selectedExpenses.value.filter(e => resolveExpenseCategory(e) === categoryFilter.value)
+})
+
+// Days (within the selected month) that have at least one matching expense.
 const markedDays = computed(() => {
   const keys = new Set<string>()
-  selectedExpenses.value.forEach(expense => {
+  filteredExpenses.value.forEach(expense => {
     const date = new Date(expense.timestamp)
     if (!Number.isNaN(date.getTime())) keys.add(dayKey(date))
   })
   return Array.from(keys)
 })
 
-// The list respects the calendar day filter when one is set.
+// The list respects both the category filter and the calendar day filter.
 const listExpenses = computed(() => {
-  if (!selectedDay.value) return selectedExpenses.value
+  if (!selectedDay.value) return filteredExpenses.value
   const key = dayKey(selectedDay.value)
-  return selectedExpenses.value.filter(expense => {
+  return filteredExpenses.value.filter(expense => {
     const date = new Date(expense.timestamp)
     return !Number.isNaN(date.getTime()) && dayKey(date) === key
   })
@@ -181,6 +196,9 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
             v-model="selectedMonthValue" :items="months" option-attribute="label" value-attribute="value"
             class="w-full sm:min-w-[140px]" />
           <USelect v-model="selectedYear" :items="availableYears" class="w-full sm:w-[100px]" />
+          <USelect
+            v-model="categoryFilter" :items="categoryFilterItems" option-attribute="label" value-attribute="value"
+            icon="i-heroicons-tag" class="w-full col-span-2 sm:col-span-1 sm:min-w-[150px]" />
         </div>
       </div>
     </section>
@@ -193,7 +211,14 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
         @update:year="selectedYear = $event" @update:month="selectedMonthValue = $event" />
     </section>
 
-    <!-- Statistics -->
+    <!-- Expense List (just below the calendar) -->
+    <section>
+      <ExpenseList
+        :title="$t('expenses.list_title')" :description="expenseListDescription"
+        :expenses="listExpenses" />
+    </section>
+
+    <!-- Statistics (at the bottom) -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <UCard>
         <div class="text-center space-y-1">
@@ -264,13 +289,6 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
           </div>
         </div>
       </UCard>
-    </section>
-
-    <!-- Expense List -->
-    <section>
-      <ExpenseList
-        :title="$t('expenses.list_title')" :description="expenseListDescription"
-        :expenses="listExpenses" />
     </section>
   </div>
 </template>
