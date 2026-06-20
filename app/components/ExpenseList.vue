@@ -53,10 +53,10 @@ const recordCount = computed(() => filteredExpenses.value.length)
 const hasRecords = computed(() => recordCount.value > 0)
 const totalPages = computed(() => Math.ceil(recordCount.value / itemsPerPage.value))
 
-// Most recent expenses first.
+// Oldest expenses first, matching the service list order.
 const tableData = computed(() => {
   return filteredExpenses.value.slice().sort((a, b) =>
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
 })
 
 watch([searchQuery, itemsPerPage], () => {
@@ -397,7 +397,7 @@ defineExpose({
               v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attribute="value"
               size="xs" color="neutral" variant="outline" />
           </div>
-          <UPagination v-if="totalPages > 1" v-model:page="page" :page-count="itemsPerPage" :total="recordCount" />
+          <UPagination v-if="totalPages > 1" v-model:page="page" :items-per-page="itemsPerPage" :total="recordCount" />
         </div>
       </div>
     </UCard>
