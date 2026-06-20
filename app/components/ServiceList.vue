@@ -355,7 +355,7 @@ v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attri
               size="xs" color="neutral" variant="outline" />
           </div>
 
-          <UPagination v-if="totalPages > 1" v-model:page="page" :page-count="itemsPerPage" :total="recordCount" />
+          <UPagination v-if="totalPages > 1" v-model:page="page" :items-per-page="itemsPerPage" :total="recordCount" />
         </div>
       </div>
     </UCard>
