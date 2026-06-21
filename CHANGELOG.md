@@ -1,3 +1,10 @@
+## [1.51.4](https://github.com/jvmonjo/dietator/compare/v1.51.3...v1.51.4) (2026-06-21)
+
+
+### Bug Fixes
+
+* **css:** add media query for iOS Safari to prevent viewport zoom on form controls ([d0611c6](https://github.com/jvmonjo/dietator/commit/d0611c6373fd5a733e7c00125185046faf5a98a8))
+
 ## [1.51.3](https://github.com/jvmonjo/dietator/compare/v1.51.2...v1.51.3) (2026-06-21)
 
 
