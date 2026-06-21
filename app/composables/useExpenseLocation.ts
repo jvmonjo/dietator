@@ -67,7 +67,7 @@ export interface ExpenseLocationSuggestion {
   secondaryText: string
   // Google does not currently export its runtime PlacePrediction type through
   // the loader package, so keep the object opaque outside this composable.
-  prediction: unknown
+  prediction?: unknown
 }
 
 export const useExpenseLocation = () => {
@@ -97,32 +97,65 @@ export const useExpenseLocation = () => {
 
   const getLocationSuggestions = async (input: string): Promise<ExpenseLocationSuggestion[]> => {
     await ensureGoogleMaps()
-    if (!autocompleteSessionToken) {
-      autocompleteSessionToken = new google.maps.places.AutocompleteSessionToken()
+    try {
+      if (!autocompleteSessionToken) {
+        autocompleteSessionToken = new google.maps.places.AutocompleteSessionToken()
+      }
+
+      const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input,
+        includedRegionCodes: ['es'],
+        language: 'ca',
+        region: 'es',
+        sessionToken: autocompleteSessionToken
+      })
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const predictions = suggestions.flatMap((suggestion: any) => {
+        const prediction = suggestion.placePrediction
+        if (!prediction) return []
+        return [{
+          placeId: prediction.placeId,
+          mainText: prediction.mainText?.toString() || prediction.text.toString(),
+          secondaryText: prediction.secondaryText?.toString() || '',
+          prediction
+        }]
+      })
+      if (predictions.length) return predictions
+    } catch (error) {
+      console.warn('Places Autocomplete Data API failed; trying compatibility service.', error)
     }
 
-    const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+    // Mobile Safari has intermittently failed to return results from the new
+    // promise-based API. Keep the JS compatibility service as an independent
+    // path; selected place IDs are resolved through Geocoding below.
+    const service = new google.maps.places.AutocompleteService()
+    const { predictions } = await service.getPlacePredictions({
       input,
-      includedRegionCodes: ['es'],
+      componentRestrictions: { country: 'es' },
       language: 'ca',
-      region: 'es',
-      sessionToken: autocompleteSessionToken
+      region: 'es'
     })
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return suggestions.flatMap((suggestion: any) => {
-      const prediction = suggestion.placePrediction
-      if (!prediction) return []
-      return [{
-        placeId: prediction.placeId,
-        mainText: prediction.mainText?.toString() || prediction.text.toString(),
-        secondaryText: prediction.secondaryText?.toString() || '',
-        prediction
-      }]
-    })
+    return (predictions || []).map((prediction: any) => ({
+      placeId: prediction.place_id,
+      mainText: prediction.structured_formatting?.main_text || prediction.description,
+      secondaryText: prediction.structured_formatting?.secondary_text || '',
+      prediction: undefined
+    }))
   }
 
   const selectLocationSuggestion = async (suggestion: ExpenseLocationSuggestion): Promise<ExpenseLocation> => {
+    if (!suggestion.prediction) {
+      const geocoder = new google.maps.Geocoder()
+      const response = await geocoder.geocode({ placeId: suggestion.placeId })
+      const result = response.results?.[0]
+      if (!result) throw new Error('location_not_found')
+      autocompleteSessionToken = undefined
+      return placeToLocation(result)
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const place = (suggestion.prediction as any).toPlace()
     await place.fetchFields({

@@ -547,6 +547,8 @@
       "ticket_extract_hint": "Llegeix el tiquet i omple els camps buits automàticament (import, data i descripció).",
       "location": "Ubicació (opcional)",
       "location_placeholder": "Cerca un lloc, adreça o zona...",
+      "location_searching": "Cercant ubicacions…",
+      "location_autocomplete_error": "No s’han pogut carregar els suggeriments de Google Maps.",
       "location_hint": "Es pot escriure manualment, usar autocompletat de Google Maps o detectar la ubicació del dispositiu.",
       "detect_location": "Detectar ubicació"
     },

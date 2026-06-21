@@ -549,6 +549,8 @@
       "ticket_extract_hint": "Lee el ticket y rellena automáticamente los campos vacíos (importe, fecha y descripción).",
       "location": "Ubicación (opcional)",
       "location_placeholder": "Busca un lugar, dirección o zona...",
+      "location_searching": "Buscando ubicaciones…",
+      "location_autocomplete_error": "No se han podido cargar las sugerencias de Google Maps.",
       "location_hint": "Se puede escribir manualmente, usar autocompletado de Google Maps o detectar la ubicación del dispositivo.",
       "detect_location": "Detectar ubicación"
     },

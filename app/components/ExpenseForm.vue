@@ -48,6 +48,8 @@ const state = reactive({
 const locationSuggestions = ref<ExpenseLocationSuggestion[]>([])
 const locationSuggestionsElement = ref<HTMLElement | null>(null)
 const isLocationInputFocused = ref(false)
+const isLocationSearchLoading = ref(false)
+const hasLocationSearchError = ref(false)
 let locationSearchTimer: ReturnType<typeof setTimeout> | undefined
 let locationSearchId = 0
 const isDetectingLocation = ref(false)
@@ -60,6 +62,8 @@ const setLocation = (location: ExpenseRecord['location']) => {
 watch(() => state.locationLabel, (label) => {
   clearTimeout(locationSearchTimer)
   const searchId = ++locationSearchId
+  isLocationSearchLoading.value = false
+  hasLocationSearchError.value = false
   if (!label.trim()) {
     state.location = undefined
     locationSuggestions.value = []
@@ -74,6 +78,8 @@ watch(() => state.locationLabel, (label) => {
     return
   }
   locationSearchTimer = setTimeout(async () => {
+    isLocationSearchLoading.value = true
+    hasLocationSearchError.value = false
     try {
       const suggestions = await getLocationSuggestions(query)
       if (searchId === locationSearchId) {
@@ -82,7 +88,12 @@ watch(() => state.locationLabel, (label) => {
         locationSuggestionsElement.value?.scrollIntoView({ block: 'nearest' })
       }
     } catch {
-      if (searchId === locationSearchId) locationSuggestions.value = []
+      if (searchId === locationSearchId) {
+        locationSuggestions.value = []
+        hasLocationSearchError.value = true
+      }
+    } finally {
+      if (searchId === locationSearchId) isLocationSearchLoading.value = false
     }
   }, 250)
 })
@@ -421,6 +432,12 @@ const submitLabel = computed(() => isEditing.value
             v-model="state.locationLabel" icon="i-heroicons-map-pin" autocomplete="off"
             :placeholder="$t('components.expense_form.location_placeholder')" class="w-full"
             @focus="isLocationInputFocused = true" @blur="closeLocationSuggestions" />
+          <p v-if="isLocationSearchLoading" class="mt-2 text-xs text-gray-500">
+            {{ $t('components.expense_form.location_searching') }}
+          </p>
+          <p v-else-if="hasLocationSearchError" class="mt-2 text-xs text-error-500">
+            {{ $t('components.expense_form.location_autocomplete_error') }}
+          </p>
           <div
             v-if="isLocationInputFocused && locationSuggestions.length"
             ref="locationSuggestionsElement"
