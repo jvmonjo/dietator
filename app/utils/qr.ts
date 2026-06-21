@@ -1,6 +1,6 @@
 import { isProxy, toRaw } from 'vue'
 import type { ServiceRecord, Displacement } from '~/stores/services'
-import type { ExpenseRecord } from '~/stores/expenses'
+import type { ExpenseRecord, ExpenseLocation } from '~/stores/expenses'
 import type { ExpenseCategory } from '~/utils/expenseCategories'
 
 // Minified interfaces for QR payload
@@ -79,11 +79,50 @@ export const decompressServiceRecord = (data: any): Partial<ServiceRecord> => {
 
 // Minified expense payload for QR. The ticket attachment is intentionally
 // omitted — receipt images are far too large to fit in a QR code.
+interface MinifiedExpenseLocation {
+    l: string // label
+    i?: string // placeId
+    c?: string // city
+    p?: string // province
+    z?: string // zone
+    a?: number // lat
+    n?: number // lng
+}
+
 interface MinifiedExpense {
     d: string // description
     a: number // amount
     t: string // timestamp (UTC ISO)
     c?: ExpenseCategory // category
+    l?: MinifiedExpenseLocation // location
+}
+
+const compressExpenseLocation = (location?: ExpenseLocation): MinifiedExpenseLocation | undefined => {
+    if (!location?.label) return undefined
+    return {
+        l: location.label,
+        i: location.placeId || undefined,
+        c: location.city || undefined,
+        p: location.province || undefined,
+        z: location.zone || undefined,
+        a: typeof location.lat === 'number' ? location.lat : undefined,
+        n: typeof location.lng === 'number' ? location.lng : undefined
+    }
+}
+
+const decompressExpenseLocation = (location?: MinifiedExpenseLocation | ExpenseLocation): ExpenseLocation | undefined => {
+    if (!location) return undefined
+    if ('label' in location) return location.label ? location : undefined
+    if (!location.l) return undefined
+    return {
+        label: location.l,
+        placeId: location.i,
+        city: location.c,
+        province: location.p,
+        zone: location.z,
+        lat: location.a,
+        lng: location.n
+    }
 }
 
 /**
@@ -97,7 +136,8 @@ export const compressExpenseRecord = (record: any): MinifiedExpense => {
         d: src.description,
         a: src.amount,
         t: src.timestamp,
-        c: src.category || undefined
+        c: src.category || undefined,
+        l: compressExpenseLocation(src.location)
     }
 }
 
@@ -113,7 +153,8 @@ export const decompressExpenseRecord = (data: any): Partial<ExpenseRecord> => {
             description: data.description,
             amount: data.amount,
             timestamp: data.timestamp,
-            category: data.category
+            category: data.category,
+            location: decompressExpenseLocation(data.location)
         }
     }
 
@@ -122,6 +163,7 @@ export const decompressExpenseRecord = (data: any): Partial<ExpenseRecord> => {
         description: minified.d,
         amount: minified.a,
         timestamp: minified.t,
-        category: minified.c
+        category: minified.c,
+        location: decompressExpenseLocation(minified.l)
     }
 }

@@ -248,7 +248,8 @@ const handleQrImport = (result: string) => {
       description: decompressed.description,
       timestamp: ensureUtc(decompressed.timestamp),
       amount: decompressed.amount,
-      ...(decompressed.category ? { category: decompressed.category } : {})
+      ...(decompressed.category ? { category: decompressed.category } : {}),
+      ...(decompressed.location ? { location: decompressed.location } : {})
     })
     toast.add({ title: t('components.expense_list.modals.import_success'), color: 'success' })
   } catch (e) {
