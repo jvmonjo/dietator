@@ -1,3 +1,10 @@
+# [1.52.0](https://github.com/jvmonjo/dietator/compare/v1.51.4...v1.52.0) (2026-06-21)
+
+
+### Features
+
+* **expenses:** include location in QR payload ([f4fcf6c](https://github.com/jvmonjo/dietator/commit/f4fcf6cb89c5ceebb6c9b8603a302b524ca0c45b))
+
 ## [1.51.4](https://github.com/jvmonjo/dietator/compare/v1.51.3...v1.51.4) (2026-06-21)
 
 
