@@ -1,3 +1,10 @@
+# [1.51.0](https://github.com/jvmonjo/dietator/compare/v1.50.0...v1.51.0) (2026-06-21)
+
+
+### Features
+
+* **location:** enhance location input with autocomplete and update Google Maps API references ([6d69738](https://github.com/jvmonjo/dietator/commit/6d6973803dc7dc0b9418670c420660781ec69f81))
+
 # [1.50.0](https://github.com/jvmonjo/dietator/compare/v1.49.0...v1.50.0) (2026-06-21)
 
 
