@@ -43,7 +43,7 @@ definePageMeta({
             <li>
               <strong>Habilita la API:</strong>
               <div class="ml-5 mt-1">
-                Al menú lateral esquerre, ves a <em>"APIs & Services" > "Library"</em>. Cerca i habilita <strong>"Distance Matrix API"</strong>, <strong>"Places API"</strong>, <strong>"Maps JavaScript API"</strong> i <strong>"Geocoding API"</strong>.
+                Al menú lateral esquerre, ves a <em>"APIs & Services" > "Library"</em>. Cerca i habilita <strong>"Distance Matrix API"</strong>, <strong>"Places API (New)"</strong>, <strong>"Maps JavaScript API"</strong> i <strong>"Geocoding API"</strong>.
               </div>
             </li>
             <li>

@@ -44,19 +44,29 @@ const state = reactive({
   locationLabel: '',
   location: undefined as ExpenseRecord['location']
 })
-const locationInput = ref<{ $el?: HTMLElement } | null>(null)
+const locationAutocompleteHost = ref<HTMLElement | null>(null)
+const locationAutocomplete = shallowRef<HTMLElement & { value?: string }>()
+const isLocationAutocompleteReady = ref(false)
 const isDetectingLocation = ref(false)
 
 const setLocation = (location: ExpenseRecord['location']) => {
   state.location = location
   state.locationLabel = location?.label || ''
+  if (locationAutocomplete.value && locationAutocomplete.value.value !== state.locationLabel) {
+    locationAutocomplete.value.value = state.locationLabel
+  }
 }
 
 onMounted(async () => {
-  const input = locationInput.value?.$el?.querySelector('input')
-  if (!input) return
+  if (!locationAutocompleteHost.value) return
   try {
-    await attachAutocomplete(input, setLocation)
+    locationAutocomplete.value = await attachAutocomplete(locationAutocompleteHost.value, {
+      value: state.locationLabel,
+      placeholder: t('components.expense_form.location_placeholder'),
+      onInput: value => { state.locationLabel = value },
+      onSelected: setLocation
+    })
+    isLocationAutocompleteReady.value = true
   } catch {
     // Google Maps is optional; users can still type a location manually.
   }
@@ -69,6 +79,9 @@ watch(() => state.locationLabel, (label) => {
   }
   if (state.location?.label !== label) {
     state.location = { label: label.trim() }
+  }
+  if (locationAutocomplete.value && locationAutocomplete.value.value !== label) {
+    locationAutocomplete.value.value = label
   }
 })
 
@@ -384,9 +397,12 @@ const submitLabel = computed(() => isEditing.value
 
     <UFormField :label="$t('components.expense_form.location')" name="location">
       <div class="flex flex-col sm:flex-row gap-3">
-        <UInput
-          ref="locationInput" v-model="state.locationLabel" icon="i-heroicons-map-pin"
-          :placeholder="$t('components.expense_form.location_placeholder')" class="w-full" />
+        <div class="w-full">
+          <div ref="locationAutocompleteHost" :class="{ hidden: !isLocationAutocompleteReady }" />
+          <UInput
+            v-if="!isLocationAutocompleteReady" v-model="state.locationLabel" icon="i-heroicons-map-pin"
+            :placeholder="$t('components.expense_form.location_placeholder')" class="w-full" />
+        </div>
         <UButton
           type="button" icon="i-heroicons-map" color="neutral" variant="outline"
           :loading="isDetectingLocation" @click="autoDetectLocation">

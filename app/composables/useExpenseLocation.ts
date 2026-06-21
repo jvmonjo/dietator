@@ -30,7 +30,7 @@ const loadPlacesLibrary = async (apiKey: string) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAddressPart = (components: any[] = [], types: string[]) => {
   const component = components.find(item => types.some(type => item.types?.includes(type)))
-  return component?.long_name || ''
+  return component?.long_name || component?.longText || ''
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,6 +44,20 @@ const placeToLocation = (place: any): ExpenseLocation => {
     zone: getAddressPart(components, ['sublocality', 'neighborhood', 'administrative_area_level_4']),
     lat: typeof place.geometry?.location?.lat === 'function' ? place.geometry.location.lat() : undefined,
     lng: typeof place.geometry?.location?.lng === 'function' ? place.geometry.location.lng() : undefined
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const autocompletePlaceToLocation = (place: any): ExpenseLocation => {
+  const components = place.addressComponents || []
+  return {
+    label: place.formattedAddress || place.displayName || '',
+    placeId: place.id || undefined,
+    city: getAddressPart(components, ['locality', 'postal_town', 'administrative_area_level_3']),
+    province: getAddressPart(components, ['administrative_area_level_2', 'administrative_area_level_1']),
+    zone: getAddressPart(components, ['sublocality', 'neighborhood', 'administrative_area_level_4']),
+    lat: typeof place.location?.lat === 'function' ? place.location.lat() : undefined,
+    lng: typeof place.location?.lng === 'function' ? place.location.lng() : undefined
   }
 }
 
@@ -70,16 +84,36 @@ export const useExpenseLocation = () => {
     return placeToLocation(place)
   }
 
-  const attachAutocomplete = async (input: HTMLInputElement, onSelected: (location: ExpenseLocation) => void) => {
+  const attachAutocomplete = async (
+    container: HTMLElement,
+    options: {
+      value: string
+      placeholder: string
+      onInput: (value: string) => void
+      onSelected: (location: ExpenseLocation) => void
+    }
+  ) => {
     await ensureGoogleMaps()
-    const autocomplete = new google.maps.places.Autocomplete(input, {
-      fields: ['address_components', 'formatted_address', 'geometry', 'name', 'place_id'],
-      types: ['geocode']
+    const autocomplete = new google.maps.places.PlaceAutocompleteElement({
+      value: options.value,
+      placeholder: options.placeholder,
+      requestedLanguage: 'ca',
+      requestedRegion: 'es'
     })
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace()
-      if (place) onSelected(placeToLocation(place))
+    autocomplete.classList.add('w-full')
+    autocomplete.addEventListener('input', () => {
+      options.onInput(autocomplete.value || '')
     })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    autocomplete.addEventListener('gmp-select', async (event: any) => {
+      const place = event.placePrediction.toPlace()
+      await place.fetchFields({
+        fields: ['addressComponents', 'displayName', 'formattedAddress', 'id', 'location']
+      })
+      options.onSelected(autocompletePlaceToLocation(place))
+    })
+
+    container.replaceChildren(autocomplete)
     return autocomplete
   }
 
