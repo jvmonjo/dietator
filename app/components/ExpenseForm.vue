@@ -46,6 +46,7 @@ const state = reactive({
   location: undefined as ExpenseRecord['location']
 })
 const locationSuggestions = ref<ExpenseLocationSuggestion[]>([])
+const locationSuggestionsElement = ref<HTMLElement | null>(null)
 const isLocationInputFocused = ref(false)
 let locationSearchTimer: ReturnType<typeof setTimeout> | undefined
 let locationSearchId = 0
@@ -75,7 +76,11 @@ watch(() => state.locationLabel, (label) => {
   locationSearchTimer = setTimeout(async () => {
     try {
       const suggestions = await getLocationSuggestions(query)
-      if (searchId === locationSearchId) locationSuggestions.value = suggestions
+      if (searchId === locationSearchId) {
+        locationSuggestions.value = suggestions
+        await nextTick()
+        locationSuggestionsElement.value?.scrollIntoView({ block: 'nearest' })
+      }
     } catch {
       if (searchId === locationSearchId) locationSuggestions.value = []
     }
@@ -411,14 +416,15 @@ const submitLabel = computed(() => isEditing.value
 
     <UFormField :label="$t('components.expense_form.location')" name="location">
       <div class="flex flex-col sm:flex-row gap-3">
-        <div class="relative w-full">
+        <div class="w-full">
           <UInput
             v-model="state.locationLabel" icon="i-heroicons-map-pin" autocomplete="off"
             :placeholder="$t('components.expense_form.location_placeholder')" class="w-full"
             @focus="isLocationInputFocused = true" @blur="closeLocationSuggestions" />
           <div
             v-if="isLocationInputFocused && locationSuggestions.length"
-            class="absolute z-[80] mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            ref="locationSuggestionsElement"
+            class="mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900"
             role="listbox">
             <button
               v-for="suggestion in locationSuggestions" :key="suggestion.placeId" type="button"
