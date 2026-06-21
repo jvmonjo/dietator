@@ -1,3 +1,10 @@
+## [1.51.3](https://github.com/jvmonjo/dietator/compare/v1.51.2...v1.51.3) (2026-06-21)
+
+
+### Bug Fixes
+
+* **location:** enhance location search with loading state and error handling ([c60f96a](https://github.com/jvmonjo/dietator/commit/c60f96a92fcb5e71c7d0dcb938e61e1eee992c79))
+
 ## [1.51.2](https://github.com/jvmonjo/dietator/compare/v1.51.1...v1.51.2) (2026-06-21)
 
 
