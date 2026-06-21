@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import type { FormSubmitEvent } from '#ui/types'
 import type { ExpenseRecord } from '~/stores/expenses'
+import type { ExpenseLocationSuggestion } from '~/composables/useExpenseLocation'
 import { utcToLocalInput, localInputToUtc } from '~/utils/datetime'
 import {
   compressImageToDataUrl, processDocumentFile, fileToDataUrl, isImageFile,
@@ -25,7 +26,7 @@ const emit = defineEmits<{
 const toast = useToast()
 const expenseStore = useExpenseStore()
 const { t } = useI18n()
-const { attachAutocomplete, detectCurrentLocation } = useExpenseLocation()
+const { detectCurrentLocation, getLocationSuggestions, selectLocationSuggestion } = useExpenseLocation()
 
 const isEditing = computed(() => Boolean(props.initialData))
 const isLoading = ref(false)
@@ -44,46 +45,59 @@ const state = reactive({
   locationLabel: '',
   location: undefined as ExpenseRecord['location']
 })
-const locationAutocompleteHost = ref<HTMLElement | null>(null)
-const locationAutocomplete = shallowRef<HTMLElement & { value?: string }>()
-const isLocationAutocompleteReady = ref(false)
+const locationSuggestions = ref<ExpenseLocationSuggestion[]>([])
+const isLocationInputFocused = ref(false)
+let locationSearchTimer: ReturnType<typeof setTimeout> | undefined
+let locationSearchId = 0
 const isDetectingLocation = ref(false)
 
 const setLocation = (location: ExpenseRecord['location']) => {
   state.location = location
   state.locationLabel = location?.label || ''
-  if (locationAutocomplete.value && locationAutocomplete.value.value !== state.locationLabel) {
-    locationAutocomplete.value.value = state.locationLabel
-  }
 }
 
-onMounted(async () => {
-  if (!locationAutocompleteHost.value) return
-  try {
-    locationAutocomplete.value = await attachAutocomplete(locationAutocompleteHost.value, {
-      value: state.locationLabel,
-      placeholder: t('components.expense_form.location_placeholder'),
-      onInput: value => { state.locationLabel = value },
-      onSelected: setLocation
-    })
-    isLocationAutocompleteReady.value = true
-  } catch {
-    // Google Maps is optional; users can still type a location manually.
-  }
-})
-
 watch(() => state.locationLabel, (label) => {
+  clearTimeout(locationSearchTimer)
+  const searchId = ++locationSearchId
   if (!label.trim()) {
     state.location = undefined
+    locationSuggestions.value = []
     return
   }
   if (state.location?.label !== label) {
     state.location = { label: label.trim() }
   }
-  if (locationAutocomplete.value && locationAutocomplete.value.value !== label) {
-    locationAutocomplete.value.value = label
+  const query = label.trim()
+  if (query.length < 2 || !isLocationInputFocused.value) {
+    locationSuggestions.value = []
+    return
   }
+  locationSearchTimer = setTimeout(async () => {
+    try {
+      const suggestions = await getLocationSuggestions(query)
+      if (searchId === locationSearchId) locationSuggestions.value = suggestions
+    } catch {
+      if (searchId === locationSearchId) locationSuggestions.value = []
+    }
+  }, 250)
 })
+
+onUnmounted(() => clearTimeout(locationSearchTimer))
+
+const selectLocation = async (suggestion: ExpenseLocationSuggestion) => {
+  locationSuggestions.value = []
+  isLocationInputFocused.value = false
+  try {
+    setLocation(await selectLocationSuggestion(suggestion))
+  } catch {
+    setLocation({ label: suggestion.mainText })
+  }
+}
+
+const closeLocationSuggestions = () => {
+  // Let a pointer selection run before hiding its target.
+  setTimeout(() => { isLocationInputFocused.value = false }, 150)
+}
 
 const autoDetectLocation = async () => {
   if (isDetectingLocation.value) return
@@ -397,11 +411,29 @@ const submitLabel = computed(() => isEditing.value
 
     <UFormField :label="$t('components.expense_form.location')" name="location">
       <div class="flex flex-col sm:flex-row gap-3">
-        <div class="w-full">
-          <div ref="locationAutocompleteHost" :class="{ hidden: !isLocationAutocompleteReady }" />
+        <div class="relative w-full">
           <UInput
-            v-if="!isLocationAutocompleteReady" v-model="state.locationLabel" icon="i-heroicons-map-pin"
-            :placeholder="$t('components.expense_form.location_placeholder')" class="w-full" />
+            v-model="state.locationLabel" icon="i-heroicons-map-pin" autocomplete="off"
+            :placeholder="$t('components.expense_form.location_placeholder')" class="w-full"
+            @focus="isLocationInputFocused = true" @blur="closeLocationSuggestions" />
+          <div
+            v-if="isLocationInputFocused && locationSuggestions.length"
+            class="absolute z-[80] mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            role="listbox">
+            <button
+              v-for="suggestion in locationSuggestions" :key="suggestion.placeId" type="button"
+              class="flex w-full items-start gap-3 border-b border-gray-100 px-3 py-3 text-left last:border-0 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none dark:border-gray-800 dark:hover:bg-gray-800 dark:focus:bg-gray-800"
+              role="option" @mousedown.prevent @click="selectLocation(suggestion)">
+              <UIcon name="i-heroicons-map-pin" class="mt-0.5 size-5 shrink-0 text-gray-500" />
+              <span class="min-w-0">
+                <span class="block truncate text-sm font-medium text-gray-900 dark:text-white">{{ suggestion.mainText }}</span>
+                <span v-if="suggestion.secondaryText" class="block truncate text-xs text-gray-500 dark:text-gray-400">
+                  {{ suggestion.secondaryText }}
+                </span>
+              </span>
+            </button>
+            <div class="px-3 py-2 text-right text-xs text-gray-500">Google Maps</div>
+          </div>
         </div>
         <UButton
           type="button" icon="i-heroicons-map" color="neutral" variant="outline"

@@ -61,11 +61,22 @@ const autocompletePlaceToLocation = (place: any): ExpenseLocation => {
   }
 }
 
+export interface ExpenseLocationSuggestion {
+  placeId: string
+  mainText: string
+  secondaryText: string
+  // Google does not currently export its runtime PlacePrediction type through
+  // the loader package, so keep the object opaque outside this composable.
+  prediction: unknown
+}
+
 export const useExpenseLocation = () => {
   const settingsStore = useSettingsStore()
   const { googleMapsApiKey } = storeToRefs(settingsStore)
 
   const ensureGoogleMaps = () => loadPlacesLibrary(googleMapsApiKey.value)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let autocompleteSessionToken: any
 
   const detectCurrentLocation = async (): Promise<ExpenseLocation> => {
     await ensureGoogleMaps()
@@ -84,38 +95,42 @@ export const useExpenseLocation = () => {
     return placeToLocation(place)
   }
 
-  const attachAutocomplete = async (
-    container: HTMLElement,
-    options: {
-      value: string
-      placeholder: string
-      onInput: (value: string) => void
-      onSelected: (location: ExpenseLocation) => void
-    }
-  ) => {
+  const getLocationSuggestions = async (input: string): Promise<ExpenseLocationSuggestion[]> => {
     await ensureGoogleMaps()
-    const autocomplete = new google.maps.places.PlaceAutocompleteElement({
-      value: options.value,
-      placeholder: options.placeholder,
-      requestedLanguage: 'ca',
-      requestedRegion: 'es'
-    })
-    autocomplete.classList.add('w-full')
-    autocomplete.addEventListener('input', () => {
-      options.onInput(autocomplete.value || '')
-    })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    autocomplete.addEventListener('gmp-select', async (event: any) => {
-      const place = event.placePrediction.toPlace()
-      await place.fetchFields({
-        fields: ['addressComponents', 'displayName', 'formattedAddress', 'id', 'location']
-      })
-      options.onSelected(autocompletePlaceToLocation(place))
+    if (!autocompleteSessionToken) {
+      autocompleteSessionToken = new google.maps.places.AutocompleteSessionToken()
+    }
+
+    const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+      input,
+      includedRegionCodes: ['es'],
+      language: 'ca',
+      region: 'es',
+      sessionToken: autocompleteSessionToken
     })
 
-    container.replaceChildren(autocomplete)
-    return autocomplete
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return suggestions.flatMap((suggestion: any) => {
+      const prediction = suggestion.placePrediction
+      if (!prediction) return []
+      return [{
+        placeId: prediction.placeId,
+        mainText: prediction.mainText?.toString() || prediction.text.toString(),
+        secondaryText: prediction.secondaryText?.toString() || '',
+        prediction
+      }]
+    })
   }
 
-  return { attachAutocomplete, detectCurrentLocation }
+  const selectLocationSuggestion = async (suggestion: ExpenseLocationSuggestion): Promise<ExpenseLocation> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const place = (suggestion.prediction as any).toPlace()
+    await place.fetchFields({
+      fields: ['addressComponents', 'displayName', 'formattedAddress', 'id', 'location']
+    })
+    autocompleteSessionToken = undefined
+    return autocompletePlaceToLocation(place)
+  }
+
+  return { detectCurrentLocation, getLocationSuggestions, selectLocationSuggestion }
 }
