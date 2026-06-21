@@ -25,6 +25,7 @@ const emit = defineEmits<{
 const toast = useToast()
 const expenseStore = useExpenseStore()
 const { t } = useI18n()
+const { attachAutocomplete, detectCurrentLocation } = useExpenseLocation()
 
 const isEditing = computed(() => Boolean(props.initialData))
 const isLoading = ref(false)
@@ -39,8 +40,51 @@ const state = reactive({
   ticketName: undefined as string | undefined,
   ticketType: undefined as string | undefined,
   // Expense category; only "diet" counts toward the net balance.
-  category: DEFAULT_EXPENSE_CATEGORY as ExpenseCategory
+  category: DEFAULT_EXPENSE_CATEGORY as ExpenseCategory,
+  locationLabel: '',
+  location: undefined as ExpenseRecord['location']
 })
+const locationInput = ref<{ $el?: HTMLElement } | null>(null)
+const isDetectingLocation = ref(false)
+
+const setLocation = (location: ExpenseRecord['location']) => {
+  state.location = location
+  state.locationLabel = location?.label || ''
+}
+
+onMounted(async () => {
+  const input = locationInput.value?.$el?.querySelector('input')
+  if (!input) return
+  try {
+    await attachAutocomplete(input, setLocation)
+  } catch {
+    // Google Maps is optional; users can still type a location manually.
+  }
+})
+
+watch(() => state.locationLabel, (label) => {
+  if (!label.trim()) {
+    state.location = undefined
+    return
+  }
+  if (state.location?.label !== label) {
+    state.location = { label: label.trim() }
+  }
+})
+
+const autoDetectLocation = async () => {
+  if (isDetectingLocation.value) return
+  isDetectingLocation.value = true
+  try {
+    setLocation(await detectCurrentLocation())
+    toast.add({ title: t('components.expense_form.alerts.location_detected'), color: 'success' })
+  } catch (error) {
+    console.error('Location detection failed', error)
+    toast.add({ title: t('components.expense_form.alerts.location_error'), color: 'error' })
+  } finally {
+    isDetectingLocation.value = false
+  }
+}
 
 const categoryItems = computed(() => EXPENSE_CATEGORIES.map(value => ({
   value,
@@ -254,6 +298,7 @@ const resetState = () => {
     state.ticketName = props.initialData.ticketName
     state.ticketType = props.initialData.ticketType
     state.category = resolveExpenseCategory(props.initialData)
+    setLocation(props.initialData.location)
   } else {
     state.description = ''
     state.dateTime = formatLocalNow()
@@ -263,6 +308,7 @@ const resetState = () => {
     state.ticketName = undefined
     state.ticketType = undefined
     state.category = DEFAULT_EXPENSE_CATEGORY
+    setLocation(undefined)
   }
 }
 
@@ -280,6 +326,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       timestamp: localInputToUtc(event.data.dateTime),
       amount: event.data.amount,
       category: state.category,
+      ...(state.location ? { location: state.location } : {}),
       ...(state.ticket
         ? { ticket: state.ticket, ticketName: state.ticketName, ticketType: state.ticketType }
         : {})
@@ -333,6 +380,20 @@ const submitLabel = computed(() => isEditing.value
         v-model="state.category" :items="categoryItems" option-attribute="label" value-attribute="value"
         icon="i-heroicons-tag" class="w-full" />
       <template #help>{{ $t('components.expense_form.category_hint') }}</template>
+    </UFormField>
+
+    <UFormField :label="$t('components.expense_form.location')" name="location">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <UInput
+          ref="locationInput" v-model="state.locationLabel" icon="i-heroicons-map-pin"
+          :placeholder="$t('components.expense_form.location_placeholder')" class="w-full" />
+        <UButton
+          type="button" icon="i-heroicons-map" color="neutral" variant="outline"
+          :loading="isDetectingLocation" @click="autoDetectLocation">
+          {{ $t('components.expense_form.detect_location') }}
+        </UButton>
+      </div>
+      <template #help>{{ $t('components.expense_form.location_hint') }}</template>
     </UFormField>
 
     <UFormField :label="$t('components.expense_form.ticket')" name="ticket">
