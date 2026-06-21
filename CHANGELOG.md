@@ -1,3 +1,10 @@
+## [1.51.1](https://github.com/jvmonjo/dietator/compare/v1.51.0...v1.51.1) (2026-06-21)
+
+
+### Bug Fixes
+
+* **location:** improve location suggestions with autocomplete functionality ([3ba86ea](https://github.com/jvmonjo/dietator/commit/3ba86eaa3a938f158a198960200308e8ff619071))
+
 # [1.51.0](https://github.com/jvmonjo/dietator/compare/v1.50.0...v1.51.0) (2026-06-21)
 
 
