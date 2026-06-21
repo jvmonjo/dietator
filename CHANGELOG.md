@@ -1,3 +1,10 @@
+# [1.50.0](https://github.com/jvmonjo/dietator/compare/v1.49.0...v1.50.0) (2026-06-21)
+
+
+### Features
+
+* **expenses:** add location support ([7d46129](https://github.com/jvmonjo/dietator/commit/7d461291a7f973325dec81cfb27831465663d7a9))
+
 # [1.49.0](https://github.com/jvmonjo/dietator/compare/v1.48.0...v1.49.0) (2026-06-16)
 
 
