@@ -1,3 +1,10 @@
+## [1.51.2](https://github.com/jvmonjo/dietator/compare/v1.51.1...v1.51.2) (2026-06-21)
+
+
+### Bug Fixes
+
+* **location:** add scrolling to location suggestions for better visibility ([0fe63ff](https://github.com/jvmonjo/dietator/commit/0fe63ffb2eba3790183cce9d0935d5da2b8bbd54))
+
 ## [1.51.1](https://github.com/jvmonjo/dietator/compare/v1.51.0...v1.51.1) (2026-06-21)
 
 
