@@ -538,11 +538,17 @@
         "ticket_error": "No s'ha pogut carregar el tiquet",
         "ocr_success": "Dades extretes del tiquet",
         "ocr_empty": "No s'han pogut detectar dades al tiquet",
-        "ocr_error": "No s'ha pogut llegir el tiquet"
+        "ocr_error": "No s'ha pogut llegir el tiquet",
+        "location_detected": "Ubicació detectada",
+        "location_error": "No s’ha pogut detectar la ubicació"
       },
       "ticket_extract": "Extreure dades",
       "ticket_extract_progress": "Extraient… {progress}%",
-      "ticket_extract_hint": "Llegeix el tiquet i omple els camps buits automàticament (import, data i descripció)."
+      "ticket_extract_hint": "Llegeix el tiquet i omple els camps buits automàticament (import, data i descripció).",
+      "location": "Ubicació (opcional)",
+      "location_placeholder": "Cerca un lloc, adreça o zona...",
+      "location_hint": "Es pot escriure manualment, usar autocompletat de Google Maps o detectar la ubicació del dispositiu.",
+      "detect_location": "Detectar ubicació"
     },
     "expense_list": {
       "title": "Despeses registrades",
@@ -583,7 +589,9 @@
       "select_row": "Seleccionar despesa",
       "share_selected_title": "{count} despeses",
       "share_success": "Despeses compartides correctament",
-      "share_error": "No s'han pogut compartir les despeses"
+      "share_error": "No s'han pogut compartir les despeses",
+      "location": "Ubicació",
+      "location_filter_placeholder": "Filtrar per ciutat, província o zona..."
     }
   },
   "help": {

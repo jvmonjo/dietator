@@ -33,6 +33,7 @@ const categoryBadge = (expense: ExpenseRecord) => {
 const page = ref(1)
 const itemsPerPage = ref(10)
 const searchQuery = ref('')
+const locationQuery = ref('')
 
 const pageOptions = computed(() => [
   { label: t('components.expense_list.per_page', { count: 5 }), value: 5 },
@@ -44,9 +45,19 @@ const pageOptions = computed(() => [
 ])
 
 const filteredExpenses = computed(() => {
-  if (!searchQuery.value) return props.expenses
-  const query = searchQuery.value.toLowerCase()
-  return props.expenses.filter(expense => expense.description.toLowerCase().includes(query))
+  const query = searchQuery.value.toLowerCase().trim()
+  const location = locationQuery.value.toLowerCase().trim()
+  return props.expenses.filter(expense => {
+    const matchesSearch = !query || expense.description.toLowerCase().includes(query)
+    const locationValues = [
+      expense.location?.label,
+      expense.location?.city,
+      expense.location?.province,
+      expense.location?.zone
+    ].filter(Boolean).join(' ').toLowerCase()
+    const matchesLocation = !location || locationValues.includes(location)
+    return matchesSearch && matchesLocation
+  })
 })
 
 const recordCount = computed(() => filteredExpenses.value.length)
@@ -59,7 +70,7 @@ const tableData = computed(() => {
     new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
 })
 
-watch([searchQuery, itemsPerPage], () => {
+watch([searchQuery, locationQuery, itemsPerPage], () => {
   page.value = 1
 })
 
@@ -85,6 +96,7 @@ const columns = computed(() => [
   { accessorKey: 'actions', id: 'actions', header: t('components.expense_list.actions') },
   { accessorKey: 'timestamp', id: 'timestamp', header: t('components.expense_list.date') },
   { accessorKey: 'description', id: 'description', header: t('components.expense_list.description_col') },
+  { accessorKey: 'location', id: 'location', header: t('components.expense_list.location') },
   { accessorKey: 'amount', id: 'amount', header: t('components.expense_list.amount') }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as any[])
@@ -303,6 +315,18 @@ defineExpose({
               :padded="false" @click="searchQuery = ''" />
           </template>
         </UInput>
+        <UInput
+          v-model="locationQuery" :placeholder="$t('components.expense_list.location_filter_placeholder')"
+          class="w-full sm:w-64" :ui="{ trailing: 'pointer-events-auto' }">
+          <template #leading>
+            <UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-gray-400" />
+          </template>
+          <template #trailing>
+            <UButton
+              v-if="locationQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-solid"
+              :padded="false" @click="locationQuery = ''" />
+          </template>
+        </UInput>
         <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="openNewExpense">
           {{ $t('components.expense_list.add') }}
         </UButton>
@@ -371,6 +395,11 @@ defineExpose({
                 :title="$t('components.expense_list.ticket_badge')"
                 @click.stop="viewTicket(row.original as ExpenseRecord)" />
             </div>
+          </template>
+          <template #location-cell="{ row }">
+            <span class="text-sm text-gray-600 dark:text-gray-300">
+              {{ (row.original as ExpenseRecord).location?.label || '—' }}
+            </span>
           </template>
           <template #amount-cell="{ row }">
             <span class="font-medium text-gray-900 dark:text-white">{{ formatCurrency((row.original as ExpenseRecord).amount) }}</span>

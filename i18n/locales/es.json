@@ -540,11 +540,17 @@
         "ticket_error": "No se ha podido cargar el ticket",
         "ocr_success": "Datos extraídos del ticket",
         "ocr_empty": "No se han podido detectar datos en el ticket",
-        "ocr_error": "No se ha podido leer el ticket"
+        "ocr_error": "No se ha podido leer el ticket",
+        "location_detected": "Ubicación detectada",
+        "location_error": "No se ha podido detectar la ubicación"
       },
       "ticket_extract": "Extraer datos",
       "ticket_extract_progress": "Extrayendo… {progress}%",
-      "ticket_extract_hint": "Lee el ticket y rellena automáticamente los campos vacíos (importe, fecha y descripción)."
+      "ticket_extract_hint": "Lee el ticket y rellena automáticamente los campos vacíos (importe, fecha y descripción).",
+      "location": "Ubicación (opcional)",
+      "location_placeholder": "Busca un lugar, dirección o zona...",
+      "location_hint": "Se puede escribir manualmente, usar autocompletado de Google Maps o detectar la ubicación del dispositivo.",
+      "detect_location": "Detectar ubicación"
     },
     "expense_list": {
       "title": "Gastos registrados",
@@ -585,7 +591,9 @@
       "select_row": "Seleccionar gasto",
       "share_selected_title": "{count} gastos",
       "share_success": "Gastos compartidos correctamente",
-      "share_error": "No se han podido compartir los gastos"
+      "share_error": "No se han podido compartir los gastos",
+      "location": "Ubicación",
+      "location_filter_placeholder": "Filtrar por ciudad, provincia o zona..."
     }
   },
   "help": {

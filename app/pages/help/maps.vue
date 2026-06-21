@@ -30,7 +30,7 @@ definePageMeta({
         
         <div class="space-y-4 text-sm text-gray-600 dark:text-gray-300">
           <p>
-            Per a que el càlcul automàtic de distàncies funcioni, necessites una <strong>API Key de Google Maps</strong> amb la "Distance Matrix API" habilitada. Segueix aquests passos:
+            Per a que el càlcul automàtic de distàncies, l'autocompletat d'ubicacions de despeses i la detecció de la ubicació actual funcionin, necessites una <strong>API Key de Google Maps</strong> amb les API necessàries habilitades. Segueix aquests passos:
           </p>
 
           <ol class="list-decimal list-inside space-y-3 ml-2">
@@ -43,7 +43,7 @@ definePageMeta({
             <li>
               <strong>Habilita la API:</strong>
               <div class="ml-5 mt-1">
-                Al menú lateral esquerre, ves a <em>"APIs & Services" > "Library"</em>. Cerca <strong>"Distance Matrix API"</strong> i prem "Enable".
+                Al menú lateral esquerre, ves a <em>"APIs & Services" > "Library"</em>. Cerca i habilita <strong>"Distance Matrix API"</strong>, <strong>"Places API"</strong>, <strong>"Maps JavaScript API"</strong> i <strong>"Geocoding API"</strong>.
               </div>
             </li>
             <li>
@@ -78,6 +78,9 @@ definePageMeta({
         <div class="space-y-4">
           <p class="text-sm text-gray-600 dark:text-gray-300">
             L'aplicació permet calcular automàticament els quilòmetres de les rutes utilitzant la <strong>Distance Matrix API</strong> de Google Maps.
+          </p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">
+            La mateixa clau també activa l'autocompletat d'adreces i llocs a les despeses, i permet convertir la ubicació del dispositiu en una adreça mitjançant geocodificació inversa.
           </p>
 
           <h3 class="font-semibold text-gray-900 dark:text-white text-base">Funcionament del Càlcul</h3>
