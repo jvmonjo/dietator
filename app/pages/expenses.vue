@@ -6,7 +6,9 @@ import {
 } from '~/utils/expenseCategories'
 
 const expenseStore = useExpenseStore()
+const serviceStore = useServiceStore()
 const { expenses } = storeToRefs(expenseStore)
+const { records: serviceRecords } = storeToRefs(serviceStore)
 const { t, locale } = useI18n()
 const { getRecordsForMonth, calculateTotals } = useServiceStats()
 
@@ -41,9 +43,8 @@ const availableYears = computed(() => {
 
 const showAllMonths = computed(() => selectedMonthValue.value === 0)
 
-// Category filter for the calendar + list. An empty selection shows every
-// category; otherwise only the chosen ones. The statistics always summarise the
-// whole month regardless of this filter.
+// Category filter for the calendar, list and statistics. An empty selection
+// shows every category; otherwise only the chosen ones are summarised.
 const categoryFilter = ref<ExpenseCategory[]>([])
 const categoryFilterItems = computed(() =>
   EXPENSE_CATEGORIES.map(value => ({ value, label: t(`expenses.categories.${value}`) })))
@@ -103,10 +104,10 @@ const listExpenses = computed(() => {
   })
 })
 
-// Per-category totals for the selected period (only categories with expenses).
+// Per-category totals for the selected period and categories (only categories with expenses).
 const categoryTotals = computed(() => {
   const totals = new Map<string, { total: number, count: number }>()
-  selectedExpenses.value.forEach(expense => {
+  listExpenses.value.forEach(expense => {
     const category = resolveExpenseCategory(expense)
     const entry = totals.get(category) || { total: 0, count: 0 }
     entry.total += expense.amount || 0
@@ -132,9 +133,9 @@ const selectedMonthLabel = computed(() => {
 // Diet and non-diet expenses are kept separate: diet ones are offset by the
 // per-diem, the rest go to a different account, so the totals are never merged.
 const dietItems = computed(() =>
-  selectedExpenses.value.filter(e => categoryCountsTowardBalance(resolveExpenseCategory(e))))
+  listExpenses.value.filter(e => categoryCountsTowardBalance(resolveExpenseCategory(e))))
 const otherItems = computed(() =>
-  selectedExpenses.value.filter(e => !categoryCountsTowardBalance(resolveExpenseCategory(e))))
+  listExpenses.value.filter(e => !categoryCountsTowardBalance(resolveExpenseCategory(e))))
 
 const sumAmount = (items: { amount?: number }[]) =>
   items.reduce((sum, e) => sum + (e.amount || 0), 0)
@@ -160,15 +161,31 @@ const averageDailyDiet = computed(() => {
 
 // Diet allowance accrued during the same period, used to compute the net balance.
 // A diet is not meant to earn money, only to offset expenses, so this is a balance.
-const dietAllowance = computed(() => {
-  let records
-  if (showAllMonths.value) {
-    records = getRecordsForMonth(null, selectedYear.value)
-  } else {
-    const monthValue = `${selectedYear.value}-${String(selectedMonthValue.value).padStart(2, '0')}`
-    records = getRecordsForMonth(monthValue)
+const dietCategoryIsIncluded = computed(() =>
+  categoryFilter.value.length === 0 || categoryFilter.value.includes('diet'))
+
+const selectedServiceRecords = computed(() => {
+  const range = selectedRange.value
+  if (range?.start) {
+    const startKey = dayKey(range.start)
+    const endKey = dayKey(range.end ?? range.start)
+    return serviceRecords.value.filter(record => {
+      const date = new Date(record.startTime)
+      if (Number.isNaN(date.getTime())) return false
+      const key = dayKey(date)
+      return key >= startKey && key <= endKey
+    })
   }
-  return calculateTotals(records).allowance
+
+  if (showAllMonths.value) return getRecordsForMonth(null, selectedYear.value)
+
+  const monthValue = `${selectedYear.value}-${String(selectedMonthValue.value).padStart(2, '0')}`
+  return getRecordsForMonth(monthValue)
+})
+
+const dietAllowance = computed(() => {
+  if (!dietCategoryIsIncluded.value) return 0
+  return calculateTotals(selectedServiceRecords.value).allowance
 })
 
 const netBalance = computed(() => dietAllowance.value - dietExpenses.value)

@@ -16,6 +16,7 @@ describe('parseReceiptText', () => {
     expect(parsed.amount).toBe(13.7)
     expect(parsed.dateTime).toBe('2026-03-14T21:35')
     expect(parsed.description).toBe('RESTAURANTE EL RINCON')
+    expect(parsed.location).toBe('C/ Mayor 12, Madrid')
   })
 
   it('prefers a "total" line over larger non-total numbers', () => {
@@ -41,6 +42,29 @@ describe('parseReceiptText', () => {
   it('parses ISO and two-digit-year dates and defaults the time to midday', () => {
     expect(parseReceiptText('Date 2026-01-09').dateTime).toBe('2026-01-09T12:00')
     expect(parseReceiptText('05/02/26').dateTime).toBe('2026-02-05T12:00')
+  })
+
+  it('uses the time nearest to the receipt date instead of unrelated opening hours', () => {
+    const text = [
+      'HORARIO 08:00-23:00',
+      'CAFETERIA',
+      'Fecha: 07/04/2026',
+      'Hora: 14:25',
+      'TOTAL 9,50'
+    ].join('\n')
+
+    expect(parseReceiptText(text).dateTime).toBe('2026-04-07T14:25')
+  })
+
+  it('extracts a likely location from address-like receipt lines', () => {
+    const text = [
+      'PARKING CENTRO',
+      'Avenida Diagonal 640',
+      '08017 Barcelona',
+      'TOTAL 4,80'
+    ].join('\n')
+
+    expect(parseReceiptText(text).location).toBe('Avenida Diagonal 640')
   })
 
   it('returns no fields when nothing is recognisable', () => {
