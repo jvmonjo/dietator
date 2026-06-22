@@ -14,6 +14,7 @@ export interface ParsedReceipt {
   // Local datetime-local value (YYYY-MM-DDTHH:mm) ready for the form input.
   dateTime?: string
   description?: string
+  location?: string
 }
 
 // Recognise the combined text of one or more images, reusing a single worker.
@@ -105,38 +106,76 @@ const extractAmount = (lines: string[]): number | undefined => {
   return pool.reduce((max, c) => (c.value > max ? c.value : max), 0)
 }
 
+const hasAmount = (line: string) => Boolean(line.match(AMOUNT_RE))
+
 const pad2 = (n: number) => String(n).padStart(2, '0')
 
 // Extract the first plausible date, returning a datetime-local string. A time
 // is included when present on the receipt, otherwise midday is used to avoid
 // any day-shift surprises around time zones.
+const parseDateParts = (year: number, month: number, day: number) => {
+  if (year < 100) year += 2000
+  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined
+  return { year, month, day }
+}
+
+const findNearestTime = (text: string, dateIndex: number, dateLength: number): RegExpMatchArray | null => {
+  // Prefer a time printed on the same receipt line as the date; fall back to a
+  // nearby time to handle OCR line breaks between date and hour labels.
+  const lineStart = text.lastIndexOf('\n', dateIndex) + 1
+  const nextBreak = text.indexOf('\n', dateIndex + dateLength)
+  const lineEnd = nextBreak === -1 ? text.length : nextBreak
+  const sameLine = text.slice(lineStart, lineEnd).match(/\b([01]?\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?\b/)
+  if (sameLine) return sameLine
+
+  const windowStart = Math.max(0, dateIndex - 80)
+  const windowEnd = Math.min(text.length, dateIndex + dateLength + 80)
+  const windowText = text.slice(windowStart, windowEnd)
+  const matches = Array.from(windowText.matchAll(/\b([01]?\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?\b/g))
+  const afterDate = matches.find(match => match.index != null && windowStart + match.index >= dateIndex + dateLength)
+  if (afterDate) return afterDate
+  return matches.reduce<RegExpMatchArray | null>((nearest, current) => {
+    if (current.index == null) return nearest
+    if (!nearest || nearest.index == null) return current
+    const absoluteCurrent = windowStart + current.index
+    const absoluteNearest = windowStart + nearest.index
+    const currentDistance = Math.min(
+      Math.abs(absoluteCurrent - dateIndex),
+      Math.abs(absoluteCurrent - (dateIndex + dateLength))
+    )
+    const nearestDistance = Math.min(
+      Math.abs(absoluteNearest - dateIndex),
+      Math.abs(absoluteNearest - (dateIndex + dateLength))
+    )
+    return currentDistance < nearestDistance ? current : nearest
+  }, null)
+}
+
 const extractDateTime = (text: string): string | undefined => {
-  // dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy (year 2 or 4 digits).
-  const dmy = text.match(/\b(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})\b/)
-  // yyyy-mm-dd
-  const ymd = text.match(/\b(\d{4})[/.-](\d{1,2})[/.-](\d{1,2})\b/)
+  const patterns = [
+    // yyyy-mm-dd / yyyy/mm/dd / yyyy.mm.dd
+    { re: /\b(\d{4})[/.-](\d{1,2})[/.-](\d{1,2})\b/, order: 'ymd' },
+    // dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy (year 2 or 4 digits).
+    { re: /\b(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})\b/, order: 'dmy' }
+  ] as const
 
-  let year: number | undefined
-  let month: number | undefined
-  let day: number | undefined
+  for (const pattern of patterns) {
+    const match = text.match(pattern.re)
+    if (!match || match.index == null) continue
 
-  if (ymd) {
-    year = Number(ymd[1]); month = Number(ymd[2]); day = Number(ymd[3])
-  } else if (dmy) {
-    day = Number(dmy[1]); month = Number(dmy[2])
-    year = Number(dmy[3])
-    if (year < 100) year += 2000
+    const parts = pattern.order === 'ymd'
+      ? parseDateParts(Number(match[1]), Number(match[2]), Number(match[3]))
+      : parseDateParts(Number(match[3]), Number(match[2]), Number(match[1]))
+    if (!parts) continue
+
+    const time = findNearestTime(text, match.index, match[0].length)
+    const hh = time ? pad2(Number(time[1])) : '12'
+    const mm = time ? pad2(Number(time[2])) : '00'
+
+    return `${parts.year}-${pad2(parts.month)}-${pad2(parts.day)}T${hh}:${mm}`
   }
 
-  if (!year || !month || !day) return undefined
-  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined
-
-  // Optional time (HH:mm or HH:mm:ss).
-  const time = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?\b/)
-  const hh = time ? pad2(Number(time[1])) : '12'
-  const mm = time ? pad2(Number(time[2])) : '00'
-
-  return `${year}-${pad2(month)}-${pad2(day)}T${hh}:${mm}`
+  return undefined
 }
 
 // A receipt header line is usually the merchant name: letters, not a date or an
@@ -146,9 +185,39 @@ const extractDescription = (lines: string[]): string | undefined => {
     const letters = line.replace(/[^a-zA-ZÀ-ſ]/g, '')
     if (letters.length < 3) continue
     if (/\d{1,2}[/.-]\d{1,2}/.test(line)) continue // looks like a date
-    if (AMOUNT_RE.test(line)) continue // looks like an amount
+    if (hasAmount(line)) continue // looks like an amount
     const trimmed = line.trim()
     if (trimmed.length >= 3 && trimmed.length <= 60) return trimmed
+  }
+  return undefined
+}
+
+const LOCATION_KEYWORDS = [
+  'c/', 'calle', 'carrer', 'avenida', 'avinguda', 'avda', 'av.', 'plaza', 'plaça',
+  'paseo', 'passeig', 'ronda', 'carretera', 'ctra', 'poligono', 'polígono', 'local'
+]
+
+const looksLikeReceiptMetadata = (line: string) => {
+  const normalized = stripAccents(line.toLowerCase())
+  return normalized.includes('fecha')
+    || normalized.includes('date')
+    || normalized.includes('hora')
+    || normalized.includes('time')
+    || TOTAL_KEYWORDS.some(keyword => normalized.includes(keyword))
+}
+
+const extractLocation = (lines: string[]): string | undefined => {
+  for (const line of lines.slice(0, 12)) {
+    const trimmed = line.trim()
+    if (trimmed.length < 4 || trimmed.length > 90) continue
+    if (looksLikeReceiptMetadata(trimmed)) continue
+    if (hasAmount(trimmed)) continue
+
+    const normalized = stripAccents(trimmed.toLowerCase())
+    const hasAddressKeyword = LOCATION_KEYWORDS.some(keyword => normalized.includes(stripAccents(keyword)))
+    const hasPostalCode = /\b\d{5}\b/.test(trimmed)
+    const hasAddressNumber = /\b\d{1,4}\b/.test(trimmed) && /[a-zA-ZÀ-ſ]/.test(trimmed)
+    if (hasAddressKeyword || hasPostalCode || hasAddressNumber) return trimmed
   }
   return undefined
 }
@@ -163,6 +232,7 @@ export function parseReceiptText(text: string): ParsedReceipt {
   return {
     amount: extractAmount(lines),
     dateTime: extractDateTime(text),
-    description: extractDescription(lines)
+    description: extractDescription(lines),
+    location: extractLocation(lines)
   }
 }

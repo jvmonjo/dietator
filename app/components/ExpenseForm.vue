@@ -304,6 +304,10 @@ async function extractFromTicket() {
       state.dateTime = parsed.dateTime
       filled.push(t('components.expense_form.date'))
     }
+    if (parsed.location && !state.locationLabel.trim()) {
+      setLocation({ label: parsed.location })
+      filled.push(t('components.expense_form.location'))
+    }
 
     if (filled.length > 0) {
       toast.add({
