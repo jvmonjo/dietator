@@ -1,3 +1,10 @@
+## [1.53.1](https://github.com/jvmonjo/dietator/compare/v1.53.0...v1.53.1) (2026-06-22)
+
+
+### Bug Fixes
+
+* **expenses:** show all pages of multi-page PDF tickets in the viewer ([c252d4e](https://github.com/jvmonjo/dietator/commit/c252d4e20bf778648e3b4a0ac1dbc484ecfb878a))
+
 # [1.53.0](https://github.com/jvmonjo/dietator/compare/v1.52.0...v1.53.0) (2026-06-22)
 
 
