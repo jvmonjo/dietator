@@ -1,3 +1,10 @@
+# [1.53.0](https://github.com/jvmonjo/dietator/compare/v1.52.0...v1.53.0) (2026-06-22)
+
+
+### Features
+
+* **expenses:** improve receipt extraction and scoped stats ([fba1b8b](https://github.com/jvmonjo/dietator/commit/fba1b8bfc9f3afa5807471e9f1afd7b2ac026d0f))
+
 # [1.52.0](https://github.com/jvmonjo/dietator/compare/v1.51.4...v1.52.0) (2026-06-21)
 
 
