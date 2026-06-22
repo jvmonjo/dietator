@@ -16,6 +16,7 @@ const dataUrlToBytes = (dataUrl: string): Uint8Array => {
 }
 
 // Render up to `maxPages` pages of a PDF (given as a data URL) to PNG data URLs.
+// Pass `Infinity` to render every page (e.g. the in-app viewer).
 export async function renderPdfToImages(dataUrl: string, maxPages = 3): Promise<string[]> {
   const pdfjs = await import('pdfjs-dist')
 

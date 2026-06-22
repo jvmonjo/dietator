@@ -2,6 +2,8 @@
 // In-app ticket preview. Opening a data URL via window.open() shows a blank
 // page on mobile Safari (and is blocked elsewhere), so we render the receipt
 // inline and offer a reliable download via a blob URL.
+import { renderPdfToImages } from '~/utils/pdf'
+
 const props = defineProps<{
   src: string | null
   name?: string
@@ -11,10 +13,18 @@ const props = defineProps<{
 const isOpen = defineModel<boolean>('open', { default: false })
 
 const isImage = computed(() => Boolean(props.type?.startsWith('image/')) || !props.type)
+const isPdf = computed(() => props.type === 'application/pdf')
 const downloadName = computed(() => props.name || (isImage.value ? 'ticket.jpg' : 'ticket.pdf'))
 
-// Blob URL for downloads/embeds; data: URLs don't download reliably on mobile.
+// Blob URL for downloads; data: URLs don't download reliably on mobile.
 const blobUrl = ref<string | null>(null)
+
+// Embedding a multi-page PDF in an <iframe> only shows the first page on mobile
+// Safari, so PDFs are rasterised to one image per page and shown stacked. The
+// iframe is kept as a fallback if rendering fails.
+const pdfPages = ref<string[]>([])
+const isRenderingPdf = ref(false)
+const pdfRenderFailed = ref(false)
 
 const revoke = () => {
   if (blobUrl.value) {
@@ -25,12 +35,31 @@ const revoke = () => {
 
 watch([isOpen, () => props.src], async () => {
   revoke()
+  pdfPages.value = []
+  pdfRenderFailed.value = false
+  isRenderingPdf.value = false
   if (!isOpen.value || !props.src) return
+
+  const src = props.src
   try {
-    const res = await fetch(props.src)
+    const res = await fetch(src)
     blobUrl.value = URL.createObjectURL(await res.blob())
   } catch {
     blobUrl.value = null
+  }
+
+  if (isPdf.value) {
+    isRenderingPdf.value = true
+    try {
+      // Render every page so multi-page receipts are fully visible.
+      const pages = await renderPdfToImages(src, Number.POSITIVE_INFINITY)
+      // Guard against a newer ticket having been opened while we awaited.
+      if (props.src === src) pdfPages.value = pages
+    } catch {
+      if (props.src === src) pdfRenderFailed.value = true
+    } finally {
+      if (props.src === src) isRenderingPdf.value = false
+    }
   }
 }, { immediate: true })
 
@@ -73,6 +102,19 @@ const close = () => {
           <img
             v-if="isImage && src" :src="src" :alt="downloadName"
             class="mx-auto h-auto max-w-full object-contain">
+          <!-- Multi-page PDFs render one image per page (iframes only show the
+               first page on mobile Safari). -->
+          <div v-else-if="isPdf && pdfPages.length" class="flex flex-col items-center gap-2">
+            <img
+              v-for="(page, index) in pdfPages" :key="index" :src="page"
+              :alt="`${downloadName} (${index + 1})`"
+              class="h-auto max-w-full object-contain shadow">
+          </div>
+          <div
+            v-else-if="isPdf && isRenderingPdf"
+            class="flex h-full items-center justify-center p-8 text-center text-gray-400">
+            <UIcon name="i-heroicons-arrow-path" class="h-6 w-6 animate-spin" />
+          </div>
           <iframe
             v-else-if="blobUrl" :src="blobUrl" :title="downloadName"
             class="h-full min-h-[60vh] w-full bg-white" />
