@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
-import { createSafeStorage } from '~/utils/storage'
+import { createSafeStorage, wasLastStorageWriteSuccessful } from '~/utils/storage'
 import type { ExpenseCategory } from '~/utils/expenseCategories'
+
+export interface ExpenseSaveResult {
+    expense: ExpenseRecord
+    attachmentRemoved: boolean
+}
 
 export interface ExpenseRecord {
     id: string
@@ -35,6 +40,17 @@ export interface ExpenseLocation {
 
 // Return a copy of the expense with its ticket attachment removed, keeping the
 // expense record itself intact.
+export const EXPENSES_STORAGE_KEY = 'expenses'
+
+const serializeExpensesState = (expenses: ExpenseRecord[]) => JSON.stringify({ expenses })
+
+const persistExpensesSnapshot = (expenses: ExpenseRecord[]): boolean => {
+    if (typeof window === 'undefined') return true
+    const value = serializeExpensesState(expenses)
+    createSafeStorage({ silent: true }).setItem(EXPENSES_STORAGE_KEY, value)
+    return wasLastStorageWriteSuccessful(EXPENSES_STORAGE_KEY, value)
+}
+
 const stripTicket = (expense: ExpenseRecord): ExpenseRecord => {
     if (!expense.ticket && !expense.ticketName && !expense.ticketType) return expense
     const { ticket: _t, ticketName: _n, ticketType: _y, ...rest } = expense
@@ -46,17 +62,51 @@ export const useExpenseStore = defineStore('expenses', {
         expenses: [] as ExpenseRecord[]
     }),
     actions: {
-        addExpense(expense: ExpenseRecord) {
+        addExpense(expense: ExpenseRecord): ExpenseSaveResult {
+            const previousExpenses = [...this.expenses]
             this.expenses.push(expense)
+            if (persistExpensesSnapshot(this.expenses)) {
+                return { expense, attachmentRemoved: false }
+            }
+
+            if (expense.ticket || expense.ticketName || expense.ticketType) {
+                const expenseWithoutTicket = stripTicket(expense)
+                this.expenses[this.expenses.length - 1] = expenseWithoutTicket
+                if (persistExpensesSnapshot(this.expenses)) {
+                    return { expense: expenseWithoutTicket, attachmentRemoved: true }
+                }
+            }
+
+            this.expenses = previousExpenses
+            persistExpensesSnapshot(this.expenses)
+            throw new Error('Expense could not be persisted')
         },
         setExpenses(expenses: ExpenseRecord[]) {
             this.expenses = expenses
         },
-        updateExpense(updatedExpense: ExpenseRecord) {
+        updateExpense(updatedExpense: ExpenseRecord): ExpenseSaveResult {
             const index = this.expenses.findIndex(e => e.id === updatedExpense.id)
-            if (index !== -1) {
-                this.expenses[index] = updatedExpense
+            if (index === -1) {
+                return { expense: updatedExpense, attachmentRemoved: false }
             }
+
+            const previousExpense = this.expenses[index]!
+            this.expenses[index] = updatedExpense
+            if (persistExpensesSnapshot(this.expenses)) {
+                return { expense: updatedExpense, attachmentRemoved: false }
+            }
+
+            if (updatedExpense.ticket || updatedExpense.ticketName || updatedExpense.ticketType) {
+                const expenseWithoutTicket = stripTicket(updatedExpense)
+                this.expenses[index] = expenseWithoutTicket
+                if (persistExpensesSnapshot(this.expenses)) {
+                    return { expense: expenseWithoutTicket, attachmentRemoved: true }
+                }
+            }
+
+            this.expenses[index] = previousExpense
+            persistExpensesSnapshot(this.expenses)
+            throw new Error('Expense could not be persisted')
         },
         deleteExpense(id: string) {
             this.expenses = this.expenses.filter(e => e.id !== id)

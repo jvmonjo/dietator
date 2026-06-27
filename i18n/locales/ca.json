@@ -540,7 +540,8 @@
         "ocr_empty": "No s'han pogut detectar dades al tiquet",
         "ocr_error": "No s'ha pogut llegir el tiquet",
         "location_detected": "Ubicació detectada",
-        "location_error": "No s’ha pogut detectar la ubicació"
+        "location_error": "No s’ha pogut detectar la ubicació",
+        "ticket_removed_for_space": "La despesa s'ha desat, però s'ha eliminat el tiquet adjunt perquè el navegador no tenia prou espai. Pots alliberar espai des de Configuració."
       },
       "ticket_extract": "Extreure dades",
       "ticket_extract_progress": "Extraient… {progress}%",

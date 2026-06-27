@@ -379,16 +379,25 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         : {})
     }
 
-    if (isEditing.value) {
-      expenseStore.updateExpense(baseRecord)
-      toast.add({ title: t('components.expense_form.alerts.updated'), color: 'success' })
-    } else {
-      expenseStore.addExpense(baseRecord)
-      toast.add({ title: t('components.expense_form.alerts.saved'), color: 'success' })
+    const saveResult = isEditing.value
+      ? expenseStore.updateExpense(baseRecord)
+      : expenseStore.addExpense(baseRecord)
+
+    toast.add({
+      title: isEditing.value
+        ? t('components.expense_form.alerts.updated')
+        : t('components.expense_form.alerts.saved'),
+      description: saveResult.attachmentRemoved
+        ? t('components.expense_form.alerts.ticket_removed_for_space')
+        : undefined,
+      color: saveResult.attachmentRemoved ? 'warning' : 'success'
+    })
+
+    if (!isEditing.value) {
       resetState()
     }
 
-    emit('saved', baseRecord)
+    emit('saved', saveResult.expense)
   } catch (error) {
     console.error('Error saving expense', error)
     toast.add({ title: t('components.expense_form.alerts.save_error'), color: 'error' })
