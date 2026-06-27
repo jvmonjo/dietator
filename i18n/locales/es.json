@@ -542,7 +542,8 @@
         "ocr_empty": "No se han podido detectar datos en el ticket",
         "ocr_error": "No se ha podido leer el ticket",
         "location_detected": "Ubicación detectada",
-        "location_error": "No se ha podido detectar la ubicación"
+        "location_error": "No se ha podido detectar la ubicación",
+        "ticket_removed_for_space": "El gasto se ha guardado, pero se ha eliminado el ticket adjunto porque el navegador no tenía espacio suficiente. Puedes liberar espacio desde Configuración."
       },
       "ticket_extract": "Extraer datos",
       "ticket_extract_progress": "Extrayendo… {progress}%",

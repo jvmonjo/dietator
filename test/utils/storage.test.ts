@@ -55,6 +55,26 @@ describe('createSafeStorage', () => {
     )
   })
 
+
+  it('does not alert when a quota error is raised after the value was already saved', () => {
+    const storage = createSafeStorage()
+    const originalSetItem = window.localStorage.setItem.bind(window.localStorage)
+    vi.spyOn(window.localStorage, 'setItem').mockImplementation((key, value) => {
+      originalSetItem(key, value)
+      throw new DOMException('full', 'QuotaExceededError')
+    })
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+
+    storage.setItem('x', 'y')
+
+    expect(window.localStorage.getItem('x')).toBe('y')
+    expect(alertSpy).not.toHaveBeenCalled()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'dietator:storage-error' })
+    )
+  })
+
   it('logs non-quota errors without alerting', () => {
     const storage = createSafeStorage()
     vi.spyOn(window.localStorage, 'setItem').mockImplementation(() => {
