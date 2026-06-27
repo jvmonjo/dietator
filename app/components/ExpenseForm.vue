@@ -38,8 +38,10 @@ const state = reactive({
   dateTime: '',
   amount: undefined as number | undefined,
   ticket: undefined as string | undefined,
+  ticketId: undefined as string | undefined,
   ticketName: undefined as string | undefined,
   ticketType: undefined as string | undefined,
+  ticketSize: undefined as number | undefined,
   // Expense category; only "diet" counts toward the net balance.
   category: DEFAULT_EXPENSE_CATEGORY as ExpenseCategory,
   locationLabel: '',
@@ -181,6 +183,7 @@ const formatBytes = (bytes: number) => {
 
 // Decoded byte size of the stored ticket data URL, shown next to the file name.
 const ticketSize = computed(() => {
+  if (!state.ticket && state.ticketSize) return formatBytes(state.ticketSize)
   if (!state.ticket) return null
   const base64 = state.ticket.slice(state.ticket.indexOf(',') + 1)
   const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0
@@ -224,8 +227,10 @@ async function onTicketSelected(event: Event) {
   try {
     const ticket = await processDocumentFile(file)
     state.ticket = ticket.dataUrl
+    state.ticketId = undefined
     state.ticketName = ticket.name
     state.ticketType = ticket.type
+    state.ticketSize = undefined
   } catch (error) {
     notifyTicketError(error)
   } finally {
@@ -238,8 +243,10 @@ async function onCropConfirm(blob: Blob, grayscale: boolean) {
   try {
     const ticket = await compressImageToDataUrl(blob, pendingTicketName.value, { grayscale })
     state.ticket = ticket.dataUrl
+    state.ticketId = undefined
     state.ticketName = ticket.name
     state.ticketType = ticket.type
+    state.ticketSize = undefined
   } catch (error) {
     notifyTicketError(error)
   } finally {
@@ -262,8 +269,10 @@ const editTicket = () => {
 
 const removeTicket = () => {
   state.ticket = undefined
+  state.ticketId = undefined
   state.ticketName = undefined
   state.ticketType = undefined
+  state.ticketSize = undefined
 }
 
 const isViewerOpen = ref(false)
@@ -342,8 +351,10 @@ const resetState = () => {
     state.amount = props.initialData.amount
     amountInput.value = props.initialData.amount != null ? String(props.initialData.amount) : ''
     state.ticket = props.initialData.ticket
+    state.ticketId = props.initialData.ticketId
     state.ticketName = props.initialData.ticketName
     state.ticketType = props.initialData.ticketType
+    state.ticketSize = props.initialData.ticketSize
     state.category = resolveExpenseCategory(props.initialData)
     setLocation(props.initialData.location)
   } else {
@@ -352,8 +363,10 @@ const resetState = () => {
     state.amount = undefined
     amountInput.value = ''
     state.ticket = undefined
+    state.ticketId = undefined
     state.ticketName = undefined
     state.ticketType = undefined
+    state.ticketSize = undefined
     state.category = DEFAULT_EXPENSE_CATEGORY
     setLocation(undefined)
   }
@@ -374,14 +387,20 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       amount: event.data.amount,
       category: state.category,
       ...(state.location ? { location: state.location } : {}),
-      ...(state.ticket
-        ? { ticket: state.ticket, ticketName: state.ticketName, ticketType: state.ticketType }
+      ...(state.ticket || state.ticketId
+        ? {
+            ticket: state.ticket,
+            ticketId: state.ticketId,
+            ticketName: state.ticketName,
+            ticketType: state.ticketType,
+            ticketSize: state.ticketSize
+          }
         : {})
     }
 
     const saveResult = isEditing.value
-      ? expenseStore.updateExpense(baseRecord)
-      : expenseStore.addExpense(baseRecord)
+      ? await expenseStore.updateExpense(baseRecord)
+      : await expenseStore.addExpense(baseRecord)
 
     toast.add({
       title: isEditing.value
@@ -491,7 +510,7 @@ const submitLabel = computed(() => isEditing.value
         ref="cameraInput" type="file" accept="image/*" capture="environment" class="hidden"
         @change="onTicketSelected">
 
-      <div v-if="!state.ticket" class="flex flex-wrap gap-3">
+      <div v-if="!state.ticket && !state.ticketId" class="flex flex-wrap gap-3">
         <UButton
           icon="i-heroicons-arrow-up-tray" color="neutral" variant="outline"
           :loading="isProcessingTicket" @click="triggerUpload">
@@ -508,7 +527,7 @@ const submitLabel = computed(() => isEditing.value
         v-else
         class="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-800 p-3">
         <img
-          v-if="ticketIsImage" :src="state.ticket" alt="ticket"
+          v-if="ticketIsImage && state.ticket" :src="state.ticket" alt="ticket"
           class="h-16 w-16 rounded object-cover cursor-pointer" @click="viewTicket">
         <UIcon v-else name="i-heroicons-document" class="h-10 w-10 text-gray-400" />
         <div class="min-w-0 flex-1">
@@ -516,7 +535,8 @@ const submitLabel = computed(() => isEditing.value
           <div class="flex items-center gap-2 text-xs">
             <span v-if="ticketSize" class="text-gray-400">{{ ticketSize }}</span>
             <button
-              type="button" class="text-primary-500 hover:underline" @click="viewTicket">
+              type="button" class="text-primary-500 hover:underline disabled:text-gray-400 disabled:no-underline"
+              :disabled="!state.ticket" @click="viewTicket">
               {{ $t('components.expense_form.ticket_view') }}
             </button>
           </div>

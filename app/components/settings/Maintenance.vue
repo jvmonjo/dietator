@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { APPROXIMATE_LOCAL_STORAGE_LIMIT_BYTES, localDataStorageStrategies } from '~/utils/localStorageStrategy'
+import { APPROXIMATE_LOCAL_STORAGE_LIMIT_BYTES } from '~/utils/localStorageStrategy'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -256,18 +256,19 @@ color="error" variant="ghost" icon="i-heroicons-trash" size="xs"
                         <UBadge color="warning" variant="soft">{{ formatBytes(approximateLocalStorageLimit) }}</UBadge>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div
-v-for="strategy in localDataStorageStrategies" :key="strategy.id"
-                            class="p-3 rounded-lg border border-amber-200/70 dark:border-amber-800/70 bg-white/70 dark:bg-gray-900/40">
-                            <div class="flex items-center gap-2">
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $t(strategy.titleKey) }}</p>
-                                <UBadge v-if="strategy.recommended" color="success" variant="subtle" size="xs">
-                                    {{ $t('settings.maintenance.storage_strategy.recommended') }}
-                                </UBadge>
-                            </div>
-                            <p class="text-xs text-gray-600 dark:text-gray-300 mt-2">{{ $t(strategy.descriptionKey) }}</p>
+                    <div
+                        class="p-3 rounded-lg border border-amber-200/70 dark:border-amber-800/70 bg-white/70 dark:bg-gray-900/40">
+                        <div class="flex items-center gap-2">
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ $t('settings.maintenance.storage_strategy.active_title') }}
+                            </p>
+                            <UBadge color="success" variant="subtle" size="xs">
+                                {{ $t('settings.maintenance.storage_strategy.active') }}
+                            </UBadge>
                         </div>
+                        <p class="text-xs text-gray-600 dark:text-gray-300 mt-2">
+                            {{ $t('settings.maintenance.storage_strategy.active_description') }}
+                        </p>
                     </div>
                 </div>
 

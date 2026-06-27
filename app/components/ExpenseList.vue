@@ -219,6 +219,8 @@ const viewTicket = (expense: ExpenseRecord) => {
   isViewerOpen.value = true
 }
 
+const hasTicket = (expense: ExpenseRecord) => Boolean(expense.ticket || expense.ticketId)
+
 // QR sharing: export one expense to a QR code, or scan one to import it onto
 // another device. Tickets are not included (too large for a QR).
 const isQrModalOpen = ref(false)
@@ -243,15 +245,23 @@ const handleQrImport = (result: string) => {
     if (!decompressed.description || !decompressed.timestamp || typeof decompressed.amount !== 'number') {
       throw new Error('invalid')
     }
-    expenseStore.addExpense({
+    void expenseStore.addExpense({
       id: uuidv4(),
       description: decompressed.description,
       timestamp: ensureUtc(decompressed.timestamp),
       amount: decompressed.amount,
       ...(decompressed.category ? { category: decompressed.category } : {}),
       ...(decompressed.location ? { location: decompressed.location } : {})
+    }).then(() => {
+      toast.add({ title: t('components.expense_list.modals.import_success'), color: 'success' })
+    }).catch((error) => {
+      console.error(error)
+      toast.add({
+        title: t('components.expense_list.modals.import_error_title'),
+        description: t('components.expense_list.modals.import_error'),
+        color: 'error'
+      })
     })
-    toast.add({ title: t('components.expense_list.modals.import_success'), color: 'success' })
   } catch (e) {
     console.error(e)
     toast.add({
@@ -270,7 +280,7 @@ const rowActions = (expense: ExpenseRecord) => {
       onSelect: () => openExpense(expense)
     }
   ]
-  if (expense.ticket) {
+  if (hasTicket(expense)) {
     items.push({
       label: t('components.expense_list.view_ticket'),
       icon: 'i-heroicons-paper-clip',
@@ -391,7 +401,7 @@ defineExpose({
                 {{ categoryBadge(row.original as ExpenseRecord)!.label }}
               </UBadge>
               <UIcon
-                v-if="(row.original as ExpenseRecord).ticket" name="i-heroicons-paper-clip"
+                v-if="hasTicket(row.original as ExpenseRecord)" name="i-heroicons-paper-clip"
                 class="h-4 w-4 shrink-0 text-gray-400 cursor-pointer"
                 :title="$t('components.expense_list.ticket_badge')"
                 @click.stop="viewTicket(row.original as ExpenseRecord)" />

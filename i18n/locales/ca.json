@@ -212,12 +212,10 @@
       "confirm_remove_tickets_selection_desc": "S'eliminaran els tiquets adjunts del període seleccionat. Les despeses es mantindran. Aquesta acció no es pot desfer.",
       "storage_strategy": {
         "storage_limit_title": "Límit de localStorage",
-        "storage_limit_description": "Els navegadors solen limitar localStorage a uns 5 MB. Per evitar perdre dades quan hi ha molts tiquets, el pla és moure els fitxers adjunts a IndexedDB i deixar a localStorage només les dades lleugeres.",
-        "recommended": "Recomanat",
-        "attachments_title": "IndexedDB només per als adjunts",
-        "attachments_description": "Manté serveis i despeses a localStorage, però guarda imatges i PDF dels tiquets en una base de dades local del navegador amb molta més quota. És la migració més segura i conserva el funcionament offline.",
-        "database_title": "IndexedDB per a tota la base de dades",
-        "database_description": "Mou serveis, despeses, configuració i adjunts a IndexedDB. Dona més marge i transaccions locals, però requereix una migració completa i compatibilitat amb les còpies de seguretat."
+        "storage_limit_description": "Els navegadors solen limitar localStorage a uns 5 MB. Dietator deixa a localStorage només les dades lleugeres de les despeses.",
+        "active": "Actiu",
+        "active_title": "Adjunts a IndexedDB",
+        "active_description": "Les imatges i PDF dels tiquets es guarden a IndexedDB, una base de dades local del navegador amb més quota. Les despeses conserven només la referència, el nom, el tipus i la mida del fitxer."
       }
     }
   },

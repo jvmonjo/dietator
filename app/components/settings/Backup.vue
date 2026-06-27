@@ -318,14 +318,14 @@ const processImport = async (payload: ImportPayload) => {
                 const date = new Date(expense.timestamp)
                 return !(date.getFullYear() === targetYear && date.getMonth() + 1 === targetMonth)
             })
-            expenseStore.setExpenses([...preserved, ...expenses])
+            await expenseStore.setExpenses([...preserved, ...expenses])
         } else if (importYear) {
             const preserved = expenseStore.expenses.filter(expense => {
                 return new Date(expense.timestamp).getFullYear() !== importYear
             })
-            expenseStore.setExpenses([...preserved, ...expenses])
+            await expenseStore.setExpenses([...preserved, ...expenses])
         } else {
-            expenseStore.setExpenses(expenses)
+            await expenseStore.setExpenses(expenses)
         }
     }
 

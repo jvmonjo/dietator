@@ -212,12 +212,10 @@
       "confirm_remove_tickets_selection_desc": "Se eliminarán los tickets adjuntos del periodo seleccionado. Los gastos se mantendrán. Esta acción no se puede deshacer.",
       "storage_strategy": {
         "storage_limit_title": "Límite de localStorage",
-        "storage_limit_description": "Los navegadores suelen limitar localStorage a unos 5 MB. Para evitar perder datos cuando hay muchos tickets, el plan es mover los archivos adjuntos a IndexedDB y dejar en localStorage solo los datos ligeros.",
-        "recommended": "Recomendado",
-        "attachments_title": "IndexedDB solo para adjuntos",
-        "attachments_description": "Mantiene servicios y gastos en localStorage, pero guarda imágenes y PDF de los tickets en una base de datos local del navegador con mucha más cuota. Es la migración más segura y conserva el funcionamiento offline.",
-        "database_title": "IndexedDB para toda la base de datos",
-        "database_description": "Mueve servicios, gastos, configuración y adjuntos a IndexedDB. Da más margen y transacciones locales, pero requiere una migración completa y compatibilidad con las copias de seguridad."
+        "storage_limit_description": "Los navegadores suelen limitar localStorage a unos 5 MB. Dietator deja en localStorage solo los datos ligeros de los gastos.",
+        "active": "Activo",
+        "active_title": "Adjuntos en IndexedDB",
+        "active_description": "Las imágenes y PDF de los tickets se guardan en IndexedDB, una base de datos local del navegador con más cuota. Los gastos conservan solo la referencia, el nombre, el tipo y el tamaño del archivo."
       }
     }
   },
