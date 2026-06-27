@@ -1,3 +1,10 @@
+## [1.53.2](https://github.com/jvmonjo/dietator/compare/v1.53.1...v1.53.2) (2026-06-27)
+
+
+### Bug Fixes
+
+* **expenses:** safeguard attachment saves near storage limits ([2f3e441](https://github.com/jvmonjo/dietator/commit/2f3e4411c35255968e5d3bca3f4d068000b3c331))
+
 ## [1.53.1](https://github.com/jvmonjo/dietator/compare/v1.53.0...v1.53.1) (2026-06-22)
 
 
