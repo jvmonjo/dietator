@@ -1,3 +1,10 @@
+## [1.54.1](https://github.com/jvmonjo/dietator/compare/v1.54.0...v1.54.1) (2026-06-27)
+
+
+### Bug Fixes
+
+* update ticket stats handling to use IndexedDB attachments and enhance related functionality ([ca7fe91](https://github.com/jvmonjo/dietator/commit/ca7fe91de27ba3150673f55414c8ac29def0aeb4))
+
 # [1.54.0](https://github.com/jvmonjo/dietator/compare/v1.53.3...v1.54.0) (2026-06-27)
 
 
