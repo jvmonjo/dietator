@@ -1,3 +1,10 @@
+# [1.54.0](https://github.com/jvmonjo/dietator/compare/v1.53.3...v1.54.0) (2026-06-27)
+
+
+### Features
+
+* implement IndexedDB for expense attachments and enhance storage management ([99b8f89](https://github.com/jvmonjo/dietator/commit/99b8f892e3fb7e4641c15a1c6e44e431092cc3c7))
+
 ## [1.53.3](https://github.com/jvmonjo/dietator/compare/v1.53.2...v1.53.3) (2026-06-27)
 
 
