@@ -5,8 +5,8 @@ import {
     buildExpenseAttachmentId,
     deleteExpenseAttachment,
     deleteExpenseAttachments,
-    getAttachmentSize,
     getExpenseAttachment,
+    getExpenseAttachmentsStats,
     saveExpenseAttachment
 } from '~/utils/expenseAttachments'
 
@@ -189,19 +189,10 @@ export const useExpenseStore = defineStore('expenses', {
             })
             void deleteExpenseAttachments(removedIds)
         },
-        // Approximate storage taken by attached tickets (data URL + metadata),
-        // and how many expenses carry one.
-        getTicketStats(): { count: number, bytes: number } {
-            let count = 0
-            let bytes = 0
-            this.expenses.forEach(expense => {
-                if (!expense.ticket && !expense.ticketId) return
-                count++
-                bytes += (expense.ticket ? getAttachmentSize({ dataUrl: expense.ticket, size: expense.ticketSize }) : expense.ticketSize || 0)
-                    + (expense.ticketName?.length || 0)
-                    + (expense.ticketType?.length || 0)
-            })
-            return { count, bytes }
+        // Storage taken by the ticket files currently present in IndexedDB for
+        // the expenses that still reference one.
+        async getTicketStats(): Promise<{ count: number, bytes: number }> {
+            return getExpenseAttachmentsStats(ticketIds(this.expenses))
         },
         // Strip ticket attachments to free space while keeping the expenses.
         removeAllTickets() {

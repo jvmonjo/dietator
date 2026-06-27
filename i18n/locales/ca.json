@@ -202,14 +202,14 @@
       "confirm_clear_cache_description": "Perdràs les distàncies guardades i s'hauran de tornar a calcular. Això pot consumir quota d'API.",
       "cache_cleared": "Caché de kilòmetres netejada",
       "tickets_title": "Tiquets adjunts",
-      "tickets_description": "Imatges i fitxers adjunts a les despeses.",
+      "tickets_description": "Imatges i PDF guardats a IndexedDB, fora de localStorage.",
       "tickets_count": "{count} tiquets",
       "remove_tickets": "Eliminar tiquets",
       "remove_tickets_for_selection": "Eliminar només els tiquets del període seleccionat",
       "tickets_removed": "Tiquets eliminats",
       "confirm_remove_tickets_title": "Eliminar els tiquets?",
-      "confirm_remove_tickets_all_desc": "S'eliminaran tots els fitxers adjunts a les despeses per alliberar espai. Les despeses es mantindran. Aquesta acció no es pot desfer.",
-      "confirm_remove_tickets_selection_desc": "S'eliminaran els tiquets adjunts del període seleccionat. Les despeses es mantindran. Aquesta acció no es pot desfer.",
+      "confirm_remove_tickets_all_desc": "S'eliminaran tots els fitxers adjunts de les despeses per alliberar espai d'IndexedDB. Això no redueix l'espai de localStorage: les despeses i les seves dades lleugeres es mantindran. Aquesta acció no es pot desfer.",
+      "confirm_remove_tickets_selection_desc": "S'eliminaran els tiquets adjunts del període seleccionat per alliberar espai d'IndexedDB. Això no redueix l'espai de localStorage: les despeses i les seves dades lleugeres es mantindran. Aquesta acció no es pot desfer.",
       "storage_strategy": {
         "storage_limit_title": "Límit de localStorage",
         "storage_limit_description": "Els navegadors solen limitar localStorage a uns 5 MB. Dietator deixa a localStorage només les dades lleugeres de les despeses.",
@@ -548,7 +548,7 @@
         "ocr_error": "No s'ha pogut llegir el tiquet",
         "location_detected": "Ubicació detectada",
         "location_error": "No s’ha pogut detectar la ubicació",
-        "ticket_removed_for_space": "La despesa s'ha desat, però s'ha eliminat el tiquet adjunt perquè el navegador no tenia prou espai. Pots alliberar espai des de Configuració."
+        "ticket_removed_for_space": "La despesa s'ha desat, però s'ha eliminat el tiquet adjunt perquè el navegador no tenia prou espai per guardar-lo a IndexedDB. Pots alliberar espai d'IndexedDB des de Configuració."
       },
       "ticket_extract": "Extreure dades",
       "ticket_extract_progress": "Extraient… {progress}%",

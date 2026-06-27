@@ -78,6 +78,18 @@ export const getExpenseAttachment = async (id: string): Promise<ExpenseAttachmen
     return (result as ExpenseAttachment | undefined) ?? null
 }
 
+export const getExpenseAttachmentsStats = async (ids: string[]): Promise<{ count: number, bytes: number }> => {
+    const uniqueIds = [...new Set(ids)]
+    const attachments = await Promise.all(uniqueIds.map(id => getExpenseAttachment(id)))
+
+    return attachments.reduce((stats, attachment) => {
+        if (!attachment) return stats
+        stats.count += 1
+        stats.bytes += getAttachmentSize(attachment)
+        return stats
+    }, { count: 0, bytes: 0 })
+}
+
 export const deleteExpenseAttachment = async (id: string): Promise<void> => {
     await runTransaction('readwrite', store => store.delete(id))
 }

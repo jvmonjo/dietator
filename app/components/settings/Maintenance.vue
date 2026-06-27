@@ -95,14 +95,26 @@ const confirmDelete = () => {
     confirmModal.isOpen = true
 }
 
-const ticketStats = computed(() => expenseStore.getTicketStats())
+const ticketStats = ref({ count: 0, bytes: 0 })
 const approximateLocalStorageLimit = APPROXIMATE_LOCAL_STORAGE_LIMIT_BYTES
+
+const refreshTicketStats = async () => {
+    ticketStats.value = await expenseStore.getTicketStats()
+}
+
+const ticketStatsSignature = computed(() =>
+    expenseStore.expenses.map(expense => `${expense.id}:${expense.ticketId || ''}`).join('|'))
+
+watch(ticketStatsSignature, () => {
+    void refreshTicketStats()
+}, { immediate: true })
 
 const confirmRemoveAllTickets = () => {
     confirmModal.title = t('settings.maintenance.confirm_remove_tickets_title')
     confirmModal.description = t('settings.maintenance.confirm_remove_tickets_all_desc')
     confirmModal.action = async () => {
         expenseStore.removeAllTickets()
+        await refreshTicketStats()
         toast.add({ title: t('settings.maintenance.tickets_removed'), color: 'success' })
     }
     confirmModal.confirmLabel = t('settings.maintenance.remove_tickets')
@@ -125,6 +137,7 @@ const confirmRemoveTicketsForSelection = () => {
         } else {
             expenseStore.removeTicketsByYear(year)
         }
+        await refreshTicketStats()
         toast.add({ title: t('settings.maintenance.tickets_removed'), color: 'success' })
     }
     confirmModal.confirmLabel = t('settings.maintenance.remove_tickets')

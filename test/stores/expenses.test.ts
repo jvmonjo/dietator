@@ -57,6 +57,23 @@ describe('useExpenseStore persistence safeguards', () => {
     expect(persisted).not.toContain('data:image/jpeg')
   })
 
+  it('calculates ticket stats from IndexedDB attachments, not localStorage metadata', async () => {
+    const store = useExpenseStore()
+    const expense = makeExpense({
+      ticket: 'data:image/jpeg;base64,' + 'A'.repeat(1024),
+      ticketName: 'receipt.jpg',
+      ticketType: 'image/jpeg'
+    })
+
+    await store.addExpense(expense)
+    store.expenses[0]!.ticketSize = 999999
+
+    await expect(store.getTicketStats()).resolves.toEqual({
+      count: 1,
+      bytes: 768
+    })
+  })
+
   it('hydrates ticket data from IndexedDB when only metadata was persisted', async () => {
     const store = useExpenseStore()
     const expense = makeExpense({
