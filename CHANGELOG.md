@@ -1,3 +1,10 @@
+## [1.53.3](https://github.com/jvmonjo/dietator/compare/v1.53.2...v1.53.3) (2026-06-27)
+
+
+### Bug Fixes
+
+* empty commit to make deploy run ([7dbd2d5](https://github.com/jvmonjo/dietator/commit/7dbd2d534a8fc17f47fa127ef4e9664e7d17bef4))
+
 ## [1.53.2](https://github.com/jvmonjo/dietator/compare/v1.53.1...v1.53.2) (2026-06-27)
 
 
