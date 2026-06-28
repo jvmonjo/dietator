@@ -202,20 +202,20 @@
       "confirm_clear_cache_description": "Perdràs les distàncies guardades i s'hauran de tornar a calcular. Això pot consumir quota d'API.",
       "cache_cleared": "Caché de kilòmetres netejada",
       "tickets_title": "Tiquets adjunts",
-      "tickets_description": "Imatges i PDF guardats a IndexedDB, fora de localStorage.",
+      "tickets_description": "Imatges i PDF guardats a IndexedDB juntament amb la resta de dades locals.",
       "tickets_count": "{count} tiquets",
       "remove_tickets": "Eliminar tiquets",
       "remove_tickets_for_selection": "Eliminar només els tiquets del període seleccionat",
       "tickets_removed": "Tiquets eliminats",
       "confirm_remove_tickets_title": "Eliminar els tiquets?",
-      "confirm_remove_tickets_all_desc": "S'eliminaran tots els fitxers adjunts de les despeses per alliberar espai d'IndexedDB. Això no redueix l'espai de localStorage: les despeses i les seves dades lleugeres es mantindran. Aquesta acció no es pot desfer.",
-      "confirm_remove_tickets_selection_desc": "S'eliminaran els tiquets adjunts del període seleccionat per alliberar espai d'IndexedDB. Això no redueix l'espai de localStorage: les despeses i les seves dades lleugeres es mantindran. Aquesta acció no es pot desfer.",
+      "confirm_remove_tickets_all_desc": "S'eliminaran tots els fitxers adjunts de les despeses per alliberar espai d'IndexedDB. Les despeses i les seves dades lleugeres es mantindran a IndexedDB. Aquesta acció no es pot desfer.",
+      "confirm_remove_tickets_selection_desc": "S'eliminaran els tiquets adjunts del període seleccionat per alliberar espai d'IndexedDB. Les despeses i les seves dades lleugeres es mantindran a IndexedDB. Aquesta acció no es pot desfer.",
       "storage_strategy": {
-        "storage_limit_title": "Límit de localStorage",
-        "storage_limit_description": "Els navegadors solen limitar localStorage a uns 5 MB. Dietator deixa a localStorage només les dades lleugeres de les despeses.",
+        "storage_limit_title": "Persistència a IndexedDB",
+        "storage_limit_description": "Dietator desa serveis, despeses, configuració i memòries cau a IndexedDB per usar un únic sistema local amb més quota.",
         "active": "Actiu",
-        "active_title": "Adjunts a IndexedDB",
-        "active_description": "Les imatges i PDF dels tiquets es guarden a IndexedDB, una base de dades local del navegador amb més quota. Les despeses conserven només la referència, el nom, el tipus i la mida del fitxer."
+        "active_title": "Dades locals a IndexedDB",
+        "active_description": "Les dades principals i els adjunts es guarden a IndexedDB. Les còpies de seguretat llegeixen aquest estat local i inclouen els adjunts hidratats quan exportes dades."
       }
     }
   },
@@ -291,7 +291,7 @@
     "local_first": {
       "title": "1. Absència de Servidors (Local-First)",
       "p1": "Dietator està dissenyat amb una filosofia <strong>Local-First</strong>. Això significa que no disposem de servidors centrals, bases de dades al núvol ni cap sistema per recopilar, emmagatzemar o processar les vostres dades.",
-      "p2": "La totalitat de la informació que introduïu a l'aplicació s'emmagatzema <strong>exclusivament al vostre dispositiu</strong> (ordinador, tauleta o mòbil) utilitzant les tecnologies del navegador (IndexedDB i LocalStorage)."
+      "p2": "La totalitat de la informació que introduïu a l'aplicació s'emmagatzema <strong>exclusivament al vostre dispositiu</strong> (ordinador, tauleta o mòbil) utilitzant les tecnologies del navegador (IndexedDB)."
     },
     "responsibility": {
       "title": "2. Responsabilitat de l'Usuari i Seguretat",
@@ -352,7 +352,7 @@
     },
     "privacy": {
       "title": "4. Privacitat i Dades",
-      "p1": "Dietator funciona sota una filosofia <strong>Local-First</strong>. Totes les dades que introduïu (serveis, preus, dades personals) es guarden exclusivament al vostre navegador (IndexedDB / LocalStorage).",
+      "p1": "Dietator funciona sota una filosofia <strong>Local-First</strong>. Totes les dades que introduïu (serveis, preus, dades personals) es guarden exclusivament al vostre navegador (IndexedDB).",
       "p2": "No s'envia cap informació a servidors de tercers, amb l'excepció de:",
       "li1": "L'ús de l'API de Google Calendar si decidiu connectar-hi el vostre compte (la comunicació és directa entre el vostre navegador i Google).",
       "li2": "L'ús de l'API de Google Maps, si configureu la vostra clau, per calcular distàncies."

@@ -34,7 +34,7 @@ const onTemplateUpload = async (type: TemplateType, event: Event) => {
 
     try {
         const dataUrl = await readFileAsDataUrl(file)
-        settingsStore.setTemplate(type, {
+        await settingsStore.setTemplate(type, {
             name: file.name,
             mimeType: file.type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             dataUrl,
@@ -50,8 +50,8 @@ const onTemplateUpload = async (type: TemplateType, event: Event) => {
     }
 }
 
-const clearTemplate = (type: TemplateType) => {
-    settingsStore.setTemplate(type, null)
+const clearTemplate = async (type: TemplateType) => {
+    await settingsStore.setTemplate(type, null)
     const input = templateInputs[type].value
     if (input) input.value = ''
     toast.add({ title: t('settings.templates.deleted'), color: 'info' })

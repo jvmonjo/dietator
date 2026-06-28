@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { IDBFactory } from 'fake-indexeddb'
-import { EXPENSES_STORAGE_KEY, useExpenseStore, type ExpenseRecord } from '../../app/stores/expenses'
+import { useExpenseStore, type ExpenseRecord } from '../../app/stores/expenses'
 import { getExpenseAttachment } from '../../app/utils/expenseAttachments'
+import { getExpenses } from '../../app/utils/appDatabase'
 
 const makeExpense = (overrides: Partial<ExpenseRecord> = {}): ExpenseRecord => ({
   id: overrides.id ?? crypto.randomUUID(),
@@ -19,9 +19,7 @@ const makeExpense = (overrides: Partial<ExpenseRecord> = {}): ExpenseRecord => (
 describe('useExpenseStore persistence safeguards', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    vi.stubGlobal('indexedDB', new IDBFactory())
-    window.localStorage.clear()
-    vi.restoreAllMocks()
+        vi.restoreAllMocks()
   })
 
   it('persists expenses normally', async () => {
@@ -31,12 +29,10 @@ describe('useExpenseStore persistence safeguards', () => {
     const result = await store.addExpense(expense)
 
     expect(result).toEqual({ expense, attachmentRemoved: false })
-    expect(JSON.parse(window.localStorage.getItem(EXPENSES_STORAGE_KEY) || '{}')).toEqual({
-      expenses: [expense]
-    })
+    await expect(getExpenses()).resolves.toEqual([expense])
   })
 
-  it('stores ticket data in IndexedDB and keeps localStorage lightweight', async () => {
+  it('stores ticket data and lightweight expense metadata in IndexedDB', async () => {
     const store = useExpenseStore()
     const expense = makeExpense({
       ticket: 'data:image/jpeg;base64,' + 'A'.repeat(1024),
@@ -45,7 +41,7 @@ describe('useExpenseStore persistence safeguards', () => {
     })
 
     const result = await store.addExpense(expense)
-    const persisted = window.localStorage.getItem(EXPENSES_STORAGE_KEY) || ''
+    const persisted = JSON.stringify(await getExpenses())
     const attachment = await getExpenseAttachment(result.expense.ticketId!)
 
     expect(result.attachmentRemoved).toBe(false)
@@ -57,7 +53,7 @@ describe('useExpenseStore persistence safeguards', () => {
     expect(persisted).not.toContain('data:image/jpeg')
   })
 
-  it('calculates ticket stats from IndexedDB attachments, not localStorage metadata', async () => {
+  it('calculates ticket stats from IndexedDB attachments, not expense metadata', async () => {
     const store = useExpenseStore()
     const expense = makeExpense({
       ticket: 'data:image/jpeg;base64,' + 'A'.repeat(1024),
@@ -91,17 +87,14 @@ describe('useExpenseStore persistence safeguards', () => {
     await store.hydrateTicketAttachments()
 
     expect(store.expenses[0]?.ticket).toBe(expense.ticket)
-    expect(window.localStorage.getItem(EXPENSES_STORAGE_KEY)).not.toContain('data:image/jpeg')
+    await expect(getExpenses()).resolves.not.toContainEqual(expect.objectContaining({ ticket: expense.ticket }))
   })
 
-  it('rolls back when storage is too full even without the ticket', async () => {
+  it('rolls back when storage is unavailable', async () => {
     const store = useExpenseStore()
-    const expense = makeExpense({ ticket: 'data:image/jpeg;base64,AAAA' })
+    const expense = makeExpense()
 
-    vi.spyOn(window.localStorage, 'setItem').mockImplementation(() => {
-      throw new DOMException('full', 'QuotaExceededError')
-    })
-    vi.spyOn(window, 'alert').mockImplementation(() => {})
+    vi.stubGlobal('indexedDB', undefined)
 
     await expect(store.addExpense(expense)).rejects.toThrow('Expense could not be persisted')
     expect(store.expenses).toEqual([])

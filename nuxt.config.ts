@@ -41,7 +41,6 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxtjs/color-mode',
     '@pinia/nuxt',
-    'pinia-plugin-persistedstate/nuxt',
     '@vite-pwa/nuxt',
     '@nuxt/eslint',
     '@nuxtjs/i18n'

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { piniaPluginPersistedstate, useRuntimeConfig } from '#imports'
+import { useRuntimeConfig } from '#imports'
+import { setSettings as persistSettings } from '~/utils/appDatabase'
 import type { Displacement } from '~/stores/services'
 
 export type TemplateType = 'monthly' | 'service'
@@ -34,8 +35,6 @@ interface SettingsState {
   habitualRoute: Displacement[]
 }
 
-const settingsStorage = piniaPluginPersistedstate.localStorage()
-
 export const useSettingsStore = defineStore('settings', {
   state: (): SettingsState => ({
     halfDietPrice: 0,
@@ -57,23 +56,26 @@ export const useSettingsStore = defineStore('settings', {
     habitualRoute: []
   }),
   actions: {
-    updateDietPrices(prices: { half: number, full: number }) {
+    async updateDietPrices(prices: { half: number, full: number }) {
       this.halfDietPrice = prices.half
       this.fullDietPrice = prices.full
+      await persistSettings(this.$state)
     },
-    updatePersonalData(data: { firstName: string, lastName: string, nationalId: string }) {
+    async updatePersonalData(data: { firstName: string, lastName: string, nationalId: string }) {
       this.firstName = data.firstName
       this.lastName = data.lastName
       this.nationalId = data.nationalId
+      await persistSettings(this.$state)
     },
-    setTemplate(type: TemplateType, template: TemplateFile | null) {
+    async setTemplate(type: TemplateType, template: TemplateFile | null) {
       if (type === 'monthly') {
         this.monthlyTemplate = template
       } else {
         this.serviceTemplate = template
       }
+      await persistSettings(this.$state)
     },
-    loadSettings(settings: Partial<SettingsState>) {
+    async loadSettings(settings: Partial<SettingsState>) {
       if (typeof settings.halfDietPrice === 'number') this.halfDietPrice = settings.halfDietPrice
       if (typeof settings.fullDietPrice === 'number') this.fullDietPrice = settings.fullDietPrice
       if (settings.monthlyTemplate || settings.monthlyTemplate === null) this.monthlyTemplate = settings.monthlyTemplate
@@ -91,12 +93,11 @@ export const useSettingsStore = defineStore('settings', {
       if (settings.habitualRoute) {
         this.habitualRoute = settings.habitualRoute
       }
+      await persistSettings(this.$state)
     },
-    updateHabitualRoute(route: Displacement[]) {
+    async updateHabitualRoute(route: Displacement[]) {
       this.habitualRoute = route
+      await persistSettings(this.$state)
     }
-  },
-  persist: {
-    storage: settingsStorage
   }
 })

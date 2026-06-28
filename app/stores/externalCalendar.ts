@@ -1,4 +1,4 @@
-import { defineStore, type PiniaPluginContext } from 'pinia'
+import { defineStore } from 'pinia'
 
 declare global {
     interface Window {
@@ -416,17 +416,4 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         getEventsForDate,
         disconnect
     }
-}, {
-    persist: {
-        key: 'external-calendar-v2',
-        storage: piniaPluginPersistedstate.localStorage(),
-        paths: ['events', 'calendars', 'lastSync', 'refreshToken', 'accessToken', 'tokenExpiresAt'],
-        afterRestore: (ctx: PiniaPluginContext) => {
-            console.log('Validating state after restore...')
-            ctx.store.isLoading = false
-            ctx.store.abortController = null
-            console.log('Forced isLoading to false in afterRestore')
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any
 })

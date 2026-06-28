@@ -202,20 +202,20 @@
       "confirm_clear_cache_description": "Perderás las distancias guardadas y tendrán que volver a calcularse. Esto puede consumir cuota de API.",
       "cache_cleared": "Caché de kilómetros limpiada",
       "tickets_title": "Tickets adjuntos",
-      "tickets_description": "Imágenes y PDF guardados en IndexedDB, fuera de localStorage.",
+      "tickets_description": "Imágenes y PDF guardados en IndexedDB junto con el resto de datos locales.",
       "tickets_count": "{count} tickets",
       "remove_tickets": "Eliminar tickets",
       "remove_tickets_for_selection": "Eliminar solo los tickets del periodo seleccionado",
       "tickets_removed": "Tickets eliminados",
       "confirm_remove_tickets_title": "¿Eliminar los tickets?",
-      "confirm_remove_tickets_all_desc": "Se eliminarán todos los archivos adjuntos de los gastos para liberar espacio de IndexedDB. Esto no reduce el espacio de localStorage: los gastos y sus datos ligeros se mantendrán. Esta acción no se puede deshacer.",
-      "confirm_remove_tickets_selection_desc": "Se eliminarán los tickets adjuntos del periodo seleccionado para liberar espacio de IndexedDB. Esto no reduce el espacio de localStorage: los gastos y sus datos ligeros se mantendrán. Esta acción no se puede deshacer.",
+      "confirm_remove_tickets_all_desc": "Se eliminarán todos los archivos adjuntos de los gastos para liberar espacio de IndexedDB. Los gastos y sus datos ligeros se mantendrán en IndexedDB. Esta acción no se puede deshacer.",
+      "confirm_remove_tickets_selection_desc": "Se eliminarán los tickets adjuntos del periodo seleccionado para liberar espacio de IndexedDB. Los gastos y sus datos ligeros se mantendrán en IndexedDB. Esta acción no se puede deshacer.",
       "storage_strategy": {
-        "storage_limit_title": "Límite de localStorage",
-        "storage_limit_description": "Los navegadores suelen limitar localStorage a unos 5 MB. Dietator deja en localStorage solo los datos ligeros de los gastos.",
+        "storage_limit_title": "Persistencia en IndexedDB",
+        "storage_limit_description": "Dietator guarda servicios, gastos, configuración y cachés en IndexedDB para usar un único sistema local con más cuota.",
         "active": "Activo",
-        "active_title": "Adjuntos en IndexedDB",
-        "active_description": "Las imágenes y PDF de los tickets se guardan en IndexedDB, una base de datos local del navegador con más cuota. Los gastos conservan solo la referencia, el nombre, el tipo y el tamaño del archivo."
+        "active_title": "Datos locales en IndexedDB",
+        "active_description": "Los datos principales y los adjuntos se guardan en IndexedDB. Las copias de seguridad leen este estado local e incluyen los adjuntos hidratados al exportar datos."
       }
     }
   },
@@ -293,7 +293,7 @@
     "local_first": {
       "title": "1. Ausencia de Servidores (Local-First)",
       "p1": "Dietator está diseñado con una filosofía <strong>Local-First</strong>. Esto significa que no disponemos de servidores centrales, bases de datos en la nube ni ningún sistema para recopilar, almacenar o procesar sus datos.",
-      "p2": "La totalidad de la información que introduce en la aplicación se almacena <strong>exclusivamente en su dispositivo</strong> (ordenador, tableta o móvil) utilizando las tecnologías del navegador (IndexedDB y LocalStorage)."
+      "p2": "La totalidad de la información que introduce en la aplicación se almacena <strong>exclusivamente en su dispositivo</strong> (ordenador, tableta o móvil) utilizando las tecnologías del navegador (IndexedDB)."
     },
     "responsibility": {
       "title": "2. Responsabilidad del Usuario y Seguridad",
@@ -354,7 +354,7 @@
     },
     "privacy": {
       "title": "4. Privacidad y Datos",
-      "p1": "Dietator funciona bajo una filosofía <strong>Local-First</strong>. Todos los datos que introduzca (servicios, precios, datos personales) se guardan exclusivamente en su navegador (IndexedDB / LocalStorage).",
+      "p1": "Dietator funciona bajo una filosofía <strong>Local-First</strong>. Todos los datos que introduzca (servicios, precios, datos personales) se guardan exclusivamente en su navegador (IndexedDB).",
       "p2": "No se envía ninguna información a servidores de terceros, con la excepción de:",
       "li1": "El uso de la API de Google Calendar si decide conectar su cuenta (la comunicación es directa entre su navegador y Google).",
       "li2": "El uso de la API de Google Maps, si configura su clave, para calcular distancias."

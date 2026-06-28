@@ -22,7 +22,7 @@
     - Gestió de preus de mitja dieta i dieta completa.
     - Camps de dades personals (Nom, Cognoms, DNI) per a les plantilles.
 - **Privacitat i Seguretat**:
-    - Totes les dades es guarden localment al navegador (`localStorage`).
+    - Totes les dades es guarden localment al navegador mitjançant IndexedDB.
     - Sistema de Backups (Importar/Exportar) amb opció de xifratge per contrasenya.
 - **Mode Offline**: Funciona sense connexió gràcies a la tecnologia PWA.
 

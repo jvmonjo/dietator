@@ -4,7 +4,7 @@ import { ensureUtc } from '~/utils/datetime'
 // naive local datetime strings ("2026-06-13T09:00"). We now store timestamps in
 // UTC. This plugin normalises any legacy records found in persisted state on
 // startup. It is idempotent — records already in UTC are left untouched.
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin(async () => {
   const serviceStore = useServiceStore()
 
   let changed = false
@@ -19,6 +19,6 @@ export default defineNuxtPlugin(() => {
   })
 
   if (changed) {
-    serviceStore.setRecords(migrated)
+    await serviceStore.setRecords(migrated)
   }
 })

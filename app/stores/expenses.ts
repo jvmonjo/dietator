@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { createSafeStorage, wasLastStorageWriteSuccessful } from '~/utils/storage'
+import { setExpenses as persistExpenses } from '~/utils/appDatabase'
 import type { ExpenseCategory } from '~/utils/expenseCategories'
 import {
     buildExpenseAttachmentId,
@@ -23,7 +23,7 @@ export interface ExpenseRecord {
     // Optional receipt/ticket loaded in memory as a data URL (image or PDF).
     ticket?: string
     // IndexedDB key for the persisted attachment. The data URL itself is not
-    // written to localStorage.
+    // written to the lightweight expense snapshot.
     ticketId?: string
     // Original file name and MIME type, kept for display and download.
     ticketName?: string
@@ -60,14 +60,8 @@ const stripPersistedTicketData = (expense: ExpenseRecord): ExpenseRecord => {
     return rest
 }
 
-const serializeExpensesState = (expenses: ExpenseRecord[]) =>
-    JSON.stringify({ expenses: expenses.map(stripPersistedTicketData) })
-
-const persistExpensesSnapshot = (expenses: ExpenseRecord[]): boolean => {
-    if (typeof window === 'undefined') return true
-    const value = serializeExpensesState(expenses)
-    createSafeStorage({ silent: true }).setItem(EXPENSES_STORAGE_KEY, value)
-    return wasLastStorageWriteSuccessful(EXPENSES_STORAGE_KEY, value)
+const persistExpensesSnapshot = async (expenses: ExpenseRecord[]): Promise<void> => {
+    await persistExpenses(expenses.map(stripPersistedTicketData))
 }
 
 const stripTicket = (expense: ExpenseRecord): ExpenseRecord => {
@@ -109,21 +103,31 @@ export const useExpenseStore = defineStore('expenses', {
             const previousExpenses = [...this.expenses]
             const preparedExpense = await prepareExpenseForSave(expense)
             this.expenses.push(preparedExpense)
-            if (persistExpensesSnapshot(this.expenses)) {
+            try {
+                await persistExpensesSnapshot(this.expenses)
                 return { expense: preparedExpense, attachmentRemoved: false }
+            } catch {
+                // Try again without the attachment metadata below.
             }
 
             if (preparedExpense.ticket || preparedExpense.ticketId || preparedExpense.ticketName || preparedExpense.ticketType) {
                 const expenseWithoutTicket = stripTicket(preparedExpense)
                 this.expenses[this.expenses.length - 1] = expenseWithoutTicket
-                if (persistExpensesSnapshot(this.expenses)) {
+                try {
+                    await persistExpensesSnapshot(this.expenses)
                     if (preparedExpense.ticketId) await deleteExpenseAttachment(preparedExpense.ticketId)
                     return { expense: expenseWithoutTicket, attachmentRemoved: true }
+                } catch {
+                    // Roll back below if the lightweight snapshot cannot be saved.
                 }
             }
 
             this.expenses = previousExpenses
-            persistExpensesSnapshot(this.expenses)
+            try {
+                await persistExpensesSnapshot(this.expenses)
+            } catch {
+                // Keep the in-memory rollback even if the persistence layer is unavailable.
+            }
             if (preparedExpense.ticketId && preparedExpense.ticketId !== expense.ticketId) {
                 await deleteExpenseAttachment(preparedExpense.ticketId)
             }
@@ -131,7 +135,7 @@ export const useExpenseStore = defineStore('expenses', {
         },
         async setExpenses(expenses: ExpenseRecord[]) {
             this.expenses = await Promise.all(expenses.map(prepareExpenseForSave))
-            persistExpensesSnapshot(this.expenses)
+            await persistExpensesSnapshot(this.expenses)
         },
         async updateExpense(updatedExpense: ExpenseRecord): Promise<ExpenseSaveResult> {
             const index = this.expenses.findIndex(e => e.id === updatedExpense.id)
@@ -142,42 +146,54 @@ export const useExpenseStore = defineStore('expenses', {
             const previousExpense = this.expenses[index]!
             const preparedExpense = await prepareExpenseForSave(updatedExpense)
             this.expenses[index] = preparedExpense
-            if (persistExpensesSnapshot(this.expenses)) {
+            try {
+                await persistExpensesSnapshot(this.expenses)
                 if (!preparedExpense.ticketId && previousExpense.ticketId) {
                     await deleteExpenseAttachment(previousExpense.ticketId)
                 }
                 return { expense: preparedExpense, attachmentRemoved: false }
+            } catch {
+                // Try again without the attachment metadata below.
             }
 
             if (preparedExpense.ticket || preparedExpense.ticketId || preparedExpense.ticketName || preparedExpense.ticketType) {
                 const expenseWithoutTicket = stripTicket(preparedExpense)
                 this.expenses[index] = expenseWithoutTicket
-                if (persistExpensesSnapshot(this.expenses)) {
+                try {
+                    await persistExpensesSnapshot(this.expenses)
                     if (preparedExpense.ticketId) await deleteExpenseAttachment(preparedExpense.ticketId)
                     return { expense: expenseWithoutTicket, attachmentRemoved: true }
+                } catch {
+                    // Roll back below if the lightweight snapshot cannot be saved.
                 }
             }
 
             this.expenses[index] = previousExpense
-            persistExpensesSnapshot(this.expenses)
+            try {
+                await persistExpensesSnapshot(this.expenses)
+            } catch {
+                // Keep the in-memory rollback even if the persistence layer is unavailable.
+            }
             if (preparedExpense.ticketId && preparedExpense.ticketId !== previousExpense.ticketId) {
                 await deleteExpenseAttachment(preparedExpense.ticketId)
             }
             throw new Error('Expense could not be persisted')
         },
-        deleteExpense(id: string) {
+        async deleteExpense(id: string) {
             const expense = this.expenses.find(e => e.id === id)
             this.expenses = this.expenses.filter(e => e.id !== id)
+            await persistExpensesSnapshot(this.expenses)
             if (expense?.ticketId) void deleteExpenseAttachment(expense.ticketId)
         },
-        deleteExpensesByYear(year: number) {
+        async deleteExpensesByYear(year: number) {
             const removedIds = ticketIds(this.expenses.filter(expense => new Date(expense.timestamp).getFullYear() === year))
             this.expenses = this.expenses.filter(expense => {
                 return new Date(expense.timestamp).getFullYear() !== year
             })
+            await persistExpensesSnapshot(this.expenses)
             void deleteExpenseAttachments(removedIds)
         },
-        deleteExpensesByMonth(year: number, month: number) {
+        async deleteExpensesByMonth(year: number, month: number) {
             const removedIds = ticketIds(this.expenses.filter(expense => {
                 const date = new Date(expense.timestamp)
                 return date.getFullYear() === year && date.getMonth() + 1 === month
@@ -187,6 +203,7 @@ export const useExpenseStore = defineStore('expenses', {
                 const date = new Date(expense.timestamp)
                 return !(date.getFullYear() === year && date.getMonth() + 1 === month)
             })
+            await persistExpensesSnapshot(this.expenses)
             void deleteExpenseAttachments(removedIds)
         },
         // Storage taken by the ticket files currently present in IndexedDB for
@@ -195,19 +212,21 @@ export const useExpenseStore = defineStore('expenses', {
             return getExpenseAttachmentsStats(ticketIds(this.expenses))
         },
         // Strip ticket attachments to free space while keeping the expenses.
-        removeAllTickets() {
+        async removeAllTickets() {
             const removedIds = ticketIds(this.expenses)
             this.expenses = this.expenses.map(stripTicket)
+            await persistExpensesSnapshot(this.expenses)
             void deleteExpenseAttachments(removedIds)
         },
-        removeTicketsByYear(year: number) {
+        async removeTicketsByYear(year: number) {
             const removedIds = ticketIds(this.expenses.filter(expense =>
                 new Date(expense.timestamp).getFullYear() === year))
             this.expenses = this.expenses.map(expense =>
                 new Date(expense.timestamp).getFullYear() === year ? stripTicket(expense) : expense)
+            await persistExpensesSnapshot(this.expenses)
             void deleteExpenseAttachments(removedIds)
         },
-        removeTicketsByMonth(year: number, month: number) {
+        async removeTicketsByMonth(year: number, month: number) {
             const removedIds = ticketIds(this.expenses.filter(expense => {
                 const date = new Date(expense.timestamp)
                 return date.getFullYear() === year && date.getMonth() + 1 === month
@@ -219,6 +238,7 @@ export const useExpenseStore = defineStore('expenses', {
                     ? stripTicket(expense)
                     : expense
             })
+            await persistExpensesSnapshot(this.expenses)
             void deleteExpenseAttachments(removedIds)
         },
         async hydrateTicketAttachments() {
@@ -241,14 +261,7 @@ export const useExpenseStore = defineStore('expenses', {
                 }
             }))
             this.expenses = hydrated
-            persistExpensesSnapshot(this.expenses)
-        }
-    },
-    persist: {
-        storage: createSafeStorage(),
-        serializer: {
-            serialize: state => serializeExpensesState(state.expenses),
-            deserialize: value => JSON.parse(value)
+            await persistExpensesSnapshot(this.expenses)
         }
     }
 })
