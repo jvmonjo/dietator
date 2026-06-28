@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { createSafeStorage } from '~/utils/storage'
+import { setDistancesCache as persistDistancesCache } from '~/utils/appDatabase'
 
 interface DistancesState {
     cache: Record<string, number>
@@ -23,12 +23,14 @@ export const useDistancesStore = defineStore('distances', {
             const key = normalizeKey(origin, destination)
             return this.cache[key] ?? null
         },
-        setDistance(origin: string, destination: string, kilometers: number) {
+        async setDistance(origin: string, destination: string, kilometers: number) {
             const key = normalizeKey(origin, destination)
             this.cache[key] = kilometers
+            await persistDistancesCache(this.cache)
         },
-        clearCache() {
+        async clearCache() {
             this.cache = {}
+            await persistDistancesCache(this.cache)
         },
         getCacheStats() {
             const items = Object.keys(this.cache).length
@@ -36,8 +38,5 @@ export const useDistancesStore = defineStore('distances', {
             const size = new Blob([json]).size
             return { items, size }
         }
-    },
-    persist: {
-        storage: createSafeStorage()
     }
 })

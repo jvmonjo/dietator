@@ -3,10 +3,11 @@ const { $pwa } = useNuxtApp()
 const { t } = useI18n()
 const isPwa = ref(true) // Default to true to avoid flash
 const isDismissed = ref(true)
+const installBannerPreferenceKey = 'dietator-install-banner-dismissed'
 
-onMounted(() => {
+onMounted(async () => {
   // Check dismissal state
-  const dismissed = localStorage.getItem('dietator-install-banner-dismissed')
+  const dismissed = await getUiPreference<boolean>(installBannerPreferenceKey)
   if (dismissed) {
     isDismissed.value = true
     return
@@ -22,7 +23,7 @@ onMounted(() => {
 
 const dismiss = () => {
   isDismissed.value = true
-  localStorage.setItem('dietator-install-banner-dismissed', 'true')
+  void setUiPreference(installBannerPreferenceKey, true)
 }
 
 const install = () => {

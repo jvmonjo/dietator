@@ -31,7 +31,7 @@ const parseCurrency = (input: string | number) => {
   return Number.isNaN(val) ? 0 : val
 }
 
-const saveSettings = () => {
+const saveSettings = async () => {
   if (formState.nationalId && !validateSpanishId(formState.nationalId)) {
     toast.add({ title: t('common.error'), description: 'DNI incorrecte', color: 'error' })
     return
@@ -44,11 +44,11 @@ const saveSettings = () => {
   formState.halfDietPrice = normalizedHalfPrice
   formState.fullDietPrice = normalizedFullPrice
 
-  settingsStore.updateDietPrices({
+  await settingsStore.updateDietPrices({
     half: normalizedHalfPrice,
     full: normalizedFullPrice
   })
-  settingsStore.updatePersonalData({
+  await settingsStore.updatePersonalData({
     firstName: formState.firstName,
     lastName: formState.lastName,
     nationalId: formState.nationalId.toUpperCase()
@@ -65,7 +65,7 @@ const saveSettings = () => {
     googleCalendarId: formState.googleCalendarId
   })
 
-  settingsStore.updateHabitualRoute(formState.habitualRoute)
+  await settingsStore.updateHabitualRoute(formState.habitualRoute)
   toast.add({ title: t('common.success'), color: 'success' })
 }
 

@@ -1,7 +1,7 @@
 // Helpers to turn an uploaded/captured/cropped receipt ("ticket") into a data
 // URL that can be persisted locally alongside the expense. Images are
 // aggressively compressed with browser-image-compression (web worker, JPEG,
-// size-targeted) to keep localStorage usage low; PDFs are stored as-is but
+// size-targeted) to keep expense metadata small; PDFs are stored as-is but
 // capped in size.
 import imageCompression from 'browser-image-compression'
 

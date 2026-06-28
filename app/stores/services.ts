@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { createSafeStorage } from '~/utils/storage'
+import { setServices as persistServices } from '~/utils/appDatabase'
 
 export interface Displacement {
     id: string
@@ -24,28 +24,33 @@ export const useServiceStore = defineStore('services', {
         records: [] as ServiceRecord[]
     }),
     actions: {
-        addRecord(record: ServiceRecord) {
+        async addRecord(record: ServiceRecord) {
             this.records.push(record)
+            await persistServices(this.records)
         },
-        setRecords(records: ServiceRecord[]) {
+        async setRecords(records: ServiceRecord[]) {
             this.records = records
+            await persistServices(this.records)
         },
-        updateRecord(updatedRecord: ServiceRecord) {
+        async updateRecord(updatedRecord: ServiceRecord) {
             const index = this.records.findIndex(r => r.id === updatedRecord.id)
             if (index !== -1) {
                 this.records[index] = updatedRecord
+                await persistServices(this.records)
             }
         },
-        deleteRecord(id: string) {
+        async deleteRecord(id: string) {
             this.records = this.records.filter(r => r.id !== id)
+            await persistServices(this.records)
         },
-        deleteRecordsByYear(year: number) {
+        async deleteRecordsByYear(year: number) {
             this.records = this.records.filter(record => {
                 const recordYear = new Date(record.startTime).getFullYear()
                 return recordYear !== year
             })
+            await persistServices(this.records)
         },
-        deleteRecordsByMonth(year: number, month: number) {
+        async deleteRecordsByMonth(year: number, month: number) {
             // month is 1-12
             this.records = this.records.filter(record => {
                 const date = new Date(record.startTime)
@@ -53,14 +58,12 @@ export const useServiceStore = defineStore('services', {
                 const recordMonth = date.getMonth() + 1
                 return !(recordYear === year && recordMonth === month)
             })
+            await persistServices(this.records)
         },
         getStorageUsage() {
             // Approximate size in bytes of the records JSON
             const json = JSON.stringify(this.records)
             return new Blob([json]).size
         }
-    },
-    persist: {
-        storage: createSafeStorage()
     }
 })

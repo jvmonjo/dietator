@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { APPROXIMATE_LOCAL_STORAGE_LIMIT_BYTES } from '~/utils/localStorageStrategy'
-
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
@@ -80,11 +78,11 @@ const confirmDelete = () => {
     confirmModal.description = description
     confirmModal.action = async () => {
         if (month) {
-            serviceStore.deleteRecordsByMonth(year, month)
-            expenseStore.deleteExpensesByMonth(year, month)
+            await serviceStore.deleteRecordsByMonth(year, month)
+            await expenseStore.deleteExpensesByMonth(year, month)
         } else {
-            serviceStore.deleteRecordsByYear(year)
-            expenseStore.deleteExpensesByYear(year)
+            await serviceStore.deleteRecordsByYear(year)
+            await expenseStore.deleteExpensesByYear(year)
         }
         toast.add({ title: t('settings.maintenance.data_deleted'), color: 'success' })
         maintenanceState.selectedYear = undefined
@@ -96,8 +94,6 @@ const confirmDelete = () => {
 }
 
 const ticketStats = ref({ count: 0, bytes: 0 })
-const approximateLocalStorageLimit = APPROXIMATE_LOCAL_STORAGE_LIMIT_BYTES
-
 const refreshTicketStats = async () => {
     ticketStats.value = await expenseStore.getTicketStats()
 }
@@ -113,7 +109,7 @@ const confirmRemoveAllTickets = () => {
     confirmModal.title = t('settings.maintenance.confirm_remove_tickets_title')
     confirmModal.description = t('settings.maintenance.confirm_remove_tickets_all_desc')
     confirmModal.action = async () => {
-        expenseStore.removeAllTickets()
+        await expenseStore.removeAllTickets()
         await refreshTicketStats()
         toast.add({ title: t('settings.maintenance.tickets_removed'), color: 'success' })
     }
@@ -133,9 +129,9 @@ const confirmRemoveTicketsForSelection = () => {
     confirmModal.description = t('settings.maintenance.confirm_remove_tickets_selection_desc')
     confirmModal.action = async () => {
         if (month) {
-            expenseStore.removeTicketsByMonth(year, month)
+            await expenseStore.removeTicketsByMonth(year, month)
         } else {
-            expenseStore.removeTicketsByYear(year)
+            await expenseStore.removeTicketsByYear(year)
         }
         await refreshTicketStats()
         toast.add({ title: t('settings.maintenance.tickets_removed'), color: 'success' })
@@ -149,7 +145,7 @@ const confirmClearCache = () => {
     confirmModal.title = t('settings.maintenance.confirm_clear_cache_title')
     confirmModal.description = t('settings.maintenance.confirm_clear_cache_description')
     confirmModal.action = async () => {
-        distancesStore.clearCache()
+        await distancesStore.clearCache()
         toast.add({ title: t('settings.maintenance.cache_cleared'), color: 'success' })
     }
     confirmModal.confirmLabel = t('settings.maintenance.clear_cache')
@@ -266,7 +262,7 @@ color="error" variant="ghost" icon="i-heroicons-trash" size="xs"
                                 $t('settings.maintenance.storage_strategy.storage_limit_description')
                                 }}</p>
                         </div>
-                        <UBadge color="warning" variant="soft">{{ formatBytes(approximateLocalStorageLimit) }}</UBadge>
+                        <UBadge color="success" variant="soft">IndexedDB</UBadge>
                     </div>
 
                     <div

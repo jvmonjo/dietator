@@ -86,7 +86,7 @@ icon="i-heroicons-information-circle" color="warning" variant="subtle"
                     <ul class="list-disc list-inside space-y-1 ml-2">
                         <li>La connexió es fa directament entre el teu navegador i Google.</li>
                         <li>Les dades dels teus esdeveniments es guarden <strong>només al teu dispositiu</strong>
-                            (LocalStorage).</li>
+                            (IndexedDB).</li>
                         <li>Dietator no envia les teves dades a cap servidor extern (excepte a Google per obtenir els
                             esdeveniments).</li>
                     </ul>

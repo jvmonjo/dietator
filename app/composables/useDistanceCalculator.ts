@@ -109,7 +109,7 @@ export const useDistanceCalculator = () => {
                 if (element.status === 'OK') {
                     // value is in meters
                     const km = Math.round((element.distance.value / 1000) * 100) / 100
-                    distancesStore.setDistance(origin, destination, km)
+                    await distancesStore.setDistance(origin, destination, km)
                     return { distance: km, source: 'api' }
                 } else {
                     // Element level error (e.g. ZERO_RESULTS for this specific pair)

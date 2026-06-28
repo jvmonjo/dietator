@@ -195,12 +195,12 @@ const confirmModal = reactive({
   isOpen: false,
   title: '',
   description: '',
-  action: null as (() => void) | null
+  action: null as (() => Promise<void> | void) | null
 })
 
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (confirmModal.action) {
-    confirmModal.action()
+    await confirmModal.action()
   }
   confirmModal.isOpen = false
 }
@@ -208,8 +208,8 @@ const handleConfirmDelete = () => {
 const confirmDelete = (id: string) => {
   confirmModal.title = t('components.service_list.modals.delete_title')
   confirmModal.description = t('components.service_list.modals.delete_desc')
-  confirmModal.action = () => {
-    serviceStore.deleteRecord(id)
+  confirmModal.action = async () => {
+    await serviceStore.deleteRecord(id)
     toast.add({ title: t('components.service_list.modals.deleted'), color: 'success' })
   }
   confirmModal.isOpen = true

@@ -245,7 +245,7 @@ const showWelcome = ref(true)
 const dismissWelcome = () => {
   showWelcome.value = false
   try {
-    localStorage.setItem('dietator_welcome_dismissed', 'true')
+    void setUiPreference('dietator_welcome_dismissed', true)
   } catch {
     // Ignore storage errors
   }
@@ -332,9 +332,9 @@ const handleDateSelected = (date: Date) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   try {
-    if (localStorage.getItem('dietator_welcome_dismissed') === 'true') {
+    if (await getUiPreference<boolean>('dietator_welcome_dismissed')) {
       showWelcome.value = false
     }
   } catch {

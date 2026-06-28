@@ -32,7 +32,6 @@
     "nuxt": "^4.2.1",
     "pdfjs-dist": "^4.10.38",
     "pinia": "^3.0.4",
-    "pinia-plugin-persistedstate": "^4.7.1",
     "qrcode": "^1.5.4",
     "sortablejs": "^1.15.6",
     "spain-id": "^1.1.13",

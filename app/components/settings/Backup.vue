@@ -162,6 +162,10 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
     try {
         const payload: BackupPayload = {}
 
+        if (type === 'data') {
+            await expenseStore.hydrateTicketAttachments()
+        }
+
         if (type === 'config') {
             payload.settings = buildSettingsPayload(exportState.includeTemplates)
             if (exportState.includeGoogleAuth) {
@@ -301,14 +305,14 @@ const processImport = async (payload: ImportPayload) => {
                 const date = new Date(record.startTime)
                 return !(date.getFullYear() === targetYear && date.getMonth() + 1 === targetMonth)
             })
-            serviceStore.setRecords([...preserved, ...services])
+            await serviceStore.setRecords([...preserved, ...services])
         } else if (importYear) {
             const preserved = serviceStore.records.filter(record => {
                 return new Date(record.startTime).getFullYear() !== importYear
             })
-            serviceStore.setRecords([...preserved, ...services])
+            await serviceStore.setRecords([...preserved, ...services])
         } else {
-            serviceStore.setRecords(services)
+            await serviceStore.setRecords(services)
         }
     }
 
@@ -330,7 +334,7 @@ const processImport = async (payload: ImportPayload) => {
     }
 
     if (settings) {
-        settingsStore.loadSettings(settings)
+        await settingsStore.loadSettings(settings)
         // Removed direct formState updates. The parent should handle this upon event.
         // However, setLocale is global.
         if (settings.locale) {
