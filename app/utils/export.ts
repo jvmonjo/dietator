@@ -1,6 +1,7 @@
 import JSZip from 'jszip'
 
 import type { MonthOption, ServiceTotals } from '~/composables/useServiceStats'
+import type { ExpenseRecord } from '~/stores/expenses'
 import type { ServiceRecord } from '~/stores/services'
 import type { TemplateFile } from '~/stores/settings'
 import { generateStatsPdf } from './pdfGenerator'
@@ -24,6 +25,7 @@ interface ExportSettings {
 
 interface GenerateWordReportOptions {
   records: ServiceRecord[]
+  expenses?: ExpenseRecord[]
   totals: ServiceTotals
   month: MonthOption
   settings: ExportSettings
@@ -109,7 +111,8 @@ export const generateWordReport = async (options: GenerateWordReportOptions) => 
         month: options.month.value,
         exportedAt: new Date().toISOString()
       },
-      services: sortedRecords
+      services: sortedRecords,
+      expenses: options.expenses ?? []
     }
     const jsonString = JSON.stringify(jsonPayload, null, 2)
     const jsonBlob = new Blob([jsonString], { type: 'application/json' })

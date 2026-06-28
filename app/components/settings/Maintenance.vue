@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {
+    clearLegacyLocalStorageData,
+    getAppDatabaseUsageStats,
+    type AppDatabaseUsageStats
+} from '~/utils/appDatabase'
+
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
@@ -35,6 +41,10 @@ const availableYears = computed(() => {
         const d = new Date(r.startTime)
         if (!Number.isNaN(d.getTime())) years.add(d.getFullYear())
     })
+    expenseStore.expenses.forEach(r => {
+        const d = new Date(r.timestamp)
+        if (!Number.isNaN(d.getTime())) years.add(d.getFullYear())
+    })
     return Array.from(years).sort((a, b) => b - a).map(y => ({ label: String(y), value: y }))
 })
 
@@ -43,6 +53,12 @@ const availableMonthsForYear = computed(() => {
     const months = new Set<number>()
     serviceStore.records.forEach(r => {
         const d = new Date(r.startTime)
+        if (!Number.isNaN(d.getTime()) && d.getFullYear() === maintenanceState.selectedYear) {
+            months.add(d.getMonth() + 1)
+        }
+    })
+    expenseStore.expenses.forEach(r => {
+        const d = new Date(r.timestamp)
         if (!Number.isNaN(d.getTime()) && d.getFullYear() === maintenanceState.selectedYear) {
             months.add(d.getMonth() + 1)
         }
@@ -84,6 +100,7 @@ const confirmDelete = () => {
             await serviceStore.deleteRecordsByYear(year)
             await expenseStore.deleteExpensesByYear(year)
         }
+        await refreshStats()
         toast.add({ title: t('settings.maintenance.data_deleted'), color: 'success' })
         maintenanceState.selectedYear = undefined
         maintenanceState.selectedMonth = undefined
@@ -94,23 +111,53 @@ const confirmDelete = () => {
 }
 
 const ticketStats = ref({ count: 0, bytes: 0 })
+const databaseStats = ref<AppDatabaseUsageStats>({
+    totalBytes: 0,
+    appStateBytes: 0,
+    attachmentBytes: 0,
+    attachmentCount: 0,
+    browserUsageBytes: undefined as number | undefined,
+    browserQuotaBytes: undefined as number | undefined,
+    legacyLocalStorageBytes: 0,
+    legacyLocalStorageKeys: [] as string[]
+})
+
 const refreshTicketStats = async () => {
     ticketStats.value = await expenseStore.getTicketStats()
+}
+
+const refreshDatabaseStats = async () => {
+    databaseStats.value = await getAppDatabaseUsageStats()
+}
+
+const refreshStats = async () => {
+    await Promise.all([
+        refreshTicketStats(),
+        refreshDatabaseStats()
+    ])
 }
 
 const ticketStatsSignature = computed(() =>
     expenseStore.expenses.map(expense => `${expense.id}:${expense.ticketId || ''}`).join('|'))
 
 watch(ticketStatsSignature, () => {
-    void refreshTicketStats()
+    void refreshStats()
 }, { immediate: true })
+
+watch(() => [
+    serviceStore.records.length,
+    expenseStore.expenses.length,
+    distancesStore.getCacheStats().items
+], () => {
+    void refreshDatabaseStats()
+})
 
 const confirmRemoveAllTickets = () => {
     confirmModal.title = t('settings.maintenance.confirm_remove_tickets_title')
     confirmModal.description = t('settings.maintenance.confirm_remove_tickets_all_desc')
     confirmModal.action = async () => {
         await expenseStore.removeAllTickets()
-        await refreshTicketStats()
+        await refreshStats()
         toast.add({ title: t('settings.maintenance.tickets_removed'), color: 'success' })
     }
     confirmModal.confirmLabel = t('settings.maintenance.remove_tickets')
@@ -133,7 +180,7 @@ const confirmRemoveTicketsForSelection = () => {
         } else {
             await expenseStore.removeTicketsByYear(year)
         }
-        await refreshTicketStats()
+        await refreshStats()
         toast.add({ title: t('settings.maintenance.tickets_removed'), color: 'success' })
     }
     confirmModal.confirmLabel = t('settings.maintenance.remove_tickets')
@@ -146,9 +193,23 @@ const confirmClearCache = () => {
     confirmModal.description = t('settings.maintenance.confirm_clear_cache_description')
     confirmModal.action = async () => {
         await distancesStore.clearCache()
+        await refreshDatabaseStats()
         toast.add({ title: t('settings.maintenance.cache_cleared'), color: 'success' })
     }
     confirmModal.confirmLabel = t('settings.maintenance.clear_cache')
+    confirmModal.confirmColor = 'error'
+    confirmModal.isOpen = true
+}
+
+const confirmClearLegacyLocalStorage = () => {
+    confirmModal.title = t('settings.maintenance.confirm_clear_legacy_title')
+    confirmModal.description = t('settings.maintenance.confirm_clear_legacy_description')
+    confirmModal.action = async () => {
+        clearLegacyLocalStorageData()
+        await refreshDatabaseStats()
+        toast.add({ title: t('settings.maintenance.legacy_cleared'), color: 'success' })
+    }
+    confirmModal.confirmLabel = t('settings.maintenance.clear_legacy')
     confirmModal.confirmColor = 'error'
     confirmModal.isOpen = true
 }
@@ -190,11 +251,39 @@ const handleConfirm = async () => {
                     </div>
                     <div class="text-right">
                         <p class="text-lg font-bold text-primary-600 dark:text-primary-400">{{
-                            formatBytes(serviceStore.getStorageUsage()) }}</p>
+                            formatBytes(databaseStats.totalBytes) }}</p>
                         <p class="text-xs text-gray-500">{{ $t('settings.maintenance.total_services', {
-                            count:
-                                serviceStore.records.length
+                            count: serviceStore.records.length
+                            }) }} · {{ $t('settings.maintenance.total_expenses', {
+                                count: expenseStore.expenses.length
                             }) }}</p>
+                    </div>
+                </div>
+
+                <div
+                    v-if="databaseStats.legacyLocalStorageBytes > 0"
+                    class="p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-amber-900 dark:text-amber-100">{{
+                            $t('settings.maintenance.legacy_title') }}
+                        </p>
+                        <p class="text-xs text-amber-700 dark:text-amber-200 mt-1">{{
+                            $t('settings.maintenance.legacy_description') }}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="text-lg font-bold text-amber-700 dark:text-amber-200">{{
+                                formatBytes(databaseStats.legacyLocalStorageBytes) }}</p>
+                            <p class="text-xs text-amber-700 dark:text-amber-200">{{
+                                $t('settings.maintenance.legacy_keys', {
+                                    count: databaseStats.legacyLocalStorageKeys.length
+                                }) }}</p>
+                        </div>
+                        <UButton
+                            color="warning" variant="ghost" icon="i-heroicons-trash" size="xs"
+                            @click="confirmClearLegacyLocalStorage">
+                            {{ $t('settings.maintenance.clear_legacy') }}
+                        </UButton>
                     </div>
                 </div>
 
@@ -278,6 +367,28 @@ color="error" variant="ghost" icon="i-heroicons-trash" size="xs"
                         <p class="text-xs text-gray-600 dark:text-gray-300 mt-2">
                             {{ $t('settings.maintenance.storage_strategy.active_description') }}
                         </p>
+                        <dl class="mt-3 grid grid-cols-2 gap-3 text-xs text-gray-600 dark:text-gray-300">
+                            <div>
+                                <dt class="text-gray-500">{{ $t('settings.maintenance.storage_strategy.app_state') }}</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{
+                                    formatBytes(databaseStats.appStateBytes) }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-gray-500">{{ $t('settings.maintenance.storage_strategy.attachments') }}</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{
+                                    formatBytes(databaseStats.attachmentBytes) }}</dd>
+                            </div>
+                            <div v-if="databaseStats.browserUsageBytes !== undefined">
+                                <dt class="text-gray-500">{{ $t('settings.maintenance.storage_strategy.browser_usage') }}</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{
+                                    formatBytes(databaseStats.browserUsageBytes) }}</dd>
+                            </div>
+                            <div v-if="databaseStats.browserQuotaBytes !== undefined">
+                                <dt class="text-gray-500">{{ $t('settings.maintenance.storage_strategy.browser_quota') }}</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{
+                                    formatBytes(databaseStats.browserQuotaBytes) }}</dd>
+                            </div>
+                        </dl>
                     </div>
                 </div>
 

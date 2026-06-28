@@ -6,10 +6,12 @@ import { generateWordReport } from '~/utils/export'
 
 const settingsStore = useSettingsStore()
 const serviceStore = useServiceStore()
+const expenseStore = useExpenseStore()
 const externalCalendar = useExternalCalendarStore()
 const toast = useToast()
 const { t, locale } = useI18n()
 const { records } = storeToRefs(serviceStore)
+const { expenses } = storeToRefs(expenseStore)
 const { calculateTotals, currentMonthValue, monthOptions, getRecordsForMonth } = useServiceStats()
 
 
@@ -64,6 +66,19 @@ const selectedRecords = computed(() => {
   return records.value.filter((record) => {
     const date = new Date(record.startTime)
     return !isNaN(date.getTime()) && date.getFullYear() === selectedYear.value
+  })
+})
+
+const selectedExpenses = computed(() => {
+  const monthValue = activeMonth.value?.value ?? null
+  return expenses.value.filter((expense) => {
+    const date = new Date(expense.timestamp)
+    if (Number.isNaN(date.getTime())) return false
+    if (monthValue) {
+      const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      return value === monthValue
+    }
+    return date.getFullYear() === selectedYear.value
   })
 })
 
@@ -184,8 +199,11 @@ const exportReport = async () => {
   }
 
   try {
+    await expenseStore.hydrateTicketAttachments()
+
     const result = await generateWordReport({
       records: selectedRecords.value,
+      expenses: selectedExpenses.value,
       totals: selectionTotals.value,
       month: selectedMonth.value,
       settings: {
