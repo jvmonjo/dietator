@@ -1,3 +1,10 @@
+# [1.56.0](https://github.com/jvmonjo/dietator/compare/v1.55.0...v1.56.0) (2026-06-28)
+
+
+### Features
+
+* **storage:** enhance IndexedDB integration and add legacy data management features ([5cd116f](https://github.com/jvmonjo/dietator/commit/5cd116f51cda11b3acd65c68b8919bb44c7a4760))
+
 # [1.55.0](https://github.com/jvmonjo/dietator/compare/v1.54.1...v1.55.0) (2026-06-28)
 
 
