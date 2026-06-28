@@ -1,3 +1,11 @@
+# [1.55.0](https://github.com/jvmonjo/dietator/compare/v1.54.1...v1.55.0) (2026-06-28)
+
+
+### Features
+
+* **storage:** migrate persistence to IndexedDB ([65849a5](https://github.com/jvmonjo/dietator/commit/65849a55fc42e749b80c190546ab838e618884e3))
+* **storage:** migrate persistence to IndexedDB ([ec36aaf](https://github.com/jvmonjo/dietator/commit/ec36aafa9495a628e5b155162cb7cba299219d9f))
+
 ## [1.54.1](https://github.com/jvmonjo/dietator/compare/v1.54.0...v1.54.1) (2026-06-27)
 
 
