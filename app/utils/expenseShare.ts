@@ -15,6 +15,8 @@ interface ShareOptions {
   categoryLabel: (category: string) => string
   // Title shown in the share sheet / used to derive the file name.
   title?: string
+  // File-safe date period for the archive name, e.g. 2026-03-01_2026-03-31.
+  filenameDateRange?: string
 }
 
 // Decode a data URL into raw bytes so it can be written into the zip as a file.
@@ -51,6 +53,23 @@ const csvField = (value: string): string => {
 
 const sortByDate = (expenses: ExpenseRecord[]) =>
   expenses.slice().sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+
+const localDateKey = (date: Date): string =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+
+const filenameDateRangeFromExpenses = (expenses: ExpenseRecord[]): string => {
+  const dates = expenses
+    .map(expense => new Date(expense.timestamp))
+    .filter(date => !Number.isNaN(date.getTime()))
+
+  if (dates.length === 0) return 'sense-data'
+
+  const first = dates[0]!
+  const last = dates[dates.length - 1]!
+  const firstKey = localDateKey(first)
+  const lastKey = localDateKey(last)
+  return firstKey === lastKey ? firstKey : `${firstKey}_${lastKey}`
+}
 
 // Build the zip archive (summary + JSON + tickets) for the given expenses.
 export async function buildExpensesArchive(
@@ -118,8 +137,8 @@ export async function buildExpensesArchive(
   zip.file('expenses.json', JSON.stringify(jsonPayload, null, 2))
 
   const blob = await zip.generateAsync({ type: 'blob' })
-  const today = new Date().toISOString().split('T')[0]
-  const filename = `dietator-despeses-${today}.zip`
+  const filenameDateRange = options.filenameDateRange || filenameDateRangeFromExpenses(ordered)
+  const filename = `dietator-despeses-${filenameDateRange}.zip`
   return { blob, filename }
 }
 

@@ -25,6 +25,7 @@ describe('buildExpensesArchive', () => {
   it('bundles a CSV, a JSON copy and the ticket attachments', async () => {
     const result = await buildExpensesArchive(expenses, { locale: 'ca-ES', categoryLabel })
     expect(result).not.toBeNull()
+    expect(result!.filename).toBe('dietator-despeses-2026-03-10_2026-03-11.zip')
 
     const buffer = await result!.blob.arrayBuffer()
     const zip = await JSZip.loadAsync(buffer)
@@ -43,5 +44,15 @@ describe('buildExpensesArchive', () => {
     expect(json.meta.count).toBe(2)
     expect(json.meta.total).toBe(15.5)
     expect(json.expenses).toHaveLength(2)
+  })
+
+  it('uses the selected date range in the archive filename when provided', async () => {
+    const result = await buildExpensesArchive(expenses, {
+      locale: 'ca-ES',
+      categoryLabel,
+      filenameDateRange: '2026-03-01_2026-03-31'
+    })
+
+    expect(result!.filename).toBe('dietator-despeses-2026-03-01_2026-03-31.zip')
   })
 })

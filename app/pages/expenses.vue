@@ -208,6 +208,22 @@ const expenseListDescription = computed(() => {
   return t('expenses.list_description', { month: selectedMonthLabel.value })
 })
 
+const selectedArchiveDateRange = computed(() => {
+  const range = selectedRange.value
+  if (range?.start) {
+    const startKey = dayKey(range.start)
+    const endKey = dayKey(range.end ?? range.start)
+    if (startKey === endKey) return startKey
+    return startKey < endKey ? `${startKey}_${endKey}` : `${endKey}_${startKey}`
+  }
+
+  if (showAllMonths.value) return `${selectedYear.value}-01-01_${selectedYear.value}-12-31`
+
+  const month = String(selectedMonthValue.value).padStart(2, '0')
+  const lastDay = new Date(selectedYear.value, selectedMonthValue.value, 0).getDate()
+  return `${selectedYear.value}-${month}-01_${selectedYear.value}-${month}-${String(lastDay).padStart(2, '0')}`
+})
+
 // The calendar navigates a concrete month; fall back to the current month when
 // "all months" is selected. Navigating it narrows the selection to that month.
 const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth() + 1 : selectedMonthValue.value)
@@ -247,6 +263,7 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
     <section>
       <ExpenseList
         :title="$t('expenses.list_title')" :description="expenseListDescription"
+        :archive-date-range="selectedArchiveDateRange"
         :expenses="listExpenses" />
     </section>
 

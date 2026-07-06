@@ -9,10 +9,12 @@ import { shareExpenses } from '~/utils/expenseShare'
 const props = withDefaults(defineProps<{
   title?: string
   description?: string
+  archiveDateRange?: string
   expenses?: ExpenseRecord[]
 }>(), {
   title: undefined,
   description: undefined,
+  archiveDateRange: undefined,
   expenses: () => []
 })
 
@@ -144,7 +146,8 @@ const shareSelected = async () => {
     const outcome = await shareExpenses(selectedExpenses.value, {
       locale: locale.value,
       categoryLabel: (category: string) => t(`expenses.categories.${category}`),
-      title: t('components.expense_list.share_selected_title', { count: selectedExpenses.value.length })
+      title: t('components.expense_list.share_selected_title', { count: selectedExpenses.value.length }),
+      filenameDateRange: props.archiveDateRange
     })
     if (outcome === 'shared' || outcome === 'downloaded') {
       toast.add({ title: t('components.expense_list.share_success'), color: 'success' })
