@@ -1,3 +1,10 @@
+# [1.57.0](https://github.com/jvmonjo/dietator/compare/v1.56.0...v1.57.0) (2026-07-06)
+
+
+### Features
+
+* **share:** add filename date range option for expense archives ([fddac5e](https://github.com/jvmonjo/dietator/commit/fddac5e5a6f6181d43ce26a52adba815a7848c78))
+
 # [1.56.0](https://github.com/jvmonjo/dietator/compare/v1.55.0...v1.56.0) (2026-06-28)
 
 
