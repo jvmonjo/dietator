@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const googleMapsApiKey = defineModel<string>('googleMapsApiKey')
+const openAiApiKey = defineModel<string>('openAiApiKey')
 const googleCalendarId = defineModel<string>('googleCalendarId')
 
 const emit = defineEmits<{
@@ -60,6 +61,14 @@ to="/help/maps"
                         <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" /> {{
                             $t('settings.api_keys.help') }}
                     </NuxtLink>
+                </template>
+            </UFormField>
+
+            <UFormField :label="$t('settings.openai.label')" name="openAiApiKey">
+                <UInput v-model="openAiApiKey" type="password" icon="i-heroicons-sparkles" placeholder="sk-..." />
+                <template #help>
+                    <p>{{ $t('settings.openai.description') }}</p>
+                    <p class="mt-1 text-amber-600 dark:text-amber-400">{{ $t('settings.openai.privacy') }}</p>
                 </template>
             </UFormField>
 

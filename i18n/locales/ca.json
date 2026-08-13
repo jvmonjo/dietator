@@ -229,6 +229,11 @@
         "browser_usage": "Ús del navegador",
         "browser_quota": "Quota disponible"
       }
+    },
+    "openai": {
+      "label": "Clau API d’OpenAI",
+      "description": "Activa l’anàlisi millorada amb IA dels tiquets de despeses.",
+      "privacy": "Els tiquets escanejats s’enviaran a OpenAI per analitzar-los. La clau es desa només en aquest dispositiu."
     }
   },
   "home": {
@@ -570,7 +575,8 @@
       "location_searching": "Cercant ubicacions…",
       "location_autocomplete_error": "No s’han pogut carregar els suggeriments de Google Maps.",
       "location_hint": "Es pot escriure manualment, usar autocompletat de Google Maps o detectar la ubicació del dispositiu.",
-      "detect_location": "Detectar ubicació"
+      "detect_location": "Detectar ubicació",
+      "ticket_extract_hint_ai": "Analitza el tiquet amb OpenAI per detectar amb més precisió l’import, la data, la descripció i la ubicació."
     },
     "expense_list": {
       "title": "Despeses registrades",

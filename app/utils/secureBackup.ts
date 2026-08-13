@@ -10,6 +10,7 @@ interface SettingsSnapshot {
   serviceTemplate: TemplateFile | null
   exportTemplates: boolean
   googleMapsApiKey: string
+  openAiApiKey?: string
   firstName?: string
   lastName?: string
   nationalId?: string

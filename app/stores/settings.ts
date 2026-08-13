@@ -26,6 +26,7 @@ interface SettingsState {
   serviceTemplate: TemplateFile | null
   exportTemplates: boolean
   googleMapsApiKey: string
+  openAiApiKey: string
   firstName?: string
   lastName?: string
   nationalId?: string
@@ -43,6 +44,7 @@ export const useSettingsStore = defineStore('settings', {
     serviceTemplate: null,
     exportTemplates: false,
     googleMapsApiKey: '',
+    openAiApiKey: '',
     firstName: '',
     lastName: '',
     nationalId: '',
@@ -82,6 +84,7 @@ export const useSettingsStore = defineStore('settings', {
       if (settings.serviceTemplate || settings.serviceTemplate === null) this.serviceTemplate = settings.serviceTemplate
       if (typeof settings.exportTemplates === 'boolean') this.exportTemplates = settings.exportTemplates
       this.googleMapsApiKey = settings.googleMapsApiKey || ''
+      this.openAiApiKey = settings.openAiApiKey || ''
       this.firstName = settings.firstName || ''
       this.lastName = settings.lastName || ''
       this.nationalId = settings.nationalId || ''
