@@ -119,6 +119,7 @@ const buildSettingsPayload = (includeTemplates: boolean) => ({
     serviceTemplate: includeTemplates ? settingsStore.serviceTemplate : null,
     exportTemplates: includeTemplates,
     googleMapsApiKey: settingsStore.googleMapsApiKey,
+    openAiApiKey: settingsStore.openAiApiKey,
     firstName: settingsStore.firstName,
     lastName: settingsStore.lastName,
     nationalId: settingsStore.nationalId,

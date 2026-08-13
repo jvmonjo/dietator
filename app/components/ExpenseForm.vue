@@ -10,6 +10,7 @@ import {
   TicketProcessingError, MAX_TICKET_BYTES
 } from '~/utils/ticket'
 import { recognizeImages, parseReceiptText } from '~/utils/ocr'
+import { analyzeReceiptWithOpenAi } from '~/utils/openAiReceipt'
 import { renderPdfToImages } from '~/utils/pdf'
 import { EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY, resolveExpenseCategory, type ExpenseCategory } from '~/utils/expenseCategories'
 
@@ -25,6 +26,7 @@ const emit = defineEmits<{
 
 const toast = useToast()
 const expenseStore = useExpenseStore()
+const settingsStore = useSettingsStore()
 const { t } = useI18n()
 const { detectCurrentLocation, getLocationSuggestions, selectLocationSuggestion } = useExpenseLocation()
 
@@ -296,8 +298,9 @@ async function extractFromTicket() {
       : [state.ticket]
     if (images.length === 0) throw new Error('no_pages')
 
-    const text = await recognizeImages(images, (p) => { extractProgress.value = Math.round(p * 100) })
-    const parsed = parseReceiptText(text)
+    const parsed = settingsStore.openAiApiKey
+      ? await analyzeReceiptWithOpenAi(images, settingsStore.openAiApiKey)
+      : parseReceiptText(await recognizeImages(images, (p) => { extractProgress.value = Math.round(p * 100) }))
 
     const filled: string[] = []
     if (parsed.description && !state.description.trim()) {
@@ -558,7 +561,11 @@ const submitLabel = computed(() => isEditing.value
             ? $t('components.expense_form.ticket_extract_progress', { progress: extractProgress })
             : $t('components.expense_form.ticket_extract') }}
         </UButton>
-        <p class="text-xs text-gray-400 mt-1">{{ $t('components.expense_form.ticket_extract_hint') }}</p>
+        <p class="text-xs text-gray-400 mt-1">
+          {{ $t(settingsStore.openAiApiKey
+            ? 'components.expense_form.ticket_extract_hint_ai'
+            : 'components.expense_form.ticket_extract_hint') }}
+        </p>
       </div>
     </UFormField>
 

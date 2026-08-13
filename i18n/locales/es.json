@@ -229,6 +229,11 @@
         "browser_usage": "Uso del navegador",
         "browser_quota": "Cuota disponible"
       }
+    },
+    "openai": {
+      "label": "Clave API de OpenAI",
+      "description": "Activa el análisis mejorado con IA de los tickets de gastos.",
+      "privacy": "Los tickets escaneados se enviarán a OpenAI para analizarlos. La clave se guarda solo en este dispositivo."
     }
   },
   "home": {
@@ -572,7 +577,8 @@
       "location_searching": "Buscando ubicaciones…",
       "location_autocomplete_error": "No se han podido cargar las sugerencias de Google Maps.",
       "location_hint": "Se puede escribir manualmente, usar autocompletado de Google Maps o detectar la ubicación del dispositivo.",
-      "detect_location": "Detectar ubicación"
+      "detect_location": "Detectar ubicación",
+      "ticket_extract_hint_ai": "Analiza el ticket con OpenAI para detectar con mayor precisión el importe, la fecha, la descripción y la ubicación."
     },
     "expense_list": {
       "title": "Gastos registrados",

@@ -12,6 +12,7 @@ const formState = reactive({
   halfDietPrice: (settingsStore.halfDietPrice || 0) as number | string,
   fullDietPrice: (settingsStore.fullDietPrice || 0) as number | string,
   googleMapsApiKey: settingsStore.googleMapsApiKey || '',
+  openAiApiKey: settingsStore.openAiApiKey || '',
   firstName: settingsStore.firstName || '',
   lastName: settingsStore.lastName || '',
   nationalId: settingsStore.nationalId || '',
@@ -56,6 +57,7 @@ const saveSettings = async () => {
 
   settingsStore.$patch({
     googleMapsApiKey: formState.googleMapsApiKey,
+    openAiApiKey: formState.openAiApiKey,
     reminder: {
       day: formState.reminderDay,
       time: formState.reminderTime,
@@ -74,6 +76,7 @@ const hasChanges = computed(() => {
     halfDietPrice: Number(String(formState.halfDietPrice).replace(',', '.')) || 0,
     fullDietPrice: Number(String(formState.fullDietPrice).replace(',', '.')) || 0,
     googleMapsApiKey: formState.googleMapsApiKey,
+    openAiApiKey: formState.openAiApiKey,
     firstName: formState.firstName,
     lastName: formState.lastName,
     nationalId: formState.nationalId,
@@ -97,6 +100,7 @@ const hasChanges = computed(() => {
     halfDietPrice: settingsStore.halfDietPrice,
     fullDietPrice: settingsStore.fullDietPrice,
     googleMapsApiKey: settingsStore.googleMapsApiKey || '',
+    openAiApiKey: settingsStore.openAiApiKey || '',
     firstName: settingsStore.firstName || '',
     lastName: settingsStore.lastName || '',
     nationalId: settingsStore.nationalId || '',
@@ -134,6 +138,7 @@ const onBackupImported = () => {
   formState.halfDietPrice = settingsStore.halfDietPrice || 0
   formState.fullDietPrice = settingsStore.fullDietPrice || 0
   formState.googleMapsApiKey = settingsStore.googleMapsApiKey || ''
+  formState.openAiApiKey = settingsStore.openAiApiKey || ''
   formState.firstName = settingsStore.firstName || ''
   formState.lastName = settingsStore.lastName || ''
   formState.nationalId = settingsStore.nationalId || ''
@@ -177,6 +182,7 @@ v-model:first-name="formState.firstName" v-model:last-name="formState.lastName"
     <!-- Integrations -->
     <SettingsIntegrations
 v-model:google-maps-api-key="formState.googleMapsApiKey"
+      v-model:open-ai-api-key="formState.openAiApiKey"
       v-model:google-calendar-id="formState.googleCalendarId" @save="saveSettings" />
 
     <!-- Templates -->
