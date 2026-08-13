@@ -1,3 +1,10 @@
+# [1.58.0](https://github.com/jvmonjo/dietator/compare/v1.57.0...v1.58.0) (2026-08-13)
+
+
+### Features
+
+* **expenses:** add OpenAI receipt scanning ([7f69d7a](https://github.com/jvmonjo/dietator/commit/7f69d7a16733351d55bd5ce74415e2e5c091ae18))
+
 # [1.57.0](https://github.com/jvmonjo/dietator/compare/v1.56.0...v1.57.0) (2026-07-06)
 
 
