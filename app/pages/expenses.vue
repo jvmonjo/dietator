@@ -359,8 +359,7 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
       <UButton
         icon="i-heroicons-plus" color="primary" size="xl" square
         :aria-label="$t('components.expense_list.actions')"
-        class="fixed right-4 z-40 rounded-full shadow-xl sm:right-6"
-        :style="{ bottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem))' }" />
+        class="page-floating-action fixed right-4 z-40 rounded-full shadow-xl sm:right-6" />
     </UDropdownMenu>
   </div>
 </template>

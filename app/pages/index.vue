@@ -557,8 +557,7 @@ v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
       <UButton
         icon="i-heroicons-plus" color="primary" size="xl" square
         :aria-label="$t('components.service_list.actions')"
-        class="fixed right-4 z-40 rounded-full shadow-xl sm:right-6"
-        :style="{ bottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem))' }" />
+        class="page-floating-action fixed right-4 z-40 rounded-full shadow-xl sm:right-6" />
     </UDropdownMenu>
 
   </div>

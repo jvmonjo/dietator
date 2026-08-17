@@ -1,6 +1,18 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* Page-level floating actions sit above the 4rem mobile bottom navigation and
+   the device safe area. On desktop there is no bottom navigation. */
+.page-floating-action {
+    bottom: calc(env(safe-area-inset-bottom) + 5rem);
+}
+
+@media (min-width: 48rem) {
+    .page-floating-action {
+        bottom: 1.5rem;
+    }
+}
+
 @theme static {
     --color-dietator-50: #fffee7;
     --color-dietator-100: #fffcc3;

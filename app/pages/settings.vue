@@ -198,8 +198,7 @@ v-model:reminder-day="formState.reminderDay" v-model:reminder-time="formState.re
 
     <UButton
       icon="i-heroicons-check-circle" color="primary" size="xl"
-      class="fixed right-4 z-40 rounded-full shadow-xl sm:right-6"
-      :style="{ bottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem))' }"
+      class="page-floating-action fixed right-4 z-40 rounded-full shadow-xl sm:right-6"
       @click="saveSettings">
       {{ $t('settings.save') }}
     </UButton>
