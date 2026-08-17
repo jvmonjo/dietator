@@ -1,3 +1,10 @@
+## [1.59.1](https://github.com/jvmonjo/dietator/compare/v1.59.0...v1.59.1) (2026-08-17)
+
+
+### Bug Fixes
+
+* floating buttons not appearing in mobile ([6753c0a](https://github.com/jvmonjo/dietator/commit/6753c0a039505e91409b26e18b4095f3630d4f54))
+
 # [1.59.0](https://github.com/jvmonjo/dietator/compare/v1.58.1...v1.59.0) (2026-08-17)
 
 
