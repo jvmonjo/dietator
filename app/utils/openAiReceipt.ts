@@ -2,6 +2,25 @@ import type { ParsedReceipt } from '~/utils/ocr'
 
 interface OpenAiResponse {
   output_text?: string
+  output?: Array<{
+    content?: Array<{
+      type?: string
+      text?: string
+    }>
+  }>
+}
+
+const getOutputText = (response: OpenAiResponse): string | undefined => {
+  if (response.output_text?.trim()) return response.output_text
+
+  const text = response.output
+    ?.flatMap(item => item.content ?? [])
+    .filter(content => content.type === 'output_text')
+    .map(content => content.text ?? '')
+    .join('')
+    .trim()
+
+  return text || undefined
 }
 
 const parseResponse = (value: string): ParsedReceipt => {
@@ -46,6 +65,7 @@ export async function analyzeReceiptWithOpenAi(images: string[], apiKey: string)
 
   if (!response.ok) throw new Error(`openai_${response.status}`)
   const result = await response.json() as OpenAiResponse
-  if (!result.output_text) throw new Error('empty_openai_response')
-  return parseResponse(result.output_text)
+  const outputText = getOutputText(result)
+  if (!outputText) throw new Error('empty_openai_response')
+  return parseResponse(outputText)
 }
