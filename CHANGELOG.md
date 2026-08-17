@@ -1,3 +1,11 @@
+# [1.59.0](https://github.com/jvmonjo/dietator/compare/v1.58.1...v1.59.0) (2026-08-17)
+
+
+### Features
+
+* **expense:** add floating buttons and enhance receipt date handling ([93eee02](https://github.com/jvmonjo/dietator/commit/93eee02b3185cc0916150e3d5e7c991d1bb3f20f))
+* **receipt:** enhance receipt processing with category handling and localization updates ([8bc7812](https://github.com/jvmonjo/dietator/commit/8bc78129a1d50a8a5207440d19b6cab09e582453))
+
 ## [1.58.1](https://github.com/jvmonjo/dietator/compare/v1.58.0...v1.58.1) (2026-08-17)
 
 
