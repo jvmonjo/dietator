@@ -11,11 +11,13 @@ const props = withDefaults(defineProps<{
   description?: string
   archiveDateRange?: string
   expenses?: ExpenseRecord[]
+  showAddButton?: boolean
 }>(), {
   title: undefined,
   description: undefined,
   archiveDateRange: undefined,
-  expenses: () => []
+  expenses: () => [],
+  showAddButton: true
 })
 
 const { t, locale } = useI18n()
@@ -302,7 +304,8 @@ const rowActions = (expense: ExpenseRecord) => {
 
 defineExpose({
   openExpense,
-  openNewExpense
+  openNewExpense,
+  openQrScanner: handleOpenScanner
 })
 </script>
 
@@ -341,10 +344,14 @@ defineExpose({
               :padded="false" @click="locationQuery = ''" />
           </template>
         </UInput>
-        <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="openNewExpense">
+        <UButton
+          v-if="showAddButton" icon="i-heroicons-plus" color="primary" variant="soft"
+          @click="openNewExpense">
           {{ $t('components.expense_list.add') }}
         </UButton>
-        <UButton icon="i-heroicons-qr-code" color="neutral" variant="solid" @click="handleOpenScanner">
+        <UButton
+          v-if="showAddButton" icon="i-heroicons-qr-code" color="neutral" variant="solid"
+          @click="handleOpenScanner">
           {{ $t('components.expense_list.import') }}
         </UButton>
       </div>
@@ -450,8 +457,8 @@ defineExpose({
       <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" @click="closeModal" />
 
       <div
-        class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col">
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+        class="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-900">
+        <div class="flex shrink-0 items-center justify-between border-b border-gray-200 p-4 dark:border-gray-800">
           <div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ modalTitle }}</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ modalDescription }}</p>
@@ -459,7 +466,7 @@ defineExpose({
           <UButton icon="i-heroicons-x-mark-20-solid" color="neutral" variant="ghost" @click="closeModal" />
         </div>
 
-        <div class="p-6">
+        <div class="min-h-0 flex-1 overflow-y-auto p-6">
           <ExpenseForm :initial-data="selectedExpense" @saved="handleSaved" />
         </div>
       </div>

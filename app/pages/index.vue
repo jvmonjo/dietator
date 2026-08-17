@@ -270,6 +270,15 @@ const dismissWelcome = () => {
 }
 
 const serviceListRef = ref()
+const serviceFloatingActions = computed(() => [{
+  label: t('components.service_list.add'),
+  icon: 'i-heroicons-plus',
+  onSelect: () => serviceListRef.value?.openNewService()
+}, {
+  label: t('components.service_list.import_qr'),
+  icon: 'i-heroicons-qr-code',
+  onSelect: () => serviceListRef.value?.openQrScanner()
+}])
 
 const handleRecordSelected = (record: ServiceRecord) => {
   if (serviceListRef.value) {
@@ -395,7 +404,7 @@ v-if="!dietPriceSet" color="warning" icon="i-heroicons-exclamation-triangle" var
     <!-- Registered Services -->
     <section>
       <ServiceList
-ref="serviceListRef" :title="$t('home.stats.services')" :description="serviceListDescription"
+ref="serviceListRef" :show-add-button="false" :title="$t('home.stats.services')" :description="serviceListDescription"
         :records="selectedRecords" />
     </section>
 
@@ -542,6 +551,15 @@ v-if="new Date().getMonth() >= 10 || new Date().getMonth() <= 1"
         </div>
       </UCard>
     </section>
+
+    <UDropdownMenu
+      :items="serviceFloatingActions" :content="{ side: 'top', align: 'end', sideOffset: 10 }">
+      <UButton
+        icon="i-heroicons-plus" color="primary" size="xl" square
+        :aria-label="$t('components.service_list.actions')"
+        class="fixed right-4 z-40 rounded-full shadow-xl sm:right-6"
+        :style="{ bottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem))' }" />
+    </UDropdownMenu>
 
   </div>
 </template>

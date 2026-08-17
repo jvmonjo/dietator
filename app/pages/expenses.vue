@@ -11,6 +11,19 @@ const { expenses } = storeToRefs(expenseStore)
 const { records: serviceRecords } = storeToRefs(serviceStore)
 const { t, locale } = useI18n()
 const { getRecordsForMonth, calculateTotals } = useServiceStats()
+const expenseListRef = ref<{
+  openNewExpense: () => void
+  openQrScanner: () => void
+} | null>(null)
+const expenseFloatingActions = computed(() => [{
+  label: t('components.expense_list.add'),
+  icon: 'i-heroicons-plus',
+  onSelect: () => expenseListRef.value?.openNewExpense()
+}, {
+  label: t('components.expense_list.import_qr'),
+  icon: 'i-heroicons-qr-code',
+  onSelect: () => expenseListRef.value?.openQrScanner()
+}])
 
 const months = computed(() => [
   { value: 0, label: t('months.0') },
@@ -262,6 +275,7 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
     <!-- Expense List (just below the calendar) -->
     <section>
       <ExpenseList
+        ref="expenseListRef" :show-add-button="false"
         :title="$t('expenses.list_title')" :description="expenseListDescription"
         :archive-date-range="selectedArchiveDateRange"
         :expenses="listExpenses" />
@@ -339,5 +353,14 @@ const calendarMonth = computed(() => showAllMonths.value ? new Date().getMonth()
         </div>
       </UCard>
     </section>
+
+    <UDropdownMenu
+      :items="expenseFloatingActions" :content="{ side: 'top', align: 'end', sideOffset: 10 }">
+      <UButton
+        icon="i-heroicons-plus" color="primary" size="xl" square
+        :aria-label="$t('components.expense_list.actions')"
+        class="fixed right-4 z-40 rounded-full shadow-xl sm:right-6"
+        :style="{ bottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem))' }" />
+    </UDropdownMenu>
   </div>
 </template>

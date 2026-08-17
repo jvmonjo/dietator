@@ -27,15 +27,20 @@ const getOutputText = (response: OpenAiResponse): string | undefined => {
 const parseResponse = (value: string): ParsedReceipt => {
   const json = value.replace(/^```json\s*|\s*```$/g, '').trim()
   const data = JSON.parse(json) as Record<string, unknown>
+  const date = typeof data.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.date)
+    ? data.date
+    : undefined
+  const time = typeof data.time === 'string' && /^\d{2}:\d{2}$/.test(data.time)
+    ? data.time
+    : undefined
   const category = typeof data.category === 'string' && EXPENSE_CATEGORIES.includes(data.category as ExpenseCategory)
     ? data.category as ExpenseCategory
     : undefined
 
   return {
     amount: typeof data.amount === 'number' && Number.isFinite(data.amount) ? data.amount : undefined,
-    dateTime: typeof data.dateTime === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(data.dateTime)
-      ? data.dateTime
-      : undefined,
+    date,
+    dateTime: date && time ? `${date}T${time}` : undefined,
     description: typeof data.description === 'string' ? data.description.trim() || undefined : undefined,
     location: typeof data.location === 'string' ? data.location.trim() || undefined : undefined,
     category
@@ -60,7 +65,7 @@ export async function analyzeReceiptWithOpenAi(images: string[], apiKey: string)
         content: [
           {
             type: 'input_text',
-            text: 'Extract this receipt as JSON only with keys amount (number or null), dateTime (local YYYY-MM-DDTHH:mm or null), description (short merchant or expense concept), location (address or place, or null), and category. Category must be one of: diet for meals, food or drinks; parking for parking expenses; gas for fuel; tolls for road tolls; other for expenses that clearly do not match the previous categories; or null when it cannot be determined. Do not guess unreadable values.'
+            text: 'Extract this receipt as JSON only with keys amount (number or null), date (local YYYY-MM-DD or null), time (local HH:mm or null), description (short merchant or expense concept), location (address or place, or null), and category. Return time as null unless a purchase or transaction time is explicitly printed on the receipt; never invent 00:00 and never infer a time from the filename or PDF metadata. Category must be one of: diet for meals, food or drinks; parking for parking expenses; gas for fuel; tolls for road tolls; other for expenses that clearly do not match the previous categories; or null when it cannot be determined. Do not guess unreadable values.'
           },
           ...images.map(imageUrl => ({ type: 'input_image', image_url: imageUrl }))
         ]

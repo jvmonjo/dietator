@@ -312,8 +312,13 @@ async function extractFromTicket() {
       filled.push(t('components.expense_form.amount'))
     }
     // Only override the date for a brand-new expense (it defaults to "now").
+    // If the receipt does not print a time, preserve the form's current time.
     if (parsed.dateTime && !isEditing.value) {
       state.dateTime = parsed.dateTime
+      filled.push(t('components.expense_form.date'))
+    } else if (parsed.date && !isEditing.value) {
+      const currentTime = state.dateTime.split('T')[1] || formatLocalNow().split('T')[1]
+      state.dateTime = `${parsed.date}T${currentTime}`
       filled.push(t('components.expense_form.date'))
     }
     if (parsed.location && !state.locationLabel.trim()) {
@@ -442,7 +447,93 @@ const submitLabel = computed(() => isEditing.value
 </script>
 
 <template>
-  <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
+  <UForm :schema="schema" :state="state" class="flex flex-col gap-6" @submit="onSubmit">
+    <!-- Uploading the receipt is the usual first step, so keep this section
+         first in both the visual and keyboard navigation order. -->
+    <UFormField
+      name="ticket"
+      class="rounded-2xl border-2 border-primary-300 bg-primary-50/70 p-5 shadow-sm
+             dark:border-primary-800 dark:bg-primary-950/25">
+      <div class="mb-4 flex items-start gap-3">
+        <span
+          class="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-500
+                 font-bold text-white shadow-sm">1</span>
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white">
+            {{ $t('components.expense_form.ticket_step_title') }}
+          </h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">
+            {{ $t('components.expense_form.ticket_step_description') }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Hidden native inputs drive both the file picker and the camera. -->
+      <input
+        ref="uploadInput" type="file" accept="image/*,application/pdf" class="hidden"
+        @change="onTicketSelected">
+      <input
+        ref="cameraInput" type="file" accept="image/*" capture="environment" class="hidden"
+        @change="onTicketSelected">
+
+      <div v-if="!state.ticket && !state.ticketId" class="flex flex-wrap gap-3">
+        <UButton
+          icon="i-heroicons-arrow-up-tray" color="primary" variant="solid" size="lg"
+          :loading="isProcessingTicket" @click="triggerUpload">
+          {{ $t('components.expense_form.ticket_upload') }}
+        </UButton>
+        <UButton
+          icon="i-heroicons-camera" color="neutral" variant="outline" size="lg"
+          :loading="isProcessingTicket" @click="triggerCamera">
+          {{ $t('components.expense_form.ticket_camera') }}
+        </UButton>
+      </div>
+
+      <div
+        v-else
+        class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-800">
+        <img
+          v-if="ticketIsImage && state.ticket" :src="state.ticket" alt="ticket"
+          class="h-16 w-16 cursor-pointer rounded object-cover" @click="viewTicket">
+        <UIcon v-else name="i-heroicons-document" class="h-10 w-10 text-gray-400" />
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm text-gray-700 dark:text-gray-300">{{ state.ticketName }}</p>
+          <div class="flex items-center gap-2 text-xs">
+            <span v-if="ticketSize" class="text-gray-400">{{ ticketSize }}</span>
+            <button
+              type="button" class="text-primary-500 hover:underline disabled:text-gray-400 disabled:no-underline"
+              :disabled="!state.ticket" @click="viewTicket">
+              {{ $t('components.expense_form.ticket_view') }}
+            </button>
+          </div>
+        </div>
+        <UButton
+          v-if="ticketIsImage" icon="i-heroicons-scissors" color="neutral" variant="ghost" size="xs"
+          :aria-label="$t('components.expense_form.ticket_edit')" @click="editTicket" />
+        <UButton
+          icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
+          :aria-label="$t('components.expense_form.ticket_remove')" @click="removeTicket" />
+      </div>
+
+      <!-- OCR: extract the expense fields from the attached image or PDF. -->
+      <div
+        v-if="state.ticket && (ticketIsImage || ticketIsPdf)"
+        class="mt-4 rounded-xl border border-primary-200 bg-white/80 p-3 dark:border-primary-900 dark:bg-gray-900/60">
+        <UButton
+          icon="i-heroicons-sparkles" color="primary" variant="solid" size="lg" block
+          :loading="isExtracting" @click="extractFromTicket">
+          {{ isExtracting && extractProgress > 0
+            ? $t('components.expense_form.ticket_extract_progress', { progress: extractProgress })
+            : $t('components.expense_form.ticket_extract') }}
+        </UButton>
+        <p class="mt-1 text-xs text-gray-400">
+          {{ $t(settingsStore.openAiApiKey
+            ? 'components.expense_form.ticket_extract_hint_ai'
+            : 'components.expense_form.ticket_extract_hint') }}
+        </p>
+      </div>
+    </UFormField>
+
     <UFormField :label="$t('components.expense_form.description')" name="description" required>
       <UInput
         v-model="state.description" icon="i-heroicons-document-text"
@@ -510,73 +601,6 @@ const submitLabel = computed(() => isEditing.value
       <template #help>{{ $t('components.expense_form.location_hint') }}</template>
     </UFormField>
 
-    <UFormField :label="$t('components.expense_form.ticket')" name="ticket">
-      <p class="text-xs text-gray-400 mb-2">{{ $t('components.expense_form.ticket_hint') }}</p>
-
-      <!-- Hidden native inputs drive both the file picker and the camera. -->
-      <input
-        ref="uploadInput" type="file" accept="image/*,application/pdf" class="hidden"
-        @change="onTicketSelected">
-      <input
-        ref="cameraInput" type="file" accept="image/*" capture="environment" class="hidden"
-        @change="onTicketSelected">
-
-      <div v-if="!state.ticket && !state.ticketId" class="flex flex-wrap gap-3">
-        <UButton
-          icon="i-heroicons-arrow-up-tray" color="neutral" variant="outline"
-          :loading="isProcessingTicket" @click="triggerUpload">
-          {{ $t('components.expense_form.ticket_upload') }}
-        </UButton>
-        <UButton
-          icon="i-heroicons-camera" color="neutral" variant="outline"
-          :loading="isProcessingTicket" @click="triggerCamera">
-          {{ $t('components.expense_form.ticket_camera') }}
-        </UButton>
-      </div>
-
-      <div
-        v-else
-        class="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-800 p-3">
-        <img
-          v-if="ticketIsImage && state.ticket" :src="state.ticket" alt="ticket"
-          class="h-16 w-16 rounded object-cover cursor-pointer" @click="viewTicket">
-        <UIcon v-else name="i-heroicons-document" class="h-10 w-10 text-gray-400" />
-        <div class="min-w-0 flex-1">
-          <p class="truncate text-sm text-gray-700 dark:text-gray-300">{{ state.ticketName }}</p>
-          <div class="flex items-center gap-2 text-xs">
-            <span v-if="ticketSize" class="text-gray-400">{{ ticketSize }}</span>
-            <button
-              type="button" class="text-primary-500 hover:underline disabled:text-gray-400 disabled:no-underline"
-              :disabled="!state.ticket" @click="viewTicket">
-              {{ $t('components.expense_form.ticket_view') }}
-            </button>
-          </div>
-        </div>
-        <UButton
-          v-if="ticketIsImage" icon="i-heroicons-scissors" color="neutral" variant="ghost" size="xs"
-          :aria-label="$t('components.expense_form.ticket_edit')" @click="editTicket" />
-        <UButton
-          icon="i-heroicons-trash" color="error" variant="ghost" size="xs"
-          :aria-label="$t('components.expense_form.ticket_remove')" @click="removeTicket" />
-      </div>
-
-      <!-- OCR: extract the expense fields from the attached image or PDF. -->
-      <div v-if="state.ticket && (ticketIsImage || ticketIsPdf)" class="mt-3">
-        <UButton
-          icon="i-heroicons-sparkles" color="primary" variant="soft" size="sm"
-          :loading="isExtracting" @click="extractFromTicket">
-          {{ isExtracting && extractProgress > 0
-            ? $t('components.expense_form.ticket_extract_progress', { progress: extractProgress })
-            : $t('components.expense_form.ticket_extract') }}
-        </UButton>
-        <p class="text-xs text-gray-400 mt-1">
-          {{ $t(settingsStore.openAiApiKey
-            ? 'components.expense_form.ticket_extract_hint_ai'
-            : 'components.expense_form.ticket_extract_hint') }}
-        </p>
-      </div>
-    </UFormField>
-
     <TicketCropperModal
       v-model:open="isCropOpen" :src="cropSrc"
       @confirm="onCropConfirm" @cancel="onCropCancel" />
@@ -585,7 +609,9 @@ const submitLabel = computed(() => isEditing.value
       v-model:open="isViewerOpen" :src="state.ticket || null"
       :name="state.ticketName" :type="state.ticketType" />
 
-    <div class="pt-2">
+    <div
+      class="sticky bottom-0 z-20 -mx-6 -mb-6 border-t border-gray-200 bg-white/95 p-4
+             shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
       <UButton type="submit" block size="xl" :loading="isLoading">
         {{ submitLabel }}
       </UButton>

@@ -13,6 +13,8 @@ const OCR_LANGS = 'spa+eng'
 
 export interface ParsedReceipt {
   amount?: number
+  // A date may be available even when the receipt does not print a time.
+  date?: string
   // Local datetime-local value (YYYY-MM-DDTHH:mm) ready for the form input.
   dateTime?: string
   description?: string

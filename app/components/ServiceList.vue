@@ -10,12 +10,14 @@ const props = withDefaults(defineProps<{
   enableEdit?: boolean
   enableDelete?: boolean
   records?: ServiceRecord[]
+  showAddButton?: boolean
 }>(), {
   title: undefined,
   description: undefined,
   enableEdit: true,
   enableDelete: true,
-  records: () => []
+  records: () => [],
+  showAddButton: true
 })
 
 const { t } = useI18n()
@@ -243,7 +245,8 @@ const getDietAbbreviation = (displacement: Displacement) => {
 
 defineExpose({
   openRecord,
-  openNewService
+  openNewService,
+  openQrScanner: handleOpenScanner
 })
 </script>
 
@@ -271,10 +274,14 @@ v-if="searchQuery" color="neutral" variant="link" icon="i-heroicons-x-mark-20-so
           </template>
         </UInput>
         <div class="flex items-center gap-3">
-          <UButton icon="i-heroicons-plus" color="primary" variant="soft" @click="() => openNewService()">
+          <UButton
+            v-if="showAddButton" icon="i-heroicons-plus" color="primary" variant="soft"
+            @click="() => openNewService()">
             {{ $t('components.service_list.add') }}
           </UButton>
-          <UButton icon="i-heroicons-qr-code" color="neutral" variant="solid" @click="handleOpenScanner">
+          <UButton
+            v-if="showAddButton" icon="i-heroicons-qr-code" color="neutral" variant="solid"
+            @click="handleOpenScanner">
             {{ $t('components.service_list.import') }}
           </UButton>
         </div>
@@ -367,9 +374,9 @@ v-model="itemsPerPage" :items="pageOptions" option-attribute="label" value-attri
 
       <!-- Modal Content -->
       <div
-        class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col">
+        class="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-900">
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex shrink-0 items-center justify-between border-b border-gray-200 p-4 dark:border-gray-800">
           <div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
               {{ modalTitle }}
@@ -389,7 +396,7 @@ v-if="selectedRecord && !isDuplicateMode" icon="i-heroicons-qr-code" size="md" c
         </div>
 
         <!-- Body -->
-        <div class="p-6">
+        <div class="min-h-0 flex-1 overflow-y-auto p-6">
           <ServiceForm
 v-if="selectedRecord || !selectedRecord" :initial-data="selectedRecord"
             :initial-date="selectedDate" :initial-notes="selectedNotes" :initial-start-time="selectedStartTime"

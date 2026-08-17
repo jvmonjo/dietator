@@ -153,15 +153,12 @@ const onBackupImported = () => {
 
 <template>
   <div class="max-w-2xl mx-auto space-y-6">
-    <div class="flex items-start justify-between gap-4">
-      <div class="border-b border-gray-200 dark:border-gray-800 pb-6">
+    <div class="border-b border-gray-200 pb-6 dark:border-gray-800">
+      <div>
         <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $t('settings.title') }}</h1>
         <p class="text-gray-500 dark:text-gray-400 mt-2">
           {{ $t('settings.description') }}
         </p>
-      </div>
-      <div class="flex gap-2">
-        <UButton icon="i-heroicons-check-circle" @click="saveSettings">{{ $t('settings.save') }}</UButton>
       </div>
     </div>
 
@@ -198,6 +195,14 @@ v-model:reminder-day="formState.reminderDay" v-model:reminder-time="formState.re
 
     <!-- Maintenance -->
     <SettingsMaintenance />
+
+    <UButton
+      icon="i-heroicons-check-circle" color="primary" size="xl"
+      class="fixed right-4 z-40 rounded-full shadow-xl sm:right-6"
+      :style="{ bottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem))' }"
+      @click="saveSettings">
+      {{ $t('settings.save') }}
+    </UButton>
 
   </div>
 </template>

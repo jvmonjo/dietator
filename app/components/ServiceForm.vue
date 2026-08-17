@@ -340,7 +340,9 @@ v-if="settingsStore.habitualRoute && settingsStore.habitualRoute.length > 0" var
     <!-- Displacements List -->
     <DisplacementListEditor v-model="state.displacements" :provinces="provinces" />
 
-    <div class="pt-4">
+    <div
+      class="sticky bottom-0 z-20 -mx-6 -mb-6 border-t border-gray-200 bg-white/95 p-4
+             shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
       <UButton type="submit" block size="xl" :loading="isLoading">
         {{ submitLabel }}
       </UButton>
