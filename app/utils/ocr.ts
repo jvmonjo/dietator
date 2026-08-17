@@ -5,6 +5,8 @@
 // tesseract.js is heavy and downloads a language model on first use, so it is
 // imported lazily — only when the user explicitly asks to scan a ticket.
 
+import type { ExpenseCategory } from '~/utils/expenseCategories'
+
 // Languages to load. Spanish + English cover most receipts in Spain; numbers
 // and dates are largely language-agnostic.
 const OCR_LANGS = 'spa+eng'
@@ -15,6 +17,7 @@ export interface ParsedReceipt {
   dateTime?: string
   description?: string
   location?: string
+  category?: ExpenseCategory
 }
 
 // Recognise the combined text of one or more images, reusing a single worker.

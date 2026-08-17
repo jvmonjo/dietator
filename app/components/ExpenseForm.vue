@@ -12,7 +12,7 @@ import {
 import { recognizeImages, parseReceiptText } from '~/utils/ocr'
 import { analyzeReceiptWithOpenAi } from '~/utils/openAiReceipt'
 import { renderPdfToImages } from '~/utils/pdf'
-import { EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY, resolveExpenseCategory, type ExpenseCategory } from '~/utils/expenseCategories'
+import { EXPENSE_CATEGORIES, resolveExpenseCategory, type ExpenseCategory } from '~/utils/expenseCategories'
 
 const props = withDefaults(defineProps<{
   initialData?: ExpenseRecord | null
@@ -44,8 +44,8 @@ const state = reactive({
   ticketName: undefined as string | undefined,
   ticketType: undefined as string | undefined,
   ticketSize: undefined as number | undefined,
-  // Expense category; only "diet" counts toward the net balance.
-  category: DEFAULT_EXPENSE_CATEGORY as ExpenseCategory,
+  // No category is preselected for new expenses. Receipt AI or the user sets it.
+  category: undefined as ExpenseCategory | undefined,
   locationLabel: '',
   location: undefined as ExpenseRecord['location']
 })
@@ -320,6 +320,10 @@ async function extractFromTicket() {
       setLocation({ label: parsed.location })
       filled.push(t('components.expense_form.location'))
     }
+    if (parsed.category && !state.category) {
+      state.category = parsed.category
+      filled.push(t('components.expense_form.category'))
+    }
 
     if (filled.length > 0) {
       toast.add({
@@ -342,7 +346,11 @@ const schema = computed(() => z.object({
   description: z.string().min(1, t('components.expense_form.validation.description_required')),
   dateTime: z.string().min(1, t('components.expense_form.validation.date_required')),
   amount: z.number({ message: t('components.expense_form.validation.amount_required') })
-    .positive(t('components.expense_form.validation.amount_positive'))
+    .positive(t('components.expense_form.validation.amount_positive')),
+  category: z.custom<ExpenseCategory>(
+    value => EXPENSE_CATEGORIES.includes(value as ExpenseCategory),
+    { message: t('components.expense_form.validation.category_required') }
+  )
 }))
 
 const formatLocalNow = () => utcToLocalInput(new Date().toISOString())
@@ -370,7 +378,7 @@ const resetState = () => {
     state.ticketName = undefined
     state.ticketType = undefined
     state.ticketSize = undefined
-    state.category = DEFAULT_EXPENSE_CATEGORY
+    state.category = undefined
     setLocation(undefined)
   }
 }
@@ -388,7 +396,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       description: event.data.description.trim(),
       timestamp: localInputToUtc(event.data.dateTime),
       amount: event.data.amount,
-      category: state.category,
+      category: event.data.category,
       ...(state.location ? { location: state.location } : {}),
       ...(state.ticket || state.ticketId
         ? {
@@ -453,10 +461,10 @@ const submitLabel = computed(() => isEditing.value
       </UFormField>
     </div>
 
-    <UFormField :label="$t('components.expense_form.category')" name="category">
+    <UFormField :label="$t('components.expense_form.category')" name="category" required>
       <USelect
         v-model="state.category" :items="categoryItems" option-attribute="label" value-attribute="value"
-        icon="i-heroicons-tag" class="w-full" />
+        icon="i-heroicons-tag" :placeholder="$t('components.expense_form.category_placeholder')" class="w-full" />
       <template #help>{{ $t('components.expense_form.category_hint') }}</template>
     </UFormField>
 

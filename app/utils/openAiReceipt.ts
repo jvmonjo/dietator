@@ -1,4 +1,5 @@
 import type { ParsedReceipt } from '~/utils/ocr'
+import { EXPENSE_CATEGORIES, type ExpenseCategory } from '~/utils/expenseCategories'
 
 interface OpenAiResponse {
   output_text?: string
@@ -26,6 +27,9 @@ const getOutputText = (response: OpenAiResponse): string | undefined => {
 const parseResponse = (value: string): ParsedReceipt => {
   const json = value.replace(/^```json\s*|\s*```$/g, '').trim()
   const data = JSON.parse(json) as Record<string, unknown>
+  const category = typeof data.category === 'string' && EXPENSE_CATEGORIES.includes(data.category as ExpenseCategory)
+    ? data.category as ExpenseCategory
+    : undefined
 
   return {
     amount: typeof data.amount === 'number' && Number.isFinite(data.amount) ? data.amount : undefined,
@@ -33,7 +37,8 @@ const parseResponse = (value: string): ParsedReceipt => {
       ? data.dateTime
       : undefined,
     description: typeof data.description === 'string' ? data.description.trim() || undefined : undefined,
-    location: typeof data.location === 'string' ? data.location.trim() || undefined : undefined
+    location: typeof data.location === 'string' ? data.location.trim() || undefined : undefined,
+    category
   }
 }
 
@@ -55,7 +60,7 @@ export async function analyzeReceiptWithOpenAi(images: string[], apiKey: string)
         content: [
           {
             type: 'input_text',
-            text: 'Extract this receipt as JSON only with keys amount (number or null), dateTime (local YYYY-MM-DDTHH:mm or null), description (short merchant or expense concept), and location (address or place, or null). Do not guess unreadable values.'
+            text: 'Extract this receipt as JSON only with keys amount (number or null), dateTime (local YYYY-MM-DDTHH:mm or null), description (short merchant or expense concept), location (address or place, or null), and category. Category must be one of: diet for meals, food or drinks; parking for parking expenses; gas for fuel; tolls for road tolls; other for expenses that clearly do not match the previous categories; or null when it cannot be determined. Do not guess unreadable values.'
           },
           ...images.map(imageUrl => ({ type: 'input_image', image_url: imageUrl }))
         ]

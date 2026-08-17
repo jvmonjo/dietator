@@ -532,6 +532,7 @@
       "date": "Data i hora",
       "amount": "Import (€)",
       "category": "Categoria",
+      "category_placeholder": "Selecciona una categoria",
       "category_hint": "Només les despeses de Dieta descompten del balanç; la resta es registren a part.",
       "ticket": "Tiquet (opcional)",
       "ticket_hint": "Adjunta una foto o un fitxer del comprovant",
@@ -551,7 +552,8 @@
         "description_required": "La descripció és obligatòria",
         "date_required": "La data és obligatòria",
         "amount_required": "L'import és obligatori",
-        "amount_positive": "L'import ha de ser superior a 0"
+        "amount_positive": "L'import ha de ser superior a 0",
+        "category_required": "La categoria és obligatòria"
       },
       "alerts": {
         "saved": "Despesa desada correctament",
@@ -576,7 +578,7 @@
       "location_autocomplete_error": "No s’han pogut carregar els suggeriments de Google Maps.",
       "location_hint": "Es pot escriure manualment, usar autocompletat de Google Maps o detectar la ubicació del dispositiu.",
       "detect_location": "Detectar ubicació",
-      "ticket_extract_hint_ai": "Analitza el tiquet amb OpenAI per detectar amb més precisió l’import, la data, la descripció i la ubicació."
+      "ticket_extract_hint_ai": "Analitza el tiquet amb OpenAI per detectar amb més precisió l’import, la data, la descripció, la categoria i la ubicació."
     },
     "expense_list": {
       "title": "Despeses registrades",

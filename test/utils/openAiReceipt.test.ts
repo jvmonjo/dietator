@@ -10,7 +10,7 @@ describe('analyzeReceiptWithOpenAi', () => {
         type: 'message',
         content: [{
           type: 'output_text',
-          text: '{"amount":12.5,"dateTime":"2026-08-13T14:30","description":"Cafeteria","location":null}'
+          text: '{"amount":12.5,"dateTime":"2026-08-13T14:30","description":"Cafeteria","location":null,"category":"diet"}'
         }]
       }]
     }), { status: 200 }))
@@ -19,9 +19,12 @@ describe('analyzeReceiptWithOpenAi', () => {
       amount: 12.5,
       dateTime: '2026-08-13T14:30',
       description: 'Cafeteria',
-      location: undefined
+      location: undefined,
+      category: 'diet'
     })
     expect(fetchMock).toHaveBeenCalledWith('https://api.openai.com/v1/responses', expect.objectContaining({ method: 'POST' }))
+    const request = fetchMock.mock.calls[0]?.[1]
+    expect(JSON.parse(String(request?.body)).input[0].content[0].text).toContain('Category must be one of')
   })
 
   it('supports the SDK-style output_text convenience field', async () => {
@@ -33,7 +36,19 @@ describe('analyzeReceiptWithOpenAi', () => {
       amount: 8,
       dateTime: undefined,
       description: 'Bakery',
-      location: 'Palma'
+      location: 'Palma',
+      category: undefined
+    })
+  })
+
+  it('ignores categories outside the supported values', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      output_text: '{"amount":20,"category":"restaurant"}'
+    }), { status: 200 }))
+
+    await expect(analyzeReceiptWithOpenAi(['image'], 'sk-test')).resolves.toMatchObject({
+      amount: 20,
+      category: undefined
     })
   })
 

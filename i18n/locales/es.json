@@ -534,6 +534,7 @@
       "date": "Fecha y hora",
       "amount": "Importe (€)",
       "category": "Categoría",
+      "category_placeholder": "Selecciona una categoría",
       "category_hint": "Solo los gastos de Dieta descuentan del balance; el resto se registran aparte.",
       "ticket": "Ticket (opcional)",
       "ticket_hint": "Adjunta una foto o un archivo del comprobante",
@@ -553,7 +554,8 @@
         "description_required": "La descripción es obligatoria",
         "date_required": "La fecha es obligatoria",
         "amount_required": "El importe es obligatorio",
-        "amount_positive": "El importe debe ser superior a 0"
+        "amount_positive": "El importe debe ser superior a 0",
+        "category_required": "La categoría es obligatoria"
       },
       "alerts": {
         "saved": "Gasto guardado correctamente",
@@ -578,7 +580,7 @@
       "location_autocomplete_error": "No se han podido cargar las sugerencias de Google Maps.",
       "location_hint": "Se puede escribir manualmente, usar autocompletado de Google Maps o detectar la ubicación del dispositivo.",
       "detect_location": "Detectar ubicación",
-      "ticket_extract_hint_ai": "Analiza el ticket con OpenAI para detectar con mayor precisión el importe, la fecha, la descripción y la ubicación."
+      "ticket_extract_hint_ai": "Analiza el ticket con OpenAI para detectar con mayor precisión el importe, la fecha, la descripción, la categoría y la ubicación."
     },
     "expense_list": {
       "title": "Gastos registrados",
