@@ -1,3 +1,10 @@
+## [1.58.1](https://github.com/jvmonjo/dietator/compare/v1.58.0...v1.58.1) (2026-08-17)
+
+
+### Bug Fixes
+
+* **openAi:** enhance output handling and update tests for receipt analysis ([fc134e9](https://github.com/jvmonjo/dietator/commit/fc134e933218595d8b3016a870afefeefea2c368))
+
 # [1.58.0](https://github.com/jvmonjo/dietator/compare/v1.57.0...v1.58.0) (2026-08-13)
 
 
