@@ -54,4 +54,12 @@ describe('fair rotation balance', () => {
     expect(() => validateRotations([{ ...data, entries: [{ id: 'bad', date: '2026-02-30', personId: '0' }] }])).toThrow()
     expect(() => validateRotations([{ ...data, entries: [{ id: 'bad', date: '2026-02-01', personId: 'missing' }] }])).toThrow()
   })
+  it('accepts legacy records without comments and validates optional comments as text', () => {
+    const data = activity([1, 0])
+    expect(() => validateRotations([data])).not.toThrow()
+    const entry = data.entries[0]!
+    expect(() => validateRotations([{ ...data, entries: [{ ...entry, comments: 'Vacances\nEstiu' }] }])).not.toThrow()
+    expect(() => validateRotations([{ ...data, entries: [{ ...entry, comments: 42 }] }])).toThrow('invalidRotation')
+  })
+
 })

@@ -12,6 +12,7 @@ const people = ref<RotationPerson[]>([])
 const entryId = ref('')
 const entryDate = ref('')
 const entryPerson = ref('')
+const entryComments = ref('')
 const active = computed(() => store.activities.find(activity => activity.id === selectedId.value))
 const activityOptions = computed(() => store.activities.map(activity => ({ label: activity.title, value: activity.id })))
 const personOptions = computed(() => active.value?.people.map(person => ({ label: person.name, value: person.id })) ?? [])
@@ -23,6 +24,7 @@ const personName = (id: string) => active.value?.people.find(person => person.id
 
 function resetEntry() {
   entryId.value = ''
+  entryComments.value = ''
   const today = new Date()
   entryDate.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
   entryPerson.value = queue.value[0]?.id || ''
@@ -70,7 +72,7 @@ async function saveEntry() {
   if (!active.value) return
   error.value = ''
   try {
-    await store.saveEntry(active.value.id, { id: entryId.value || crypto.randomUUID(), date: entryDate.value, personId: entryPerson.value })
+    await store.saveEntry(active.value.id, { id: entryId.value || crypto.randomUUID(), date: entryDate.value, personId: entryPerson.value, comments: entryComments.value.trim() || undefined })
     resetEntry()
   } catch { error.value = t('rotations.saveFailed') }
 }
@@ -78,6 +80,7 @@ function editEntry(entry: RotationEntry) {
   entryId.value = entry.id
   entryDate.value = entry.date
   entryPerson.value = entry.personId
+  entryComments.value = entry.comments ?? ''
 }
 async function removeEntry(entry: RotationEntry) {
   if (!active.value || !window.confirm(t('rotations.confirmDelete', { date: entry.date, person: personName(entry.personId) }))) return
@@ -142,11 +145,16 @@ async function removeEntry(entry: RotationEntry) {
         </UCard>
         <UCard>
           <template #header><h2 class="font-semibold">{{ t(entryId ? 'rotations.editEntry' : 'rotations.newEntry') }}</h2></template>
-          <form class="flex gap-3 flex-wrap items-end" @submit.prevent="saveEntry">
-            <UFormField :label="t('rotations.date')"><UInput v-model="entryDate" type="date" required :disabled="store.saving" /></UFormField>
-            <UFormField :label="t('rotations.person')"><USelect v-model="entryPerson" :items="personOptions" :disabled="store.saving" /></UFormField>
-            <UButton type="submit" :loading="store.saving" :disabled="!entryPerson">{{ t(entryId ? 'rotations.saveEntry' : 'rotations.addEntry') }}</UButton>
-            <UButton v-if="entryId" variant="ghost" :disabled="store.saving" @click="resetEntry">{{ t('common.cancel') }}</UButton>
+          <form class="grid gap-3 sm:grid-cols-2" @submit.prevent="saveEntry">
+            <UFormField :label="t('rotations.date')"><UInput v-model="entryDate" type="date" required :disabled="store.saving" class="w-full" /></UFormField>
+            <UFormField :label="t('rotations.person')"><USelect v-model="entryPerson" :items="personOptions" :disabled="store.saving" class="w-full" /></UFormField>
+            <UFormField :label="t('rotations.comments')" class="sm:col-span-2">
+              <UTextarea v-model="entryComments" :disabled="store.saving" class="w-full" />
+            </UFormField>
+            <div class="flex flex-wrap gap-2 sm:col-span-2">
+              <UButton type="submit" :loading="store.saving" :disabled="!entryPerson">{{ t(entryId ? 'rotations.saveEntry' : 'rotations.addEntry') }}</UButton>
+              <UButton v-if="entryId" variant="ghost" :disabled="store.saving" @click="resetEntry">{{ t('common.cancel') }}</UButton>
+            </div>
           </form>
           <p class="text-sm mt-3">{{ t('rotations.repeatedHelp') }}</p>
         </UCard>
@@ -154,10 +162,18 @@ async function removeEntry(entry: RotationEntry) {
           <template #header><h2 class="font-semibold">{{ t('rotations.history') }}</h2></template>
           <p v-if="!history.length">{{ t('rotations.emptyHistory') }}</p>
           <ul v-else class="divide-y divide-gray-200 dark:divide-gray-800">
-            <li v-for="entry in history" :key="entry.id" class="flex flex-wrap gap-3 items-center py-2">
-              <time :datetime="entry.date">{{ entry.date }}</time><span class="flex-1">{{ personName(entry.personId) }}</span>
-              <UButton variant="ghost" :disabled="store.saving" @click="editEntry(entry)">{{ t('rotations.editEntry') }}</UButton>
-              <UButton color="error" variant="ghost" :disabled="store.saving" @click="removeEntry(entry)">{{ t('rotations.deleteEntry') }}</UButton>
+            <li v-for="entry in history" :key="entry.id" class="py-3 space-y-2">
+              <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-3 items-start sm:grid-cols-[7rem_minmax(0,1fr)_auto]">
+                <div class="min-w-0 sm:contents">
+                  <time :datetime="entry.date" class="block whitespace-nowrap tabular-nums">{{ entry.date }}</time>
+                  <span class="block min-w-0 break-words [overflow-wrap:anywhere]">{{ personName(entry.personId) }}</span>
+                </div>
+                <div class="flex flex-col items-end gap-1 sm:flex-row sm:items-center">
+                  <UButton variant="ghost" :disabled="store.saving" class="whitespace-nowrap" @click="editEntry(entry)">{{ t('rotations.editEntry') }}</UButton>
+                  <UButton color="error" variant="ghost" :disabled="store.saving" class="whitespace-nowrap" @click="removeEntry(entry)">{{ t('rotations.deleteEntry') }}</UButton>
+                </div>
+              </div>
+              <p v-if="entry.comments" class="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm text-gray-600 dark:text-gray-300 sm:pl-[7.75rem]">{{ entry.comments }}</p>
             </li>
           </ul>
         </UCard>

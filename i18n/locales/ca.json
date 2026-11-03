@@ -832,6 +832,7 @@
     "loadFailed": "No s’han pogut carregar les rotacions. Torna-ho a provar; no s’ha modificat l’historial.",
     "saveFailed": "No s’ha guardat el canvi. Revisa el nom de l’activitat, almenys dues persones amb noms únics, la data i l’accés a l’emmagatzematge del navegador.",
     "backupHelp": "Les còpies de dades inclouen totes les rotacions i el seu historial complet, independentment del filtre de mes o any.",
-    "restoreHelp": "També es restauraran les rotacions de la còpia amb tot l’historial. Es reemplaçaran les activitats amb el mateix identificador i es conservaran les altres."
+    "restoreHelp": "També es restauraran les rotacions de la còpia amb tot l’historial. Es reemplaçaran les activitats amb el mateix identificador i es conservaran les altres.",
+    "comments": "Comentaris (opcional)"
   }
 }
