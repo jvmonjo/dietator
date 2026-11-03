@@ -1,3 +1,10 @@
+# [1.61.0](https://github.com/jvmonjo/dietator/compare/v1.60.0...v1.61.0) (2026-11-03)
+
+
+### Features
+
+* **rotations:** track shared activities and balance future turns ([552ef68](https://github.com/jvmonjo/dietator/commit/552ef68d174a5dce8e48d0c96a627c70f1d69b3d))
+
 # [1.60.0](https://github.com/jvmonjo/dietator/compare/v1.59.1...v1.60.0) (2026-11-03)
 
 
