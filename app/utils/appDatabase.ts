@@ -1,3 +1,4 @@
+import type { RotationActivity } from '~/utils/rotations'
 import type { ExpenseRecord } from '~/stores/expenses'
 import type { Displacement, ServiceRecord } from '~/stores/services'
 import type { TemplateFile } from '~/stores/settings'
@@ -33,6 +34,7 @@ export interface ExternalCalendarPersistenceSnapshot {
 }
 
 export interface AppDatabaseState {
+    rotations: RotationActivity[]
     services: ServiceRecord[]
     expenses: ExpenseRecord[]
     settings: AppSettingsSnapshot | null
@@ -62,6 +64,7 @@ export const APP_STORE_NAMES = {
 } as const
 
 export const APP_STATE_KEYS = {
+    rotations: 'rotations',
     services: 'services',
     expenses: 'expenses',
     settings: 'settings',
@@ -234,7 +237,11 @@ export const getExternalCalendar = () => getAppStateValue<ExternalCalendarPersis
 export const setExternalCalendar = (snapshot: ExternalCalendarPersistenceSnapshot) =>
     setAppStateValue(APP_STATE_KEYS.externalCalendar, snapshot)
 
+export const getRotationActivities = () => getAppStateValue<RotationActivity[]>(APP_STATE_KEYS.rotations)
+export const setRotationActivities = (activities: RotationActivity[]) => setAppStateValue(APP_STATE_KEYS.rotations, activities)
+
 export const getAppDatabaseState = async (): Promise<AppDatabaseState> => ({
+    rotations: await getRotationActivities() ?? [],
     services: await getServices() ?? [],
     expenses: await getExpenses() ?? [],
     settings: await getSettings(),

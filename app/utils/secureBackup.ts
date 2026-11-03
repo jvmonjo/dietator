@@ -1,3 +1,4 @@
+import type { RotationActivity } from '~/utils/rotations'
 import type { Displacement, ServiceRecord } from '~/stores/services'
 import type { ExpenseRecord } from '~/stores/expenses'
 import type { TemplateFile } from '~/stores/settings'
@@ -32,6 +33,7 @@ export interface ExternalCalendarSnapshot {
 }
 
 export interface BackupPayload {
+  rotations?: RotationActivity[]
   services?: ServiceRecord[]
   expenses?: ExpenseRecord[]
   settings?: SettingsSnapshot

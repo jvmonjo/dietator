@@ -152,3 +152,34 @@ Validació manual amb un compte de prova, abans de publicar:
 6. Denegar el permís d’escriptura: no s’ha d’iniciar cap importació.
 
 Els tests unitaris simulen Google; no creen calendaris ni esdeveniments reals.
+
+## Compte de rotacions
+
+La pantalla **Rotacions** (`/rotations`) permet crear activitats independents
+com Viatge, Vacances Estiu o Vacances Pasqua. Cada activitat té almenys dues
+persones amb identificadors estables i un historial d’assignacions amb data.
+Es poden afegir, corregir i esborrar registres (amb confirmació). No hi ha
+restricció per registrar diverses assignacions seguides a la mateixa persona.
+
+La següent persona és qui té menys assignacions; els empats es resolen amb
+l’ordre configurat de participants. El saldo pendent de cada persona és la
+diferència respecte a la que en té més. Si Anna té 3 assignacions i Bernat 0,
+li toca a Bernat i es proposen els seus 3 següents torns per equilibrar-se.
+Amb més persones es tria sempre el recompte mínim. La proposta és una vista
+prèvia de fins a 12 torns, sense crear registres automàticament.
+
+Es compta tot l’historial, incloses les dates futures. Les persones noves
+comencen amb zero; canviar un nom o l’ordre conserva els seus registres.
+No es pot llevar una persona mentre tinga assignacions. Les dades són locals
+al navegador i es guarden en IndexedDB abans d’actualitzar la pantalla.
+
+Les còpies de dades inclouen totes les rotacions i tot el seu historial,
+independentment del filtre mensual/anual de serveis i despeses. En restaurar,
+es reemplaça cada activitat de la còpia pel seu identificador i es conserven
+les activitats locals que no hi apareixen. Les còpies antigues sense rotacions
+continuen sent compatibles i no modifiquen esta informació.
+
+Comprovació manual: crear Viatge amb Anna i Bernat, registrar tres dates per
+a Anna i comprovar que Bernat té 3 pendents; corregir-ne una a Bernat i
+comprovar saldo 2/1; recarregar la pàgina i comprovar l’historial; exportar i
+restaurar una còpia de dades i comprovar que les rotacions es conserven.

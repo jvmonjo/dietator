@@ -27,6 +27,10 @@ const links = computed(() => [
     to: '/shifts'
   },
   {
+    label: t('rotations.title'),
+    to: '/rotations'
+  },
+  {
     label: t('components.header.settings'),
     to: '/settings'
   },

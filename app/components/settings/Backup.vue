@@ -2,6 +2,7 @@
 import { encryptBackup, decryptBackup, isEncryptedBackup, type BackupPayload } from '~/utils/secureBackup'
 import type { ServiceRecord } from '~/stores/services'
 import type { ExpenseRecord } from '~/stores/expenses'
+import { validateRotations } from '~/utils/rotations'
 import { ensureUtc } from '~/utils/datetime'
 
 const emit = defineEmits<{
@@ -15,6 +16,7 @@ const serviceStore = useServiceStore()
 const expenseStore = useExpenseStore()
 const distancesStore = useDistancesStore()
 const externalCalendarStore = useExternalCalendarStore()
+const rotationsStore = useRotationsStore()
 
 const importFileInput = ref<HTMLInputElement | null>(null)
 const isExportingConfig = ref(false)
@@ -175,6 +177,8 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
             payload.distancesCache = distancesStore.cache
             payload.meta = { type: 'config' }
         } else {
+            await rotationsStore.hydrate()
+            payload.rotations = JSON.parse(JSON.stringify(rotationsStore.activities))
             payload.services = JSON.parse(JSON.stringify(filteredServices.value)) as ServiceRecord[]
             payload.expenses = JSON.parse(JSON.stringify(filteredExpenses.value)) as ExpenseRecord[]
 
@@ -188,7 +192,7 @@ const exportBackup = async (type: 'config' | 'data', method: 'download' | 'share
                 year: exportState.selectedYear !== 0 ? exportState.selectedYear : undefined
             }
 
-            if (payload.services.length === 0 && payload.expenses.length === 0) {
+            if (payload.services.length === 0 && payload.expenses.length === 0 && !payload.rotations?.length) {
                 toast.add({ title: t('common.error'), description: 'No hi ha dades per exportar', color: 'warning' })
                 return
             }
@@ -280,6 +284,7 @@ type ImportPayload = BackupPayload & {
 }
 
 const processImport = async (payload: ImportPayload) => {
+    if (payload.rotations !== undefined) validateRotations(payload.rotations)
     const rawServices = Array.isArray(payload?.services) ? payload.services : undefined
     const expenses = Array.isArray(payload?.expenses) ? payload.expenses : undefined
     const settings = payload?.settings
@@ -333,6 +338,8 @@ const processImport = async (payload: ImportPayload) => {
             await expenseStore.setExpenses(expenses)
         }
     }
+
+    if (payload.rotations !== undefined) await rotationsStore.restore(payload.rotations)
 
     if (settings) {
         await settingsStore.loadSettings(settings)
@@ -401,6 +408,7 @@ const prepareImport = async () => {
         }
 
         // Validate content
+        if (payload.rotations !== undefined) validateRotations(payload.rotations)
         const services = Array.isArray(payload?.services) ? payload.services : undefined
         const settings = payload?.settings
 
@@ -452,6 +460,7 @@ const prepareImport = async () => {
             }
         }
 
+        if (payload.rotations?.length) description += ` ${t('rotations.restoreHelp')}`
         confirmModal.title = title
         confirmModal.description = description
         confirmModal.action = () => processImport(payload)
@@ -551,6 +560,7 @@ v-model="exportState.includeGoogleAuth" :label="$t('settings.backup.include_goog
                     </h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         {{ $t('settings.backup.export_data_description') }}
+                        {{ $t('rotations.backupHelp') }}
                     </p>
 
                     <div class="space-y-4 pt-2">
