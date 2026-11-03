@@ -334,7 +334,7 @@
       "p1": "Aunque Dietator no tiene servidores propios, la aplicación puede conectarse directamente desde su navegador a servicios de terceros si activa estas funcionalidades:",
       "google_calendar": {
         "title": "Google Calendar API",
-        "description": "Se utiliza únicamente para leer sus calendarios y eventos para facilitar la creación de registros. La conexión se realiza directamente entre su navegador y Google. Nosotros no tenemos acceso a estos datos."
+        "description": "Se utiliza para leer calendarios y eventos y facilitar la creación de registros. Si confirmas la importación de turnos, también se escriben eventos en el calendario que elijas o se crea uno nuevo con tu autorización. La conexión se realiza directamente entre tu navegador y Google. Nosotros no tenemos acceso a estos datos."
       },
       "google_maps": {
         "title": "Google Maps API",
@@ -757,5 +757,42 @@
       "by_category": "Por categoría"
     },
     "list_description_range": "Gastos del {start} al {end}"
+  },
+  "shifts": {
+    "title": "Turnos",
+    "description": "Genera los turnos de todo el año a partir de una fecha conocida y un patrón repetitivo. Patrón inicial de calcular-turnos: A, V y L (libre).",
+    "anchor": "Fecha de un turno conocido",
+    "startCode": "Turno en esa fecha",
+    "cycleLength": "Días del ciclo",
+    "codes": "Códigos de turno (separados por comas)",
+    "pattern": "Patrón completo (separado por comas, desde el lunes si el ciclo es múltiplo de 7)",
+    "cycleDay": "Día {day} del ciclo",
+    "startPosition": "Posición inicial en el ciclo",
+    "ambiguity": "Hay varias coincidencias. Por defecto se usa la primera; elige la posición correcta si corresponde a otra semana.",
+    "arbitraryCycle": "En ciclos que no son múltiplos de 7, se usa la primera aparición del turno, salvo que elijas otra posición.",
+    "generate": "Generar año",
+    "invalidConfig": "Revisa el ciclo (1–366 días), los códigos únicos y el patrón: debe tener exactamente un código válido por día.",
+    "invalidDate": "Introduce una fecha válida entre 1900 y 2100.",
+    "invalidAnchor": "El turno no coincide con el día de la semana en el patrón. Revisa la fecha, el turno o la posición inicial.",
+    "exportTitle": "Incorporar a Google Calendar",
+    "exportHelp": "Se crearán eventos de todo el día. Google solicitará permiso de escritura. Repetir la importación actualiza los turnos de Dietator del mismo día sin duplicarlos. No se borran eventos: los días excluidos conservan cualquier turno importado antes.",
+    "includeRest": "Incluir los días libres",
+    "restCode": "Código de día libre que se excluye",
+    "destination": "Destino",
+    "existingCalendar": "Calendario existente",
+    "newCalendar": "Crear un calendario nuevo",
+    "loadCalendars": "Cargar calendarios con permiso de escritura",
+    "selectCalendar": "Selecciona un calendario",
+    "calendarName": "Nombre del calendario nuevo",
+    "confirmCreate": "Crear calendario e importar {count} turnos",
+    "confirmImport": "Importar {count} turnos al calendario seleccionado",
+    "progress": "Importados {count} de {total} turnos",
+    "preview": "Turnos de {year} · {count} días",
+    "authFailed": "No se ha autorizado el acceso necesario a Google Calendar. Vuelve a intentarlo y acepta los permisos.",
+    "calendarListFailed": "No se han podido cargar los calendarios. Vuelve a intentarlo.",
+    "calendarCreateFailed": "No se ha podido crear el calendario. Comprueba la conexión y los permisos.",
+    "importSuccess": "Se han incorporado {count} turnos al calendario seleccionado.",
+    "importPartial": "Importación interrumpida: {count} de {total} turnos confirmados. El calendario queda seleccionado. Vuelve a intentarlo para completarla sin duplicados.",
+    "exportFailed": "No se ha podido preparar la importación. Comprueba la conexión, el calendario y los permisos."
   }
 }

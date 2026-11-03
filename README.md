@@ -43,7 +43,9 @@ Per habilitar la integració amb Google Calendar, cal crear un projecte a Google
 3.  **Pantalla de Consentiment**: Ves a "APIs & Services" -> "OAuth consent screen".
     -   Tria "External" (per proves personals) o "Internal" (si tens organització).
     -   Omple els camps obligatoris (Nom App, correus de suport).
-    -   Afegeix l'scope: `https://www.googleapis.com/auth/calendar.readonly`.
+    -   Afegeix l'scope: `https://www.googleapis.com/auth/calendar.readonly` per llegir.
+    -   Per importar torns, afegeix `https://www.googleapis.com/auth/calendar.events`. Per crear calendaris nous, afegeix també `https://www.googleapis.com/auth/calendar.calendars`. Dietator els demana només en confirmar la importació corresponent.
+    -   Revisa la pantalla de consentiment i, si Google ho exigeix, la verificació de l'aplicació per als permisos addicionals.
     -   Afegeix el teu correu com a "Test User".
 4.  **Crear Credencials**: Ves a "APIs & Services" -> "Credentials".
     -   "Create Credentials" -> "OAuth Client ID".
@@ -115,3 +117,38 @@ store de serveis i les advertències de validació de serveis. S'executen amb
 [Vitest](https://vitest.dev/) sense necessitat d'arrencar Nuxt, de manera que
 són ràpids i deterministes. S'executen automàticament al *hook* de pre-commit i
 a la CI (GitHub Actions).
+
+## Generació de torns
+
+La pantalla **Torns** (`/shifts`), accessible a la navegació mòbil i d’escriptori,
+adapta el generador de `jvmonjo/calcular-turnos`. Conserva el patró A/V/L de
+28 dies i permet configurar codis, duració i seqüència. La data coneguda
+determina l’any complet que es genera. Els cicles múltiples de 7 comencen
+en dilluns; davant diverses coincidències es pot triar la posició del cicle.
+La configuració del patró es guarda localment en el navegador.
+
+Després de revisar l’any, es poden importar esdeveniments de tot el dia a
+un calendari amb rol `writer`/`owner`, o crear-ne un de nou. Els dies `L`
+s’exclouen per defecte i es pot canviar el codi lliure o incloure’l.
+La importació requereix confirmació explícita en la pantalla i autorització
+OAuth d’escriptura; la sincronització habitual continua demanant només lectura.
+
+Cada data té un identificador estable per calendari: les repeticions actualitzen
+els esdeveniments identificats com a propis, sense duplicats. No s’esborra cap
+esdeveniment; si es modifica el patró i un antic dia de treball passa a lliure,
+l’esdeveniment importat abans es conserva. Si falla la importació, es mostra
+el recompte confirmat i es pot repetir amb el mateix calendari seleccionat.
+La creació del calendari i la importació no són una transacció: un calendari
+creat es conserva encara que no s’hagen pogut importar tots els torns.
+
+Validació manual amb un compte de prova, abans de publicar:
+
+1. Configurar els permisos OAuth anteriors i obrir **Torns**.
+2. Generar 2026 amb data `2026-01-05`, torn A: 365 dies i patró de 28 dies.
+3. Carregar calendaris: només s’ofereixen calendaris editables.
+4. Confirmar una importació en un calendari de prova; comprovar dates de tot
+   el dia i absència de L. Repetir-la i comprovar que no hi ha duplicats.
+5. Triar calendari nou, confirmar el permís addicional i comprovar el nom.
+6. Denegar el permís d’escriptura: no s’ha d’iniciar cap importació.
+
+Els tests unitaris simulen Google; no creen calendaris ni esdeveniments reals.
