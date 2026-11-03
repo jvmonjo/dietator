@@ -1,0 +1,107 @@
+name: Recover existing release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing stable release tag to recover
+        required: true
+        type: string
+        default: v1.60.0
+      expected_commit:
+        description: Expected full commit SHA of the existing tag
+        required: true
+        type: string
+        default: 7d1ad3c678208826d6e5a08cbe32a2d5d341897c
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
+      EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+
+      - name: Verify existing release commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$EXPECTED_COMMIT" =~ ^[a-f0-9]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$EXPECTED_COMMIT"
+          test "$(git rev-parse "$RELEASE_TAG^{commit}")" = "$EXPECTED_COMMIT"
+          echo "RELEASE_VERSION=${RELEASE_TAG#v}" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Build existing release
+        run: npm run generate
+        env:
+          NUXT_PUBLIC_APP_VERSION: ${{ env.RELEASE_VERSION }}
+          NUXT_APP_BASE_URL: ${{ vars.NUXT_APP_BASE_URL }}
+          NITRO_PRESET: github-pages
+          NUXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NUXT_PUBLIC_GOOGLE_CLIENT_ID }}
+
+      - name: Restore missing semantic-release note
+        shell: bash
+        run: |
+          set -euo pipefail
+          note_ref="refs/notes/semantic-release-$RELEASE_TAG"
+          remote_note=$(git ls-remote origin "$note_ref")
+          if [ -n "$remote_note" ]; then
+            git fetch origin "$note_ref:$note_ref"
+            git notes --ref="semantic-release-$RELEASE_TAG" show "$RELEASE_TAG" > /dev/null
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git notes --ref="semantic-release-$RELEASE_TAG" add -m '{"channels":[null]}' "$RELEASE_TAG"
+            git push origin "$note_ref"
+          fi
+
+      - name: Complete missing GitHub release
+        shell: bash
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release_id=$(gh api --paginate "repos/$GH_REPO/releases" --jq ".[] | select(.tag_name == \"$RELEASE_TAG\") | .id")
+          if [ -z "$release_id" ]; then
+            gh release create "$RELEASE_TAG" --verify-tag --title "$RELEASE_VERSION" --generate-notes
+          else
+            gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft' | grep -qx false
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .output/public
+
+      - name: Deploy existing release to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
