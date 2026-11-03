@@ -1,3 +1,15 @@
+# [1.62.0](https://github.com/jvmonjo/dietator/compare/v1.61.1...v1.62.0) (2026-11-03)
+
+
+### Bug Fixes
+
+* **shifts:** hide rest codes and localize preview weekdays ([9658547](https://github.com/jvmonjo/dietator/commit/9658547b245bff3f0de5614aa4d88fea98642ebd))
+
+
+### Features
+
+* **rotations:** add entry comments and align mobile history ([c91154c](https://github.com/jvmonjo/dietator/commit/c91154c779a2693d3d0deea9f9d4997f3c71befb))
+
 ## [1.61.1](https://github.com/jvmonjo/dietator/compare/v1.61.0...v1.61.1) (2026-11-03)
 
 
