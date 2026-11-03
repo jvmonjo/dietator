@@ -14,7 +14,9 @@ const entryDate = ref('')
 const entryPerson = ref('')
 const entryComments = ref('')
 const active = computed(() => store.activities.find(activity => activity.id === selectedId.value))
-const activityOptions = computed(() => store.activities.map(activity => ({ label: activity.title, value: activity.id })))
+const activityCards = computed(() => store.activities.map(activity => ({
+  ...activity, nextPerson: nextRotationQueue(activity, 1)[0]?.name ?? ''
+})))
 const personOptions = computed(() => active.value?.people.map(person => ({ label: person.name, value: person.id })) ?? [])
 const balance = computed(() => active.value ? rotationBalance(active.value) : [])
 const queue = computed(() => active.value ? nextRotationQueue(active.value) : [])
@@ -35,12 +37,22 @@ async function load() {
   error.value = ''
   try {
     await store.hydrate()
-    selectedId.value = store.activities[0]?.id || ''
+    selectedId.value = ''
     resetEntry()
   } catch { error.value = t('rotations.loadFailed') }
 }
 onMounted(load)
 
+function showDashboard() {
+  selectedId.value = ''
+  editingActivity.value = false
+  error.value = ''
+  resetEntry()
+}
+function openDetails(id: string) {
+  selectedId.value = id
+  editingActivity.value = false
+}
 function openActivity(edit = false) {
   error.value = ''
   activityId.value = edit && active.value ? active.value.id : crypto.randomUUID()
@@ -98,13 +110,37 @@ async function removeEntry(entry: RotationEntry) {
     <UAlert v-if="error" :title="error" color="error" role="alert" />
     <UButton v-if="!store.ready" @click="load">{{ t('rotations.retry') }}</UButton>
     <template v-else>
-      <div class="flex flex-wrap gap-3 items-end">
-        <UFormField v-if="activityOptions.length" :label="t('rotations.activity')">
-          <USelect v-model="selectedId" :items="activityOptions" :disabled="store.saving" class="min-w-48" />
-        </UFormField>
-        <UButton :disabled="store.saving" @click="openActivity()">{{ t('rotations.newActivity') }}</UButton>
-        <UButton v-if="active" :disabled="store.saving" variant="soft" @click="openActivity(true)">{{ t('rotations.editActivity') }}</UButton>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div v-if="active" class="flex flex-wrap items-center gap-3 min-w-0">
+          <UButton icon="i-heroicons-arrow-left" :disabled="store.saving" variant="ghost" @click="showDashboard">{{ t('rotations.backToActivities') }}</UButton>
+          <h2 class="text-xl font-semibold break-words [overflow-wrap:anywhere]">{{ active.title }}</h2>
+        </div>
+        <UButton v-if="!active && !editingActivity" :disabled="store.saving" icon="i-heroicons-plus" @click="openActivity()">{{ t('rotations.newActivity') }}</UButton>
+        <UButton v-if="active && !editingActivity" :disabled="store.saving" variant="soft" @click="openActivity(true)">{{ t('rotations.editActivity') }}</UButton>
       </div>
+      <section v-if="!active && !editingActivity" :aria-label="t('rotations.title')" class="space-y-4">
+        <p class="text-sm text-gray-600 dark:text-gray-300">{{ t('rotations.dashboardHelp') }}</p>
+        <UCard v-if="!activityCards.length"><p>{{ t('rotations.emptyActivities') }}</p></UCard>
+        <div v-else class="grid gap-4 sm:grid-cols-2">
+          <button
+            v-for="activity in activityCards" :key="activity.id" type="button"
+            :aria-label="t('rotations.openDetails', { activity: activity.title })" :disabled="store.saving"
+            class="group min-w-0 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 text-left transition hover:border-primary-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500 disabled:opacity-50"
+            @click="openDetails(activity.id)"
+          >
+            <span class="flex items-start justify-between gap-3">
+              <span class="text-xl font-semibold break-words [overflow-wrap:anywhere]">{{ activity.title }}</span>
+              <UIcon name="i-heroicons-arrow-right" class="size-5 shrink-0 text-gray-400 group-hover:text-primary-500" />
+            </span>
+            <span class="block mt-6 text-sm text-gray-500 dark:text-gray-400">{{ t('rotations.nextTurn') }}</span>
+            <span class="block mt-1 text-3xl font-semibold break-words [overflow-wrap:anywhere]">{{ activity.nextPerson }}</span>
+            <span class="flex flex-wrap gap-x-4 gap-y-1 mt-6 text-sm text-gray-600 dark:text-gray-300">
+              <span>{{ t('rotations.cardPeople', { count: activity.people.length }) }}</span>
+              <span>{{ t('rotations.cardEntries', { count: activity.entries.length }) }}</span>
+            </span>
+          </button>
+        </div>
+      </section>
       <UCard v-if="editingActivity">
         <form class="space-y-4" @submit.prevent="saveActivity">
           <p>{{ t('rotations.editHelp') }}</p>

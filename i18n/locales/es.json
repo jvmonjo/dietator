@@ -835,6 +835,13 @@
     "saveFailed": "No se ha guardado el cambio. Revisa el nombre de la actividad, al menos dos personas con nombres únicos, la fecha y el acceso al almacenamiento del navegador.",
     "backupHelp": "Las copias de datos incluyen todas las rotaciones y su historial completo, independientemente del filtro de mes o año.",
     "restoreHelp": "También se restaurarán las rotaciones de la copia con todo su historial. Se reemplazarán las actividades con el mismo identificador y se conservarán las demás.",
-    "comments": "Comentarios (opcional)"
+    "comments": "Comentarios (opcional)",
+    "backToActivities": "Todas las actividades",
+    "dashboardHelp": "Elige una actividad para ver el saldo, el historial y editar los registros.",
+    "emptyActivities": "Todavía no hay actividades. Crea una para empezar a repartir los turnos.",
+    "openDetails": "Ver detalles de {activity}",
+    "nextTurn": "Próximo turno",
+    "cardPeople": "Personas: {count}",
+    "cardEntries": "Asignaciones: {count}"
   }
 }
