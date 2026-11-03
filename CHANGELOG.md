@@ -1,3 +1,10 @@
+# [1.63.0](https://github.com/jvmonjo/dietator/compare/v1.62.0...v1.63.0) (2026-11-03)
+
+
+### Features
+
+* **rotations:** show activity dashboard before details ([7292db5](https://github.com/jvmonjo/dietator/commit/7292db54f21a1b6e9ccee99c43a04e1f0b535364))
+
 # [1.62.0](https://github.com/jvmonjo/dietator/compare/v1.61.1...v1.62.0) (2026-11-03)
 
 
