@@ -33,7 +33,6 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
 
     // Composables
     const toast = useToast()
-    const { t } = useI18n()
     const settings = useSettingsStore()
     const config = useRuntimeConfig()
 
@@ -155,7 +154,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
 
             const responseScopes = (tokenResponse.scope || '').split(' ').filter(Boolean)
             if (!scopes.every(scope => responseScopes.includes(scope))) {
-                toast.add({ title: t('shifts.authFailed'), color: 'warning' })
+                toast.add({ title: 'No s’han concedit els permisos necessaris de Google Calendar', color: 'warning' })
                 return null
             }
             grantedScopes.value = responseScopes

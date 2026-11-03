@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useExternalCalendarStore } from '../../app/stores/externalCalendar'
@@ -22,6 +23,12 @@ function mockGoogle(grants: string[][]) {
 }
 
 describe('incremental Google Calendar permissions', () => {
+  it('initializes from a Nuxt plugin without a component setup context', () => {
+    // Use the real hook: the generic test shim hides the Vue I18n setup guard.
+    vi.stubGlobal('useI18n', useI18n)
+    expect(() => useExternalCalendarStore()).not.toThrow()
+  })
+
   it('keeps ordinary synchronization read-only and reuses fresh tokens', async () => {
     const client = mockGoogle([[CALENDAR_READ_SCOPE]])
     const store = useExternalCalendarStore()
