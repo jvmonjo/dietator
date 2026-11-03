@@ -1,3 +1,10 @@
+## [1.61.1](https://github.com/jvmonjo/dietator/compare/v1.61.0...v1.61.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **calendar:** initialize calendar store outside component setup ([6fa9f01](https://github.com/jvmonjo/dietator/commit/6fa9f019ac51f78bc0a097fa6da3ee615387c0d9))
+
 # [1.61.0](https://github.com/jvmonjo/dietator/compare/v1.60.0...v1.61.0) (2026-11-03)
 
 
