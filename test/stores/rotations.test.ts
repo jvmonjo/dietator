@@ -73,4 +73,21 @@ describe('rotation persistence and editing', () => {
       expect(store.activities[0]?.entries).toEqual([])
     } finally { transaction.mockRestore() }
   })
+  it('preserves comments through saving, reloading, correction and restoring backups', async () => {
+    const store = useRotationsStore()
+    await store.saveActivity('travel', 'Viatge', people)
+    await store.saveEntry('travel', { id: 'first', date: '2026-01-01', personId: 'a', comments: 'Viatge amb família\nTornada diumenge' })
+    setActivePinia(createPinia())
+    const reloaded = useRotationsStore()
+    await reloaded.hydrate()
+    expect(reloaded.activities[0]?.entries[0]?.comments).toBe('Viatge amb família\nTornada diumenge')
+    const snapshot = JSON.parse(JSON.stringify(reloaded.activities))
+    await reloaded.saveEntry('travel', { id: 'first', date: '2026-01-01', personId: 'a', comments: 'Data corregida' })
+    expect(reloaded.activities[0]?.entries[0]?.comments).toBe('Data corregida')
+    await reloaded.restore(snapshot)
+    expect(reloaded.activities[0]?.entries[0]?.comments).toBe('Viatge amb família\nTornada diumenge')
+    await reloaded.saveEntry('travel', { id: 'first', date: '2026-01-01', personId: 'a' })
+    expect((await getRotationActivities())?.[0]?.entries[0]?.comments).toBeUndefined()
+  })
+
 })

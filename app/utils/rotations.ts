@@ -1,5 +1,5 @@
 export interface RotationPerson { id: string, name: string }
-export interface RotationEntry { id: string, date: string, personId: string }
+export interface RotationEntry { id: string, date: string, personId: string, comments?: string }
 export interface RotationActivity {
   id: string
   title: string
@@ -31,7 +31,8 @@ export function validateRotations(value: unknown): asserts value is RotationActi
     const entries = new Set<string>()
     for (const entry of activity.entries) {
       if (!entry || !text(entry.id) || entries.has(entry.id) || !people.has(entry.personId)
-        || typeof entry.date !== 'string' || !validDate(entry.date)) fail()
+        || typeof entry.date !== 'string' || !validDate(entry.date)
+        || (entry.comments !== undefined && typeof entry.comments !== 'string')) fail()
       entries.add(entry.id)
     }
   }
