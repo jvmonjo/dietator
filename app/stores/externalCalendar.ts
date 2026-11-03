@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { CALENDAR_READ_SCOPE } from '~/utils/shiftCalendar'
 
 declare global {
     interface Window {
@@ -28,8 +29,11 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
     const refreshToken = ref<string | null>(null)
     const abortController = ref<AbortController | null>(null)
 
+    const grantedScopes = ref<string[]>([])
+
     // Composables
     const toast = useToast()
+    const { t } = useI18n()
     const settings = useSettingsStore()
     const config = useRuntimeConfig()
 
@@ -78,7 +82,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         return response.json() as Promise<{ access_token: string, expires_in?: number }>
     }
 
-    async function ensureAccessToken(prompt: 'consent' | '' = '', signal?: AbortSignal): Promise<string | null> {
+    async function ensureAccessToken(prompt: 'consent' | '' = '', signal?: AbortSignal, scopes: string[] = [CALENDAR_READ_SCOPE]): Promise<string | null> {
         const clientId = config.public.googleClientId || settings.googleClientId
 
         if (!clientId) {
@@ -91,6 +95,10 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             await loadGoogleScript()
         }
 
+        // Legacy backups may contain a read-only refresh token, never assume write access.
+        const hasScopes = scopes.every(scope => grantedScopes.value.includes(scope)
+            || (scope === CALENDAR_READ_SCOPE && !!refreshToken.value))
+        if (!hasScopes) prompt = 'consent'
         const now = Date.now()
         const isTokenFresh = accessToken.value && tokenExpiresAt.value && (tokenExpiresAt.value - 60_000) > now
         if (isTokenFresh && prompt !== 'consent') {
@@ -112,7 +120,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
 
         // 3. POPUP PATH: This must be as fast as possible to avoid popup blocker
         try {
-            const tokenResponse: { access_token: string, expires_in?: number, refresh_token?: string } = await new Promise((resolve, reject) => {
+            const tokenResponse: { access_token: string, expires_in?: number, refresh_token?: string, scope?: string } = await new Promise((resolve, reject) => {
                 if (signal?.aborted) return reject(new Error('AbortError'))
 
                 const abortHandler = () => reject(new Error('AbortError'))
@@ -121,13 +129,14 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
                 try {
                     const tokenClient = window.google.accounts.oauth2.initTokenClient({
                         client_id: clientId,
-                        scope: 'https://www.googleapis.com/auth/calendar.readonly',
+                        scope: scopes.join(' '),
+                        include_granted_scopes: true,
                         prompt,
                         error_callback: (error: { message?: string }) => {
                             signal?.removeEventListener('abort', abortHandler)
                             reject(new Error(`Google GIS Error: ${error?.message || JSON.stringify(error)}`))
                         },
-                        callback: (response: { error?: string, error_description?: string, access_token: string, expires_in?: number, refresh_token?: string }) => {
+                        callback: (response: { error?: string, error_description?: string, access_token: string, expires_in?: number, refresh_token?: string, scope?: string }) => {
                             signal?.removeEventListener('abort', abortHandler)
                             if (response.error) {
                                 reject(new Error(`Google API: ${response.error_description || response.error}`))
@@ -144,6 +153,12 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
                 }
             })
 
+            const responseScopes = (tokenResponse.scope || '').split(' ').filter(Boolean)
+            if (!scopes.every(scope => responseScopes.includes(scope))) {
+                toast.add({ title: t('shifts.authFailed'), color: 'warning' })
+                return null
+            }
+            grantedScopes.value = responseScopes
             accessToken.value = tokenResponse.access_token
             const expiresInSeconds = Number(tokenResponse.expires_in)
             tokenExpiresAt.value = Number.isFinite(expiresInSeconds) ? Date.now() + expiresInSeconds * 1000 : null
@@ -373,6 +388,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         lastSync.value = null
         accessToken.value = null
         tokenExpiresAt.value = null
+        grantedScopes.value = []
         refreshToken.value = null
         // Reset selected calendar preference
         settings.googleCalendarId = ''
@@ -399,6 +415,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         isLoading,
         accessToken,
         tokenExpiresAt,
+        grantedScopes,
         refreshToken,
         abortController,
 

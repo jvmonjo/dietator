@@ -12,6 +12,11 @@ const links = computed(() => [
     to: '/expenses'
   },
   {
+    label: t('shifts.title'),
+    icon: 'i-heroicons-calendar-days',
+    to: '/shifts'
+  },
+  {
     label: t('components.header.settings'),
     icon: 'i-heroicons-cog-6-tooth',
     to: '/settings'

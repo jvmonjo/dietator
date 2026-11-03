@@ -332,7 +332,7 @@
       "p1": "Tot i que Dietator no té servidors propis, l'aplicació pot connectar-se directament des del vostre navegador a serveis de tercers si activeu aquestes funcionalitats:",
       "google_calendar": {
         "title": "Google Calendar API",
-        "description": "S'utilitza únicament per llegir els vostres calendaris i esdeveniments per facilitar la creació de registres. La connexió es fa directament entre el vostre navegador i Google. Nosaltres no tenim accés a aquestes dades."
+        "description": "S’utilitza per llegir calendaris i esdeveniments i facilitar la creació de registres. Si confirmeu la importació de torns, també s’escriuen esdeveniments al calendari que trieu o se’n crea un de nou amb la vostra autorització. La connexió es fa directament entre el vostre navegador i Google. Nosaltres no tenim accés a aquestes dades."
       },
       "google_maps": {
         "title": "Google Maps API",
@@ -755,5 +755,42 @@
       "by_category": "Per categoria"
     },
     "list_description_range": "Despeses del {start} al {end}"
+  },
+  "shifts": {
+    "title": "Torns",
+    "description": "Genera els torns de tot l’any a partir d’una data coneguda i un patró repetitiu. Patró inicial de calcular-turnos: A, V i L (lliure).",
+    "anchor": "Data d’un torn conegut",
+    "startCode": "Torn en eixa data",
+    "cycleLength": "Dies del cicle",
+    "codes": "Codis de torn (separats per comes)",
+    "pattern": "Patró complet (separat per comes, des de dilluns si el cicle és múltiple de 7)",
+    "cycleDay": "Dia {day} del cicle",
+    "startPosition": "Posició inicial en el cicle",
+    "ambiguity": "Hi ha diverses coincidències. Per defecte s’utilitza la primera; tria la posició correcta si correspon a una altra setmana.",
+    "arbitraryCycle": "En cicles que no són múltiples de 7, s’utilitza la primera aparició del torn, llevat que tries una altra posició.",
+    "generate": "Generar any",
+    "invalidConfig": "Revisa el cicle (1–366 dies), els codis únics i el patró: ha de tindre exactament un codi vàlid per dia.",
+    "invalidDate": "Introduïx una data vàlida entre 1900 i 2100.",
+    "invalidAnchor": "El torn no coincidix amb el dia de la setmana en el patró. Revisa la data, el torn o la posició inicial.",
+    "exportTitle": "Incorporar a Google Calendar",
+    "exportHelp": "Es crearan esdeveniments de tot el dia. Google demanarà permís d’escriptura. Repetir la importació actualitza els torns de Dietator del mateix dia, sense duplicar-los. No s’esborren esdeveniments: els dies exclosos conserven qualsevol torn importat abans.",
+    "includeRest": "Incloure els dies lliures",
+    "restCode": "Codi de dia lliure que s’exclou",
+    "destination": "Destinació",
+    "existingCalendar": "Calendari existent",
+    "newCalendar": "Crear un calendari nou",
+    "loadCalendars": "Carregar calendaris amb permís d’escriptura",
+    "selectCalendar": "Selecciona un calendari",
+    "calendarName": "Nom del calendari nou",
+    "confirmCreate": "Crear calendari i importar {count} torns",
+    "confirmImport": "Importar {count} torns al calendari seleccionat",
+    "progress": "Importats {count} de {total} torns",
+    "preview": "Torns de {year} · {count} dies",
+    "authFailed": "No s’ha autoritzat l’accés necessari a Google Calendar. Torna-ho a provar i accepta els permisos.",
+    "calendarListFailed": "No s’han pogut carregar els calendaris. Torna-ho a provar.",
+    "calendarCreateFailed": "No s’ha pogut crear el calendari. Comprova la connexió i els permisos.",
+    "importSuccess": "S’han incorporat {count} torns al calendari seleccionat.",
+    "importPartial": "Importació interrompuda: {count} de {total} torns confirmats. El calendari queda seleccionat. Torna-ho a provar per completar-la sense duplicats.",
+    "exportFailed": "No s’ha pogut preparar la importació. Comprova la connexió, el calendari i els permisos."
   }
 }

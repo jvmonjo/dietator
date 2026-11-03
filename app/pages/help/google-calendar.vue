@@ -63,8 +63,10 @@ icon="i-heroicons-information-circle" color="warning" variant="subtle"
                             Inicia sessió amb el teu compte de Google i accepta els permisos perquè Dietator pugui
                             <strong>llegir</strong> els teus calendaris.
                             <br>
-                            <span class="text-xs text-gray-500">Només demanem permís de lectura
-                                (calendar.readonly).</span>
+                            <span class="text-xs text-gray-500">La sincronització demana permís de lectura (calendar.readonly).
+                                En confirmar una importació de torns es demana també permís
+                                d’escriptura (calendar.events) i, si cal crear un calendari,
+                                calendar.calendars.</span>
                         </li>
                         <li>
                             Un cop connectat, els esdeveniments es carregaran automàticament.
@@ -87,7 +89,7 @@ icon="i-heroicons-information-circle" color="warning" variant="subtle"
                         <li>La connexió es fa directament entre el teu navegador i Google.</li>
                         <li>Les dades dels teus esdeveniments es guarden <strong>només al teu dispositiu</strong>
                             (IndexedDB).</li>
-                        <li>Dietator no envia les teves dades a cap servidor extern (excepte a Google per obtenir els
+                        <li>Dietator no envia les teves dades a cap servidor extern (excepte a Google per llegir o importar els
                             esdeveniments).</li>
                     </ul>
                 </div>
