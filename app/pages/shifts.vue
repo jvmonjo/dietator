@@ -38,8 +38,17 @@ const startOptions = computed(() => {
 })
 const exportDays = computed(() => generated.value.filter(day => includeRest.value || day.code !== restCode.value))
 const calendarOptions = computed(() => writableCalendars.value.map(item => ({ label: item.summary, value: item.id })))
+const weekdays = computed(() => Array.from({ length: 7 }, (_, index) => {
+  const date = new Date(Date.UTC(2024, 0, 1 + index)) // Monday first.
+  const options = { timeZone: 'UTC' } as const
+  return {
+    label: new Intl.DateTimeFormat(locale.value, { ...options, weekday: 'short' }).format(date).replace(/\.$/, '').toLocaleUpperCase(locale.value),
+    name: new Intl.DateTimeFormat(locale.value, { ...options, weekday: 'long' }).format(date)
+  }
+}))
 const months = computed(() => Array.from({ length: 12 }, (_, index) => ({
   name: new Intl.DateTimeFormat(locale.value, { month: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, index, 1))),
+  offset: (new Date(Date.UTC(Number(anchor.value.slice(0, 4)), index, 1)).getUTCDay() + 6) % 7,
   days: generated.value.filter(day => Number(day.date.slice(5, 7)) === index + 1)
 })))
 const canConnect = computed(() => !!(runtimeConfig.public.googleClientId || settings.googleClientId))
@@ -187,9 +196,11 @@ async function exportToCalendar() {
         <UCard v-for="month in months" :key="month.name">
           <template #header><h3 class="font-semibold capitalize">{{ month.name }}</h3></template>
           <div class="grid grid-cols-7 gap-1 text-center text-sm">
+            <abbr v-for="weekday in weekdays" :key="weekday.name" :title="weekday.name" class="py-1 font-semibold no-underline">{{ weekday.label }}</abbr>
+            <div v-for="padding in month.offset" :key="`padding-${padding}`" aria-hidden="true" />
             <div v-for="day in month.days" :key="day.date" class="rounded bg-gray-100 dark:bg-gray-800 p-1" :title="day.date">
               <span class="block text-xs text-gray-500">{{ Number(day.date.slice(8)) }}</span>
-              <strong>{{ day.code }}</strong>
+              <strong class="block min-h-5">{{ includeRest || day.code !== restCode ? day.code : '\u00a0' }}</strong>
             </div>
           </div>
         </UCard>
