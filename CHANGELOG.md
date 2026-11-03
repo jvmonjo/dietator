@@ -1,3 +1,10 @@
+# [1.60.0](https://github.com/jvmonjo/dietator/compare/v1.59.1...v1.60.0) (2026-11-03)
+
+
+### Features
+
+* **shifts:** generate yearly shifts and import to Google Calendar ([ac01275](https://github.com/jvmonjo/dietator/commit/ac01275e0c86211ec52f5d8952f0ca609111d363))
+
 ## [1.59.1](https://github.com/jvmonjo/dietator/compare/v1.59.0...v1.59.1) (2026-08-17)
 
 
