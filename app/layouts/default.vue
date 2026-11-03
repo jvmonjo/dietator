@@ -17,6 +17,11 @@ const links = computed(() => [
     to: '/shifts'
   },
   {
+    label: t('rotations.title'),
+    icon: 'i-heroicons-arrows-right-left',
+    to: '/rotations'
+  },
+  {
     label: t('components.header.settings'),
     icon: 'i-heroicons-cog-6-tooth',
     to: '/settings'

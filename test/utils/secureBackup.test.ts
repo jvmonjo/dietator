@@ -18,6 +18,11 @@ beforeAll(() => {
 })
 
 const samplePayload: BackupPayload = {
+  rotations: [{
+    id: 'travel', title: 'Viatge',
+    people: [{ id: 'a', name: 'Anna' }, { id: 'b', name: 'Bernat' }],
+    entries: [{ id: 'first', date: '2026-01-01', personId: 'a' }]
+  }],
   services: [
     {
       id: 'svc-1',
