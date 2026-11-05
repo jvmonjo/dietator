@@ -35,6 +35,8 @@ const generateQR = async () => {
     return
   }
 
+  qrDataUrl.value = ''
+  error.value = ''
   try {
     const stringData = typeof props.data === 'string'
       ? props.data
@@ -76,6 +78,7 @@ watch(isOpen, (val) => {
     </template>
 
     <template #footer>
+      <slot name="actions" />
       <UButton color="neutral" variant="ghost" @click="isOpen = false">{{ $t('components.qr_modal.close') }}</UButton>
     </template>
   </UModal>

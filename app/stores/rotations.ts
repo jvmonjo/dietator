@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { getRotationActivities, setRotationActivities } from '~/utils/appDatabase'
-import { validateRotations, type RotationActivity, type RotationEntry, type RotationPerson } from '~/utils/rotations'
+import { mergeRotationImport, validateRotations, type RotationActivity, type RotationEntry, type RotationPerson } from '~/utils/rotations'
 
 export const useRotationsStore = defineStore('rotations', () => {
   const activities = ref<RotationActivity[]>([])
@@ -63,5 +63,9 @@ export const useRotationsStore = defineStore('rotations', () => {
     await persist(current => [...current.filter(activity => !snapshot.some(item => item.id === activity.id)), ...snapshot])
   }
 
-  return { activities, ready, saving, hydrate, saveActivity, saveEntry, removeEntry, restore }
+  async function importActivities(snapshot: unknown) {
+    await persist(current => mergeRotationImport(JSON.parse(JSON.stringify(current)), snapshot))
+  }
+
+  return { importActivities, activities, ready, saving, hydrate, saveActivity, saveEntry, removeEntry, restore }
 })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextRotationQueue, rotationBalance, type RotationEntry, type RotationPerson } from '~/utils/rotations'
+import { nextRotationQueue, rotationBalance, rotationQrPages, parseRotationQr, type RotationEntry, type RotationPerson } from '~/utils/rotations'
 
 const { t } = useI18n()
 const store = useRotationsStore()
@@ -23,6 +23,31 @@ const queue = computed(() => active.value ? nextRotationQueue(active.value) : []
 const totalOwed = computed(() => balance.value.reduce((total, person) => total + person.owed, 0))
 const history = computed(() => [...(active.value?.entries ?? [])].reverse().sort((a, b) => b.date.localeCompare(a.date)))
 const personName = (id: string) => active.value?.people.find(person => person.id === id)?.name ?? ''
+
+const scannerOpen = ref(false)
+const exportOpen = ref(false)
+const qrPages = ref<string[]>([])
+const qrPage = ref(0)
+const notice = ref('')
+const transferMenu = computed(() => [
+  { label: t('rotations.importQr'), icon: 'i-heroicons-qr-code', disabled: store.saving, onSelect: () => { scannerOpen.value = true } },
+  ...store.activities.map(activity => ({ label: t('rotations.exportQr', { title: activity.title }), icon: 'i-heroicons-arrow-up-tray', onSelect: () => {
+    try {
+      qrPages.value = rotationQrPages(activity)
+      qrPage.value = 0
+      exportOpen.value = true
+    } catch { error.value = t('rotations.qrTooLarge') }
+  } }))
+])
+async function importQr(raw: string) {
+  error.value = ''
+  notice.value = ''
+  try {
+    await store.importActivities(parseRotationQr(raw))
+    notice.value = t('rotations.importedQr')
+    resetEntry()
+  } catch { error.value = t('rotations.invalidQr') }
+}
 
 function resetEntry() {
   entryId.value = ''
@@ -105,7 +130,21 @@ async function removeEntry(entry: RotationEntry) {
 
 <template>
   <div class="max-w-4xl mx-auto space-y-6">
-    <h1 class="text-2xl font-bold">{{ t('rotations.title') }}</h1>
+    <div class="flex items-center justify-between gap-3">
+      <h1 class="text-2xl font-bold">{{ t('rotations.title') }}</h1>
+      <UDropdownMenu v-if="store.ready" :items="transferMenu">
+        <UButton icon="i-heroicons-ellipsis-vertical" color="neutral" variant="ghost" :aria-label="t('rotations.transfer')" />
+      </UDropdownMenu>
+    </div>
+    <UAlert v-if="notice" :title="notice" color="success" role="status" />
+    <QrScannerModal v-model:open="scannerOpen" :title="t('rotations.importQr')" :description="t('rotations.qrHelp')" @detected="importQr" />
+    <QrCodeModal v-model:open="exportOpen" :data="qrPages[qrPage] || ''" :title="t('rotations.transfer')" :description="t('rotations.qrHelp')">
+      <template #actions>
+        <UButton :disabled="qrPage === 0" :aria-label="t('rotations.previousQr')" @click="qrPage--">←</UButton>
+        <span>{{ qrPage + 1 }} / {{ qrPages.length }}</span>
+        <UButton :disabled="qrPage >= qrPages.length - 1" :aria-label="t('rotations.nextQr')" @click="qrPage++">→</UButton>
+      </template>
+    </QrCodeModal>
     <p>{{ t('rotations.description') }}</p>
     <UAlert v-if="error" :title="error" color="error" role="alert" />
     <UButton v-if="!store.ready" @click="load">{{ t('rotations.retry') }}</UButton>

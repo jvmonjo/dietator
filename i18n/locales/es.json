@@ -389,7 +389,8 @@
       "expenses": "Gastos",
       "settings": "Configuración",
       "help": "Ayuda",
-      "theme": "Tema"
+      "theme": "Tema",
+      "more": "Más opciones"
     },
     "calendar": {
       "title": "Calendario",
@@ -842,6 +843,15 @@
     "openDetails": "Ver detalles de {activity}",
     "nextTurn": "Próximo turno",
     "cardPeople": "Personas: {count}",
-    "cardEntries": "Asignaciones: {count}"
+    "cardEntries": "Asignaciones: {count}",
+    "transfer": "Importar / exportar QR",
+    "importQr": "Importar QR",
+    "exportQr": "Exportar QR: {title}",
+    "qrHelp": "Escanea todos los QR para importar el historial completo. Volver a escanearlos no duplica entradas; se conservan los datos locales.",
+    "importedQr": "QR importado sin duplicados.",
+    "invalidQr": "No se pudo importar el QR. Formato inválido o participantes en conflicto.",
+    "qrTooLarge": "Los datos son demasiado grandes para un QR.",
+    "previousQr": "QR anterior",
+    "nextQr": "QR siguiente"
   }
 }

@@ -39,6 +39,11 @@ const links = computed(() => [
     to: '/help'
   }
 ])
+const mobileMenu = computed(() => [
+  { label: t('components.header.settings'), icon: 'i-heroicons-cog-6-tooth', to: '/settings' },
+  { label: t('components.header.help'), icon: 'i-heroicons-question-mark-circle', to: '/help' },
+  { label: t('components.header.theme'), icon: isDark.value ? 'i-heroicons-moon' : 'i-heroicons-sun', onSelect: () => { isDark.value = !isDark.value } }
+])
 </script>
 
 <template>
@@ -69,6 +74,7 @@ const links = computed(() => [
       <div class="flex items-center gap-4">
         <ClientOnly>
           <UButton
+            class="hidden md:inline-flex"
             :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
             color="neutral"
             variant="ghost"
@@ -77,6 +83,9 @@ const links = computed(() => [
             @click="isDark = !isDark"
           />
         </ClientOnly>
+        <UDropdownMenu :items="mobileMenu" class="md:hidden">
+          <UButton icon="i-heroicons-ellipsis-vertical" color="neutral" variant="ghost" :aria-label="t('components.header.more')" />
+        </UDropdownMenu>
         <!-- <UAvatar
           src="https://avatars.githubusercontent.com/u/739984?v=4"
           alt="Avatar"

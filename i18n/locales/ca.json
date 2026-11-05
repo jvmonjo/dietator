@@ -387,7 +387,8 @@
       "expenses": "Despeses",
       "settings": "Configuració",
       "help": "Ajuda",
-      "theme": "Tema"
+      "theme": "Tema",
+      "more": "Més opcions"
     },
     "calendar": {
       "title": "Calendari",
@@ -840,6 +841,15 @@
     "openDetails": "Veure detalls de {activity}",
     "nextTurn": "Pròxim torn",
     "cardPeople": "Persones: {count}",
-    "cardEntries": "Assignacions: {count}"
+    "cardEntries": "Assignacions: {count}",
+    "transfer": "Importar / exportar QR",
+    "importQr": "Importar QR",
+    "exportQr": "Exportar QR: {title}",
+    "qrHelp": "Escaneja tots els QR per importar l’historial complet. Tornar-los a escanejar no duplica entrades; les dades locals es conserven.",
+    "importedQr": "QR importat sense duplicats.",
+    "invalidQr": "No s’ha pogut importar el QR. Format invàlid o participants en conflicte.",
+    "qrTooLarge": "Les dades són massa grans per a un QR.",
+    "previousQr": "QR anterior",
+    "nextQr": "QR següent"
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nextRotationQueue, rotationBalance, validateRotations, type RotationActivity } from '../../app/utils/rotations'
+import { mergeRotationImport, parseRotationQr, rotationQrPages, nextRotationQueue, rotationBalance, validateRotations, type RotationActivity } from '../../app/utils/rotations'
 
 function activity(counts: number[]): RotationActivity {
   const people = counts.map((_, index) => ({ id: String(index), name: ['Anna', 'Bernat', 'Carme'][index]! }))
@@ -62,4 +62,36 @@ describe('fair rotation balance', () => {
     expect(() => validateRotations([{ ...data, entries: [{ ...entry, comments: 42 }] }])).toThrow('invalidRotation')
   })
 
+})
+
+describe('rotation QR sharing', () => {
+  it('round trips multiple QR pages and rescans without losing repeated turns', () => {
+    const source = activity([40, 20])
+    const pages = rotationQrPages(source)
+    expect(pages.length).toBeGreaterThan(1)
+    let result: RotationActivity[] = []
+    for (const page of [...pages, ...pages]) result = mergeRotationImport(result, parseRotationQr(page))
+    expect(result).toEqual([source])
+  })
+
+  it('preserves local edits while adding new history and people', () => {
+    const local = activity([1, 0])
+    const incoming = structuredClone(local)
+    incoming.entries[0]!.comments = 'Old comment'
+    incoming.entries.push({ id: 'new', personId: '1', date: '2026-02-01' })
+    const result = mergeRotationImport([local], [incoming])
+    expect(result[0]!.entries).toHaveLength(2)
+    expect(result[0]!.entries[0]!.comments).toBeUndefined()
+    expect(local.entries).toHaveLength(1)
+  })
+
+  it('rejects unrelated QR formats, invalid data and ambiguous participants', () => {
+    expect(() => parseRotationQr('{"type":"expenses","version":1}')).toThrow()
+    expect(() => parseRotationQr('{"type":"dietator-rotations","version":1,"activities":[{}]}')).toThrow()
+    const local = activity([1, 0])
+    const incoming = activity([1, 0])
+    incoming.people[0]!.id = 'different'
+    incoming.entries[0]!.personId = 'different'
+    expect(() => mergeRotationImport([local], [incoming])).toThrow()
+  })
 })

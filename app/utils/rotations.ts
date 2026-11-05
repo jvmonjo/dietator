@@ -59,3 +59,52 @@ export function nextRotationQueue(activity: RotationActivity, limit = 12): Rotat
   }
   return queue
 }
+
+// QR imports are additive: stable IDs prevent rescans from duplicating turns.
+// Local records win conflicts, so an older shared QR cannot undo an edit.
+export function mergeRotationImport(current: RotationActivity[], incoming: unknown): RotationActivity[] {
+  validateRotations(incoming)
+  const result: RotationActivity[] = structuredClone(current)
+  for (const activity of incoming) {
+    const local = result.find(item => item.id === activity.id)
+    if (!local) { result.push(structuredClone(activity)); continue }
+    for (const person of activity.people) {
+      const existing = local.people.find(item => item.id === person.id)
+      if (existing) continue
+      // Different IDs with the same name are ambiguous; do not silently remap history.
+      if (local.people.some(item => item.name.trim().toLocaleLowerCase() === person.name.trim().toLocaleLowerCase())) fail()
+      local.people.push({ ...person })
+    }
+    for (const entry of activity.entries) {
+      if (!local.entries.some(item => item.id === entry.id)) local.entries.push({ ...entry })
+    }
+  }
+  validateRotations(result)
+  return result
+}
+
+export function rotationQrPages(activity: RotationActivity): string[] {
+  validateRotations([activity])
+  const pages: string[] = []
+  const payload = (entries: RotationEntry[]) => JSON.stringify({ type: 'dietator-rotations', version: 1, activities: [{ ...activity, entries }] })
+  let entries: RotationEntry[] = []
+  for (const entry of activity.entries) {
+    if (new TextEncoder().encode(payload([...entries, entry])).length > 2000) {
+      if (!entries.length) fail()
+      pages.push(payload(entries))
+      entries = []
+    }
+    entries.push(entry)
+  }
+  const last = payload(entries)
+  if (new TextEncoder().encode(last).length > 2000) fail()
+  pages.push(last)
+  return pages
+}
+
+export function parseRotationQr(raw: string): RotationActivity[] {
+  const value = JSON.parse(raw)
+  if (value?.type !== 'dietator-rotations' || value.version !== 1) fail()
+  validateRotations(value.activities)
+  return value.activities
+}
