@@ -1,3 +1,10 @@
+# [1.64.0](https://github.com/jvmonjo/dietator/compare/v1.63.0...v1.64.0) (2026-11-05)
+
+
+### Features
+
+* **rotations:** add idempotent QR sharing and mobile overflow menu ([a173fdb](https://github.com/jvmonjo/dietator/commit/a173fdb76b99d861321ed9ba00d8258c51189019))
+
 # [1.63.0](https://github.com/jvmonjo/dietator/compare/v1.62.0...v1.63.0) (2026-11-03)
 
 
