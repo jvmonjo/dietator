@@ -1,3 +1,10 @@
+## [1.64.1](https://github.com/jvmonjo/dietator/compare/v1.64.0...v1.64.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **calendar:** avoid forced Google consent on reload; persist scopes and account hint ([b2fbac0](https://github.com/jvmonjo/dietator/commit/b2fbac0575873eb89532ef664b7becb891346cd4))
+
 # [1.64.0](https://github.com/jvmonjo/dietator/compare/v1.63.0...v1.64.0) (2026-11-05)
 
 
