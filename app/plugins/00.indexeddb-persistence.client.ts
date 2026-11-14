@@ -47,6 +47,8 @@ export default defineNuxtPlugin(async () => {
             externalCalendarStore.refreshToken = externalCalendar.refreshToken ?? null
             externalCalendarStore.accessToken = externalCalendar.accessToken ?? null
             externalCalendarStore.tokenExpiresAt = externalCalendar.tokenExpiresAt ?? null
+            externalCalendarStore.grantedScopes = externalCalendar.grantedScopes ?? []
+            externalCalendarStore.accountHint = externalCalendar.accountHint ?? null
             externalCalendarStore.isLoading = false
             externalCalendarStore.abortController = null
         }
@@ -73,7 +75,9 @@ export default defineNuxtPlugin(async () => {
             lastSync: externalCalendarStore.lastSync,
             refreshToken: externalCalendarStore.refreshToken,
             accessToken: externalCalendarStore.accessToken,
-            tokenExpiresAt: externalCalendarStore.tokenExpiresAt
+            tokenExpiresAt: externalCalendarStore.tokenExpiresAt,
+            grantedScopes: externalCalendarStore.grantedScopes,
+            accountHint: externalCalendarStore.accountHint
         }), snapshot => {
             void setExternalCalendar(snapshot)
         }, { deep: true })

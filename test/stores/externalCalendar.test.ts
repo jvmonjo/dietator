@@ -67,4 +67,42 @@ describe('incremental Google Calendar permissions', () => {
     expect(client).toHaveBeenCalledTimes(1)
   })
 
+  it('does not force the consent screen after a reload when read access was already granted', async () => {
+    const client = mockGoogle([[CALENDAR_READ_SCOPE]])
+    const store = useExternalCalendarStore()
+    // State as restored from IndexedDB: expired token, scopes persisted.
+    store.grantedScopes = [CALENDAR_READ_SCOPE]
+    store.accessToken = 'old'
+    store.tokenExpiresAt = Date.now() - 1000
+    expect(await store.ensureAccessToken()).toBe('test-token')
+    expect(client.mock.calls[0]?.[0].prompt).toBe('')
+  })
+
+  it('treats previously synced state without persisted scopes as read-granted', async () => {
+    const client = mockGoogle([[CALENDAR_READ_SCOPE]])
+    const store = useExternalCalendarStore()
+    store.lastSync = Date.now()
+    await store.ensureAccessToken()
+    expect(client.mock.calls[0]?.[0].prompt).toBe('')
+  })
+
+  it('passes the stored account hint to Google and omits it when unknown', async () => {
+    const client = mockGoogle([[CALENDAR_READ_SCOPE], [CALENDAR_READ_SCOPE]])
+    const store = useExternalCalendarStore()
+    await store.ensureAccessToken('consent')
+    expect(client.mock.calls[0]?.[0]).not.toHaveProperty('login_hint')
+    store.accountHint = 'user@example.test'
+    await store.ensureAccessToken('consent')
+    expect(client.mock.calls[1]?.[0].login_hint).toBe('user@example.test')
+  })
+
+  it('learns the account hint from the primary calendar and clears it on disconnect', async () => {
+    mockGoogle([])
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ items: [{ id: 'user@example.test', summary: 'Me', primary: true }, { id: 'x@group.calendar.google.com', summary: 'Other' }] }))))
+    const store = useExternalCalendarStore()
+    await store.fetchCalendars('t')
+    expect(store.accountHint).toBe('user@example.test')
+    store.disconnect()
+    expect(store.accountHint).toBeNull()
+  })
 })

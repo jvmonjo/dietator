@@ -31,6 +31,8 @@ export interface ExternalCalendarPersistenceSnapshot {
     refreshToken?: string | null
     accessToken?: string | null
     tokenExpiresAt?: number | null
+    grantedScopes?: string[]
+    accountHint?: string | null
 }
 
 export interface AppDatabaseState {
