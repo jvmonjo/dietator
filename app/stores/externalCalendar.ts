@@ -30,6 +30,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
     const abortController = ref<AbortController | null>(null)
 
     const grantedScopes = ref<string[]>([])
+    // Non-secret account hint (primary calendar id) so Google can skip account selection.
+    const accountHint = ref<string | null>(null)
 
     // Composables
     const toast = useToast()
@@ -95,8 +97,9 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         }
 
         // Legacy backups may contain a read-only refresh token, never assume write access.
+        // A previous successful read sync (or legacy refresh token) also proves read access, e.g. state saved before scopes were persisted.
         const hasScopes = scopes.every(scope => grantedScopes.value.includes(scope)
-            || (scope === CALENDAR_READ_SCOPE && !!refreshToken.value))
+            || (scope === CALENDAR_READ_SCOPE && (!!refreshToken.value || !!lastSync.value)))
         if (!hasScopes) prompt = 'consent'
         const now = Date.now()
         const isTokenFresh = accessToken.value && tokenExpiresAt.value && (tokenExpiresAt.value - 60_000) > now
@@ -130,6 +133,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
                         client_id: clientId,
                         scope: scopes.join(' '),
                         include_granted_scopes: true,
+                        ...(accountHint.value ? { login_hint: accountHint.value } : {}),
                         prompt,
                         error_callback: (error: { message?: string }) => {
                             signal?.removeEventListener('abort', abortHandler)
@@ -197,6 +201,8 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
             if (!response.ok) throw new Error('Failed to fetch calendars')
 
             const data = await response.json()
+            const primary = data.items.find((item: { primary?: boolean, id?: string }) => item.primary && item.id?.includes('@'))
+            if (primary) accountHint.value = primary.id
             calendars.value = data.items.map((item: { id: string, summaryOverride?: string, summary: string }) => ({
                 id: item.id,
                 summary: item.summaryOverride || item.summary
@@ -314,7 +320,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         }, 30000)
 
         try {
-            const token = await ensureAccessToken(accessToken.value ? '' : 'consent', signal)
+            const token = await ensureAccessToken('', signal)
             if (!token) return
 
             if (signal.aborted) return
@@ -388,6 +394,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         accessToken.value = null
         tokenExpiresAt.value = null
         grantedScopes.value = []
+        accountHint.value = null
         refreshToken.value = null
         // Reset selected calendar preference
         settings.googleCalendarId = ''
@@ -415,6 +422,7 @@ export const useExternalCalendarStore = defineStore('externalCalendar', () => {
         accessToken,
         tokenExpiresAt,
         grantedScopes,
+        accountHint,
         refreshToken,
         abortController,
 
